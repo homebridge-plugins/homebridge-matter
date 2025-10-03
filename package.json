@@ -1,0 +1,45 @@
+{
+  "name": "@homebridge-plugins/homebridge-matter",
+  "displayName": "Homebridge Matter",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "A short description about what your plugin does.",
+  "author": "Your Name",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/@homebridge-plugins/homebridge-matter#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/@homebridge-plugins/homebridge-matter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/@homebridge-plugins/homebridge-matter/issues"
+  },
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "main": "dist/index.js",
+  "engines": {
+    "node": "^20.18.0 || ^22.10.0 || ^24.0.0",
+    "homebridge": "^2.0.0-alpha.0"
+  },
+  "scripts": {
+    "build": "rimraf ./dist && tsc",
+    "lint": "eslint . --max-warnings=0",
+    "prepublishOnly": "npm run lint && npm run build",
+    "watch": "npm run build && npm link && nodemon"
+  },
+  "dependencies": {
+    "homebridge-lib": "^7.1.9"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@types/node": "^24.7.0",
+    "eslint": "^9.37.0",
+    "homebridge": "2.0.0-alpha.43",
+    "nodemon": "^3.1.10",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
+  }
+}

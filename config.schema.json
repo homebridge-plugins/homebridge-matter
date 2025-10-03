@@ -1,0 +1,18 @@
+{
+  "pluginAlias": "Matter",
+  "pluginType": "platform",
+  "singular": true,
+  "strictValidation": false,
+  "schema": {
+    "type": "object",
+    "required": ["name"],
+    "additionalProperties": false,
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "default": "Example Dynamic Platform"
+      }
+    }
+  }
+}
