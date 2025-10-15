@@ -1,4 +1,4 @@
-import type { API, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig } from 'homebridge';
+import type { API, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig } from 'homebridge'
 
 /**
  * MatterPlatform
@@ -6,26 +6,26 @@ import type { API, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformCo
  */
 export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
   // Track restored cached accessories (required for DynamicPlatformPlugin)
-  public readonly accessories: Map<string, PlatformAccessory> = new Map();
+  public readonly accessories: Map<string, PlatformAccessory> = new Map()
 
   constructor(
     public readonly log: Logging,
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
-    this.log.debug('Finished initializing platform:', this.config.name);
+    this.log.debug('Finished initializing platform:', this.config.name)
 
     // Check if the user has matter enabled
     if (!this.api.isMatterEnabled?.()) {
-      this.log.warn('Matter is not enabled in Homebridge. Please enable Matter in the Homebridge settings to use this plugin.');
-      return;
+      this.log.warn('Matter is not enabled in Homebridge. Please enable Matter in the Homebridge settings to use this plugin.')
+      return
     }
 
     // Register Matter accessories when Homebridge has finished launching
     this.api.on('didFinishLaunching', () => {
-      this.log.debug('Executed didFinishLaunching callback');
-      this.registerMatterAccessories();
-    });
+      this.log.debug('Executed didFinishLaunching callback')
+      this.registerMatterAccessories()
+    })
   }
 
   /**
@@ -33,32 +33,41 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
    * Called when homebridge restores cached accessories from disk at startup
    */
   configureAccessory(accessory: PlatformAccessory) {
-    this.log.info('Loading accessory from cache:', accessory.displayName);
-    this.accessories.set(accessory.UUID, accessory);
+    this.log.info('Loading accessory from cache:', accessory.displayName)
+    this.accessories.set(accessory.UUID, accessory)
   }
 
   /**
    * Register all Matter accessory examples
    */
   private registerMatterAccessories() {
-    this.log.info('Registering Matter accessories...');
+    this.log.info('Registering Matter accessories...')
 
     // Register each device type
-    this.registerLightingDevices();
+    this.registerLightingDevices()
     // this.registerSwitchesAndOutlets();
     // this.registerSensors();
     // this.registerHVAC();
     // this.registerSecurity();
     // this.registerOtherDevices();
 
-    this.log.info('Finished registering Matter accessories');
+    this.log.info('Finished registering Matter accessories')
   }
 
   /**
    * Lighting Devices
    */
   private registerLightingDevices() {
-    // 1. On/Off Light
+    // Track state for both lights
+    // eslint-disable-next-line unused-imports/no-unused-vars
+    let onOffLightState = false
+
+    // eslint-disable-next-line unused-imports/no-unused-vars
+    let dimmableLightOn = false
+    let dimmableBrightness = 127 // 50% brightness (1-254 scale)
+
+    // 1. On/Off Light - WITH STATE MANAGEMENT EXAMPLE
+    // When this light changes, it will update the dimmable light's state
     this.api.registerMatterAccessory({
       uuid: 'matter-onoff-light',
       displayName: 'On/Off Light',
@@ -66,26 +75,83 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       serialNumber: 'LIGHT-001',
       manufacturer: 'Matter Examples',
       model: 'OnOffLight v1',
+      clusters: {},
 
-      clusters: {
-        onOff: {
-          onOff: false,
-        },
-      },
+      // clusters: {
+      //   onOff: {
+      //     onOff: onOffLightState,
+      //   },
+      // },
 
+      // PATTERN 1: Handlers (Home app → Device)
+      // These execute when user controls via Home app
       handlers: {
         onOff: {
           on: async () => {
-            this.log.info('[On/Off Light] Turned ON');
+            this.log.info('[On/Off Light] ✓ Turned ON via Home app handler')
+
+            // Update local state
+            onOffLightState = true
+
+            // NOTE: This light's state automatically updates after handler completes!
+
+            // ═══════════════════════════════════════════════════════════════
+            // PATTERN 3: Reading Current State (api.getAccessoryState)
+            // ═══════════════════════════════════════════════════════════════
+            // You can read current state using the API (useful after plugin restarts)
+            const onOffState = this.api.getAccessoryState('matter-dimmable-light', 'onOff')
+            const levelState = this.api.getAccessoryState('matter-dimmable-light', 'levelControl')
+
+            this.log.error(`[On/Off Light] 📖 Reading Dimmable Light on/off via API: ${onOffState?.onOff ? 'ON' : 'OFF'}`)
+            this.log.error(`[On/Off Light] 📖 Reading Dimmable Light brightness via API: ${levelState?.currentLevel} (${Math.round((levelState?.currentLevel as number || 0) / 254 * 100)}%)`)
+
+            // Note: You can also track state in local variables (same as HAP pattern)
+            this.log.error(`[On/Off Light] 📖 Reading from local variable: ${dimmableBrightness} (${Math.round(dimmableBrightness / 254 * 100)}%)`)
+
+            // ═══════════════════════════════════════════════════════════════
+            // PATTERN 2 DEMONSTRATION: Update Dimmable Light WITHOUT handler
+            // ═══════════════════════════════════════════════════════════════
+            // Simulating: Dimmable light state changed externally (like via native app)
+            // This will update the Home app WITHOUT triggering the dimmable light's handler
+            // Note: Homebridge automatically defers the update to avoid transaction conflicts
+            this.log.info('[On/Off Light] → Updating Dimmable Light state using updateMatterAccessoryState (no handler!)')
+
+            dimmableLightOn = true
+            this.api.updateMatterAccessoryState('matter-dimmable-light', 'onOff', {
+              onOff: true,
+            })
+
+            this.log.info('[On/Off Light] ✓ Dimmable Light state updated (handler was NOT called)')
           },
           off: async () => {
-            this.log.info('[On/Off Light] Turned OFF');
+            this.log.info('[On/Off Light] ✓ Turned OFF via Home app handler')
+
+            // Update local state
+            onOffLightState = false
+
+            // Reading current state using the API
+            const onOffState = this.api.getAccessoryState('matter-dimmable-light', 'onOff')
+            const levelState = this.api.getAccessoryState('matter-dimmable-light', 'levelControl')
+
+            this.log.error(`[On/Off Light] 📖 Reading Dimmable Light on/off via API: ${onOffState?.onOff ? 'ON' : 'OFF'}`)
+            this.log.error(`[On/Off Light] 📖 Reading Dimmable Light brightness via API: ${levelState?.currentLevel} (${Math.round((levelState?.currentLevel as number || 0) / 254 * 100)}%)`)
+
+            // Update Dimmable Light WITHOUT triggering its handler
+            this.log.info('[On/Off Light] → Updating Dimmable Light state using updateMatterAccessoryState (no handler!)')
+
+            dimmableLightOn = false
+            this.api.updateMatterAccessoryState('matter-dimmable-light', 'onOff', {
+              onOff: false,
+            })
+
+            this.log.info('[On/Off Light] ✓ Dimmable Light state updated (handler was NOT called)')
           },
         },
       },
-    });
+    })
 
-    // 2. Dimmable Light
+    // 2. Dimmable Light - Will be updated by On/Off Light
+    // This demonstrates receiving state updates WITHOUT handler execution
     this.api.registerMatterAccessory({
       uuid: 'matter-dimmable-light',
       displayName: 'Dimmable Light',
@@ -94,33 +160,39 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       manufacturer: 'Matter Examples',
       model: 'DimmableLight v1',
 
-      clusters: {
-        onOff: {
-          onOff: false,
-        },
-        levelControl: {
-          currentLevel: 127, // 50% brightness (1-254 scale)
-          minLevel: 1,
-          maxLevel: 254,
-        },
-      },
+      clusters: {},
 
+      //   onOff: {
+      //     onOff: dimmableLightOn,
+      //   },
+      //   levelControl: {
+      //     currentLevel: dimmableBrightness,
+      //     minLevel: 1,
+      //     maxLevel: 254,
+      //   },
+      // },
+
+      // These handlers will NOT be called when On/Off Light updates this accessory's state
       handlers: {
         onOff: {
           on: async () => {
-            this.log.info('[Dimmable Light] Turned ON');
+            this.log.info('[Dimmable Light] ✓ Handler ON called (user controlled via Home app)')
+            dimmableLightOn = true
           },
           off: async () => {
-            this.log.info('[Dimmable Light] Turned OFF');
+            this.log.info('[Dimmable Light] ✓ Handler OFF called (user controlled via Home app)')
+            dimmableLightOn = false
           },
         },
         levelControl: {
           moveToLevel: async (args: any) => {
-            this.log.info(`[Dimmable Light] Brightness changed to ${args.level} (${Math.round(args.level / 254 * 100)}%)`);
+            this.log.info(`[Dimmable Light] ✓ Handler moveToLevel called with ${args.level} (${Math.round(args.level / 254 * 100)}%)`)
+            dimmableBrightness = args.level
           },
         },
       },
-    });
+    })
+
     //
     // // 3. Color Temperature Light
     // this.api.registerMatterAccessory({
@@ -248,14 +320,14 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       handlers: {
         onOff: {
           on: async () => {
-            this.log.info('[Switch] Turned ON');
+            this.log.info('[Switch] Turned ON')
           },
           off: async () => {
-            this.log.info('[Switch] Turned OFF');
+            this.log.info('[Switch] Turned OFF')
           },
         },
       },
-    });
+    })
 
     // 6. On/Off Outlet
     this.api.registerMatterAccessory({
@@ -275,14 +347,14 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       handlers: {
         onOff: {
           on: async () => {
-            this.log.info('[Outlet] Turned ON');
+            this.log.info('[Outlet] Turned ON')
           },
           off: async () => {
-            this.log.info('[Outlet] Turned OFF');
+            this.log.info('[Outlet] Turned OFF')
           },
         },
       },
-    });
+    })
 
     // 7. Dimmable Outlet
     this.api.registerMatterAccessory({
@@ -307,19 +379,19 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       handlers: {
         onOff: {
           on: async () => {
-            this.log.info('[Dimmable Outlet] Turned ON');
+            this.log.info('[Dimmable Outlet] Turned ON')
           },
           off: async () => {
-            this.log.info('[Dimmable Outlet] Turned OFF');
+            this.log.info('[Dimmable Outlet] Turned OFF')
           },
         },
         levelControl: {
           moveToLevel: async (args: any) => {
-            this.log.info(`[Dimmable Outlet] Level changed to ${args.level}`);
+            this.log.info(`[Dimmable Outlet] Level changed to ${args.level}`)
           },
         },
       },
-    });
+    })
   }
 
   /**
@@ -342,7 +414,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
           maxMeasuredValue: 10000, // 100°C
         },
       },
-    });
+    })
 
     // 9. Humidity Sensor
     this.api.registerMatterAccessory({
@@ -360,7 +432,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
           maxMeasuredValue: 10000, // 100%
         },
       },
-    });
+    })
 
     // 10. Light Sensor
     this.api.registerMatterAccessory({
@@ -378,7 +450,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
           maxMeasuredValue: 65535,
         },
       },
-    });
+    })
 
     // 11. Motion Sensor
     this.api.registerMatterAccessory({
@@ -395,7 +467,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
           occupancySensorType: 0, // PIR sensor
         },
       },
-    });
+    })
 
     // 12. Contact Sensor
     this.api.registerMatterAccessory({
@@ -411,7 +483,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
           stateValue: false, // false = contact, true = no contact
         },
       },
-    });
+    })
 
     // 13. Leak Sensor
     this.api.registerMatterAccessory({
@@ -427,7 +499,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
           stateValue: false, // false = no leak, true = leak detected
         },
       },
-    });
+    })
 
     // 14. Smoke Sensor
     this.api.registerMatterAccessory({
@@ -445,7 +517,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
           batteryAlert: 0, // 0 = normal, 1 = warning, 2 = critical
         },
       },
-    });
+    })
   }
 
   /**
@@ -474,11 +546,11 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       handlers: {
         thermostat: {
           setpointRaiseLower: async (args: any) => {
-            this.log.info(`[Thermostat] Setpoint changed by ${args.amount / 10}°C`);
+            this.log.info(`[Thermostat] Setpoint changed by ${args.amount / 10}°C`)
           },
         },
       },
-    });
+    })
 
     // 16. Fan
     this.api.registerMatterAccessory({
@@ -500,11 +572,11 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       handlers: {
         fanControl: {
           step: async (args: any) => {
-            this.log.info(`[Fan] Step ${args.direction === 0 ? 'increase' : 'decrease'}`);
+            this.log.info(`[Fan] Step ${args.direction === 0 ? 'increase' : 'decrease'}`)
           },
         },
       },
-    });
+    })
   }
 
   /**
@@ -531,14 +603,14 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       handlers: {
         doorLock: {
           lockDoor: async () => {
-            this.log.info('[Door Lock] Locked');
+            this.log.info('[Door Lock] Locked')
           },
           unlockDoor: async () => {
-            this.log.info('[Door Lock] Unlocked');
+            this.log.info('[Door Lock] Unlocked')
           },
         },
       },
-    });
+    })
   }
 
   /**
@@ -566,20 +638,20 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       handlers: {
         windowCovering: {
           upOrOpen: async () => {
-            this.log.info('[Window Covering] Opening');
+            this.log.info('[Window Covering] Opening')
           },
           downOrClose: async () => {
-            this.log.info('[Window Covering] Closing');
+            this.log.info('[Window Covering] Closing')
           },
           stopMotion: async () => {
-            this.log.info('[Window Covering] Stopped');
+            this.log.info('[Window Covering] Stopped')
           },
           goToLiftPercentage: async (args: any) => {
-            this.log.info(`[Window Covering] Moving to ${args.liftPercent100thsValue / 100}%`);
+            this.log.info(`[Window Covering] Moving to ${args.liftPercent100thsValue / 100}%`)
           },
         },
       },
-    });
+    })
 
     // 19. Generic Switch
     this.api.registerMatterAccessory({
@@ -596,7 +668,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
           currentPosition: 0,
         },
       },
-    });
+    })
 
     // 20. Pump
     this.api.registerMatterAccessory({
@@ -620,14 +692,14 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       handlers: {
         onOff: {
           on: async () => {
-            this.log.info('[Pump] Turned ON');
+            this.log.info('[Pump] Turned ON')
           },
           off: async () => {
-            this.log.info('[Pump] Turned OFF');
+            this.log.info('[Pump] Turned OFF')
           },
         },
       },
-    });
+    })
 
     // 21. Room Air Conditioner
     this.api.registerMatterAccessory({
@@ -658,23 +730,23 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       handlers: {
         onOff: {
           on: async () => {
-            this.log.info('[Air Conditioner] Turned ON');
+            this.log.info('[Air Conditioner] Turned ON')
           },
           off: async () => {
-            this.log.info('[Air Conditioner] Turned OFF');
+            this.log.info('[Air Conditioner] Turned OFF')
           },
         },
         thermostat: {
           setpointRaiseLower: async (args: any) => {
-            this.log.info(`[Air Conditioner] Temperature setpoint changed by ${args.amount / 10}°C`);
+            this.log.info(`[Air Conditioner] Temperature setpoint changed by ${args.amount / 10}°C`)
           },
         },
         fanControl: {
           step: async (args: any) => {
-            this.log.info(`[Air Conditioner] Fan step ${args.direction === 0 ? 'increase' : 'decrease'}`);
+            this.log.info(`[Air Conditioner] Fan step ${args.direction === 0 ? 'increase' : 'decrease'}`)
           },
         },
       },
-    });
+    })
   }
 }

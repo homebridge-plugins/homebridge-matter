@@ -134,3 +134,4 @@ web_modules/
 .pnp.*
 
 test/
+.idea

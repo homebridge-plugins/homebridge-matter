@@ -1,36 +1,48 @@
-import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
+import { antfu } from '@antfu/eslint-config'
 
-export default tseslint.config(
+/** @type {typeof antfu} */
+export default antfu(
   {
-    ignores: ['dist/**'],
-  },
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
-  {
-    languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module',
-    },
-  },
-  {
+    ignores: ['README.md'],
+    jsx: false,
     rules: {
+      'curly': ['error', 'multi-line'],
+      'new-cap': 'off',
+      'jsdoc/check-alignment': 'warn',
+      'jsdoc/check-line-alignment': 'warn',
+      'jsdoc/require-returns-check': 0,
+      'jsdoc/require-returns-description': 0,
+      'no-undef': 'error',
+      'perfectionist/sort-exports': 'error',
+      'perfectionist/sort-imports': [
+        'error',
+        {
+          groups: [
+            'type',
+            'internal-type',
+            'builtin',
+            'external',
+            'internal',
+            ['parent-type', 'sibling-type', 'index-type'],
+            ['parent', 'sibling', 'index'],
+            'object',
+            'unknown',
+          ],
+          order: 'asc',
+          type: 'natural',
+          newlinesBetween: 'always',
+        },
+      ],
+      'perfectionist/sort-named-exports': 'error',
+      'perfectionist/sort-named-imports': 'error',
       'quotes': ['error', 'single'],
-      'indent': ['error', 2, { 'SwitchCase': 0 }],
-      'linebreak-style': ['error', 'unix'],
-      'semi': ['error', 'always'],
-      'comma-dangle': ['error', 'always-multiline'],
-      'dot-notation': 'error',
-      'eqeqeq': ['error', 'smart'],
-      'curly': ['error', 'all'],
-      'brace-style': ['error'],
-      'prefer-arrow-callback': 'warn',
-      'max-len': ['warn', 160],
-      'object-curly-spacing': ['error', 'always'],
-      'no-use-before-define': 'off',
-      '@typescript-eslint/no-use-before-define': ['error', { 'classes': false, 'enums': false }],
-      '@typescript-eslint/no-unused-vars': ['error', { 'caughtErrors': 'none' }],
-      '@typescript-eslint/no-explicit-any': 'off',
+      'sort-imports': 0,
+      'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
+      'style/quote-props': ['error', 'consistent-as-needed'],
+      'test/no-only-tests': 'error',
+      'unicorn/no-useless-spread': 'error',
+      'unused-imports/no-unused-vars': ['error', { caughtErrors: 'none' }],
     },
+    typescript: true,
   },
-);
+)
