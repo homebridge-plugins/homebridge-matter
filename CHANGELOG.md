@@ -2,6 +2,17 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.0.3 (Unreleased)
+
+### Changes
+
+- added more examples for lights, examples provided:
+  - light on/off
+  - light + brightness
+  - light + brightness + color
+  - light + brightness + color temperature
+  - light + brightness + color temperature + color
+
 ## v0.0.2 (2025-10-15)
 
 ### Changes

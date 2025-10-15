@@ -1,4 +1,11 @@
-import type { API, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig } from 'homebridge'
+import type {
+  API,
+  DynamicPlatformPlugin,
+  Logging,
+  MatterRequests,
+  PlatformAccessory,
+  PlatformConfig,
+} from 'homebridge'
 
 /**
  * MatterPlatform
@@ -32,9 +39,8 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
    * Required for DynamicPlatformPlugin
    * Called when homebridge restores cached accessories from disk at startup
    */
-  configureAccessory(accessory: PlatformAccessory) {
-    this.log.info('Loading accessory from cache:', accessory.displayName)
-    this.accessories.set(accessory.UUID, accessory)
+  configureAccessory(/* accessory: PlatformAccessory */) {
+    // Note this is not used for Matter accessories, as they are registered dynamically
   }
 
   /**
@@ -52,318 +58,77 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
     // this.registerOtherDevices();
 
     this.log.info('Finished registering Matter accessories')
+
+    // You can read current state using the API
+    const onOffState = this.api.matter.getAccessoryState('matter-dimmable-light', this.api.matter.clusterNames.OnOff)
+    if (onOffState) {
+      this.log.info(`[On/Off Light] 📖 Reading Dimmable Light on/off via API: ${onOffState.onOff ? 'ON' : 'OFF'}`)
+    }
+
+    const levelState = this.api.matter.getAccessoryState('matter-dimmable-light', this.api.matter.clusterNames.LevelControl)
+    if (levelState) {
+      this.log.info(`[On/Off Light] 📖 Reading Dimmable Light brightness via API: ${levelState.currentLevel} (${Math.round((levelState?.currentLevel || 0) / 254 * 100)}%)`)
+    }
+
+    // // ═══════════════════════════════════════════════════════════════
+    // // PATTERN 2 DEMONSTRATION: Update Dimmable Light WITHOUT handler
+    // // ═══════════════════════════════════════════════════════════════
+    // // Simulating: Dimmable light state changed externally (like via native app)
+    // // This will update the Home app WITHOUT triggering the dimmable light's handler
+    // // Note: Homebridge automatically defers the update to avoid transaction conflicts
+    // this.log.info('[On/Off Light] → Updating Dimmable Light state using updateMatterAccessoryState (no handler!)')
+    //
+    // this.api.matter.updateAccessoryState(uuidLightDimmable, this.api.matter.clusterNames.OnOff, {
+    //   onOff: true,
+    // })
   }
 
   /**
    * Lighting Devices
    */
   private registerLightingDevices() {
-    // Track state for both lights
-    // eslint-disable-next-line unused-imports/no-unused-vars
-    let onOffLightState = false
+    const uuidLightOnOff = this.api.matter.uuid.generate('matter-onoff-light')
+    const uuidLightDimmable = this.api.matter.uuid.generate('matter-dimmable-light')
+    const uuidLightColourTemp = this.api.matter.uuid.generate('matter-colour-temp-light')
+    const uuidLightColour = this.api.matter.uuid.generate('matter-colour-light')
+    const uuidLightExtendedColour = this.api.matter.uuid.generate('matter-extended-colour-light')
 
-    // eslint-disable-next-line unused-imports/no-unused-vars
-    let dimmableLightOn = false
-    let dimmableBrightness = 127 // 50% brightness (1-254 scale)
-
-    // 1. On/Off Light - WITH STATE MANAGEMENT EXAMPLE
-    // When this light changes, it will update the dimmable light's state
-    this.api.registerMatterAccessory({
-      uuid: 'matter-onoff-light',
+    // 1. On/Off Light
+    this.api.matter.registerAccessory({
+      uuid: uuidLightOnOff,
       displayName: 'On/Off Light',
-      deviceType: this.api.matterDeviceTypes.OnOffLight,
+      deviceType: this.api.matter.deviceTypes.OnOffLight,
       serialNumber: 'LIGHT-001',
       manufacturer: 'Matter Examples',
       model: 'OnOffLight v1',
-      clusters: {},
 
-      // clusters: {
-      //   onOff: {
-      //     onOff: onOffLightState,
-      //   },
-      // },
+      clusters: {
+        onOff: {
+          onOff: true,
+        },
+      },
 
-      // PATTERN 1: Handlers (Home app → Device)
-      // These execute when user controls via Home app
+      // These are called when the user controls the accessory via the Home app
       handlers: {
         onOff: {
-          on: async () => {
-            this.log.info('[On/Off Light] ✓ Turned ON via Home app handler')
-
-            // Update local state
-            onOffLightState = true
-
-            // NOTE: This light's state automatically updates after handler completes!
-
-            // ═══════════════════════════════════════════════════════════════
-            // PATTERN 3: Reading Current State (api.getAccessoryState)
-            // ═══════════════════════════════════════════════════════════════
-            // You can read current state using the API (useful after plugin restarts)
-            const onOffState = this.api.getAccessoryState('matter-dimmable-light', 'onOff')
-            const levelState = this.api.getAccessoryState('matter-dimmable-light', 'levelControl')
-
-            this.log.error(`[On/Off Light] 📖 Reading Dimmable Light on/off via API: ${onOffState?.onOff ? 'ON' : 'OFF'}`)
-            this.log.error(`[On/Off Light] 📖 Reading Dimmable Light brightness via API: ${levelState?.currentLevel} (${Math.round((levelState?.currentLevel as number || 0) / 254 * 100)}%)`)
-
-            // Note: You can also track state in local variables (same as HAP pattern)
-            this.log.error(`[On/Off Light] 📖 Reading from local variable: ${dimmableBrightness} (${Math.round(dimmableBrightness / 254 * 100)}%)`)
-
-            // ═══════════════════════════════════════════════════════════════
-            // PATTERN 2 DEMONSTRATION: Update Dimmable Light WITHOUT handler
-            // ═══════════════════════════════════════════════════════════════
-            // Simulating: Dimmable light state changed externally (like via native app)
-            // This will update the Home app WITHOUT triggering the dimmable light's handler
-            // Note: Homebridge automatically defers the update to avoid transaction conflicts
-            this.log.info('[On/Off Light] → Updating Dimmable Light state using updateMatterAccessoryState (no handler!)')
-
-            dimmableLightOn = true
-            this.api.updateMatterAccessoryState('matter-dimmable-light', 'onOff', {
-              onOff: true,
-            })
-
-            this.log.info('[On/Off Light] ✓ Dimmable Light state updated (handler was NOT called)')
+          on: async (/* no args */) => {
+            this.log.info('[On/Off Light] ✓ Handler `on` called (user controlled via Home app)')
           },
-          off: async () => {
-            this.log.info('[On/Off Light] ✓ Turned OFF via Home app handler')
-
-            // Update local state
-            onOffLightState = false
-
-            // Reading current state using the API
-            const onOffState = this.api.getAccessoryState('matter-dimmable-light', 'onOff')
-            const levelState = this.api.getAccessoryState('matter-dimmable-light', 'levelControl')
-
-            this.log.error(`[On/Off Light] 📖 Reading Dimmable Light on/off via API: ${onOffState?.onOff ? 'ON' : 'OFF'}`)
-            this.log.error(`[On/Off Light] 📖 Reading Dimmable Light brightness via API: ${levelState?.currentLevel} (${Math.round((levelState?.currentLevel as number || 0) / 254 * 100)}%)`)
-
-            // Update Dimmable Light WITHOUT triggering its handler
-            this.log.info('[On/Off Light] → Updating Dimmable Light state using updateMatterAccessoryState (no handler!)')
-
-            dimmableLightOn = false
-            this.api.updateMatterAccessoryState('matter-dimmable-light', 'onOff', {
-              onOff: false,
-            })
-
-            this.log.info('[On/Off Light] ✓ Dimmable Light state updated (handler was NOT called)')
+          off: async (/* no args */) => {
+            this.log.info('[On/Off Light] ✓ Handler `off` called (user controlled via Home app)')
           },
         },
       },
     })
 
-    // 2. Dimmable Light - Will be updated by On/Off Light
-    // This demonstrates receiving state updates WITHOUT handler execution
-    this.api.registerMatterAccessory({
-      uuid: 'matter-dimmable-light',
+    // 2. Dimmable Light
+    this.api.matter.registerAccessory({
+      uuid: uuidLightDimmable,
       displayName: 'Dimmable Light',
-      deviceType: this.api.matterDeviceTypes.DimmableLight,
+      deviceType: this.api.matter.deviceTypes.DimmableLight,
       serialNumber: 'LIGHT-002',
       manufacturer: 'Matter Examples',
       model: 'DimmableLight v1',
-
-      clusters: {},
-
-      //   onOff: {
-      //     onOff: dimmableLightOn,
-      //   },
-      //   levelControl: {
-      //     currentLevel: dimmableBrightness,
-      //     minLevel: 1,
-      //     maxLevel: 254,
-      //   },
-      // },
-
-      // These handlers will NOT be called when On/Off Light updates this accessory's state
-      handlers: {
-        onOff: {
-          on: async () => {
-            this.log.info('[Dimmable Light] ✓ Handler ON called (user controlled via Home app)')
-            dimmableLightOn = true
-          },
-          off: async () => {
-            this.log.info('[Dimmable Light] ✓ Handler OFF called (user controlled via Home app)')
-            dimmableLightOn = false
-          },
-        },
-        levelControl: {
-          moveToLevel: async (args: any) => {
-            this.log.info(`[Dimmable Light] ✓ Handler moveToLevel called with ${args.level} (${Math.round(args.level / 254 * 100)}%)`)
-            dimmableBrightness = args.level
-          },
-        },
-      },
-    })
-
-    //
-    // // 3. Color Temperature Light
-    // this.api.registerMatterAccessory({
-    //   uuid: 'matter-color-temp-light',
-    //   displayName: 'Color Temperature Light',
-    //   deviceType: this.api.matterDeviceTypes.ColorTemperatureLight,
-    //   serialNumber: 'LIGHT-003',
-    //   manufacturer: 'Matter Examples',
-    //   model: 'ColorTempLight v1',
-    //
-    //   clusters: {
-    //     onOff: {
-    //       onOff: false,
-    //     },
-    //     levelControl: {
-    //       currentLevel: 127,
-    //       minLevel: 1,
-    //       maxLevel: 254,
-    //     },
-    //     colorControl: {
-    //       colorMode: 2, // Color temperature mode
-    //       colorTemperatureMireds: 250, // ~4000K
-    //       colorTempPhysicalMinMireds: 147, // 6800K
-    //       colorTempPhysicalMaxMireds: 454, // 2200K
-    //     },
-    //   },
-    //
-    //   handlers: {
-    //     onOff: {
-    //       on: async () => {
-    //         this.log.info('[Color Temp Light] Turned ON');
-    //       },
-    //       off: async () => {
-    //         this.log.info('[Color Temp Light] Turned OFF');
-    //       },
-    //     },
-    //     levelControl: {
-    //       moveToLevel: async (args: any) => {
-    //         this.log.info(`[Color Temp Light] Brightness changed to ${args.level}`);
-    //       },
-    //     },
-    //     colorControl: {
-    //       moveToColorTemperature: async (args: any) => {
-    //         const kelvin = Math.round(1000000 / args.colorTemperatureMireds);
-    //         this.log.info(`[Color Temp Light] Color temperature changed to ${args.colorTemperatureMireds} mireds (~${kelvin}K)`);
-    //       },
-    //     },
-    //   },
-    // });
-    //
-    // // 4. Extended Color Light (RGB)
-    // this.api.registerMatterAccessory({
-    //   uuid: 'matter-rgb-light',
-    //   displayName: 'RGB Color Light',
-    //   deviceType: this.api.matterDeviceTypes.ExtendedColorLight,
-    //   serialNumber: 'LIGHT-004',
-    //   manufacturer: 'Matter Examples',
-    //   model: 'RGBLight v1',
-    //
-    //   clusters: {
-    //     onOff: {
-    //       onOff: false,
-    //     },
-    //     levelControl: {
-    //       currentLevel: 127,
-    //       minLevel: 1,
-    //       maxLevel: 254,
-    //     },
-    //     colorControl: {
-    //       colorMode: 1, // Hue/Saturation mode
-    //       currentHue: 0, // Red
-    //       currentSaturation: 254, // Full saturation
-    //       colorCapabilities: 0x0001, // Hue/Saturation support
-    //     },
-    //   },
-    //
-    //   handlers: {
-    //     onOff: {
-    //       on: async () => {
-    //         this.log.info('[RGB Light] Turned ON');
-    //       },
-    //       off: async () => {
-    //         this.log.info('[RGB Light] Turned OFF');
-    //       },
-    //     },
-    //     levelControl: {
-    //       moveToLevel: async (args: any) => {
-    //         this.log.info(`[RGB Light] Brightness changed to ${args.level}`);
-    //       },
-    //     },
-    //     colorControl: {
-    //       moveToHue: async (args: any) => {
-    //         this.log.info(`[RGB Light] Hue changed to ${args.hue}`);
-    //       },
-    //       moveToSaturation: async (args: any) => {
-    //         this.log.info(`[RGB Light] Saturation changed to ${args.saturation}`);
-    //       },
-    //       moveToHueAndSaturation: async (args: any) => {
-    //         this.log.info(`[RGB Light] Color changed to H:${args.hue} S:${args.saturation}`);
-    //       },
-    //     },
-    //   },
-    // });
-  }
-
-  /**
-   * Switches and Outlets
-   */
-  private registerSwitchesAndOutlets() {
-    // 5. On/Off Switch
-    this.api.registerMatterAccessory({
-      uuid: 'matter-switch',
-      displayName: 'On/Off Switch',
-      deviceType: this.api.matterDeviceTypes.OnOffSwitch,
-      serialNumber: 'SWITCH-001',
-      manufacturer: 'Matter Examples',
-      model: 'Switch v1',
-
-      clusters: {
-        onOff: {
-          onOff: false,
-        },
-      },
-
-      handlers: {
-        onOff: {
-          on: async () => {
-            this.log.info('[Switch] Turned ON')
-          },
-          off: async () => {
-            this.log.info('[Switch] Turned OFF')
-          },
-        },
-      },
-    })
-
-    // 6. On/Off Outlet
-    this.api.registerMatterAccessory({
-      uuid: 'matter-outlet',
-      displayName: 'Smart Outlet',
-      deviceType: this.api.matterDeviceTypes.OnOffOutlet,
-      serialNumber: 'OUTLET-001',
-      manufacturer: 'Matter Examples',
-      model: 'Outlet v1',
-
-      clusters: {
-        onOff: {
-          onOff: false,
-        },
-      },
-
-      handlers: {
-        onOff: {
-          on: async () => {
-            this.log.info('[Outlet] Turned ON')
-          },
-          off: async () => {
-            this.log.info('[Outlet] Turned OFF')
-          },
-        },
-      },
-    })
-
-    // 7. Dimmable Outlet
-    this.api.registerMatterAccessory({
-      uuid: 'matter-dimmable-outlet',
-      displayName: 'Dimmable Outlet',
-      deviceType: this.api.matterDeviceTypes.DimmableOutlet,
-      serialNumber: 'OUTLET-002',
-      manufacturer: 'Matter Examples',
-      model: 'DimmableOutlet v1',
 
       clusters: {
         onOff: {
@@ -376,374 +141,203 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
         },
       },
 
+      // These are called when the user controls the accessory via the Home app
       handlers: {
         onOff: {
           on: async () => {
-            this.log.info('[Dimmable Outlet] Turned ON')
+            this.log.info('[Dimmable Light] ✓ Handler `on` called (user controlled via Home app)')
           },
           off: async () => {
-            this.log.info('[Dimmable Outlet] Turned OFF')
+            this.log.info('[Dimmable Light] ✓ Handler `off` called (user controlled via Home app)')
           },
         },
         levelControl: {
-          moveToLevel: async (args: any) => {
-            this.log.info(`[Dimmable Outlet] Level changed to ${args.level}`)
-          },
-        },
-      },
-    })
-  }
-
-  /**
-   * Sensors
-   */
-  private registerSensors() {
-    // 8. Temperature Sensor
-    this.api.registerMatterAccessory({
-      uuid: 'matter-temp-sensor',
-      displayName: 'Temperature Sensor',
-      deviceType: this.api.matterDeviceTypes.TemperatureSensor,
-      serialNumber: 'TEMP-001',
-      manufacturer: 'Matter Examples',
-      model: 'TempSensor v1',
-
-      clusters: {
-        temperatureMeasurement: {
-          measuredValue: 2100, // 21.00°C (in hundredths of degree Celsius)
-          minMeasuredValue: -5000, // -50°C
-          maxMeasuredValue: 10000, // 100°C
-        },
-      },
-    })
-
-    // 9. Humidity Sensor
-    this.api.registerMatterAccessory({
-      uuid: 'matter-humidity-sensor',
-      displayName: 'Humidity Sensor',
-      deviceType: this.api.matterDeviceTypes.HumiditySensor,
-      serialNumber: 'HUM-001',
-      manufacturer: 'Matter Examples',
-      model: 'HumiditySensor v1',
-
-      clusters: {
-        relativeHumidityMeasurement: {
-          measuredValue: 5000, // 50% (in hundredths of percent)
-          minMeasuredValue: 0,
-          maxMeasuredValue: 10000, // 100%
-        },
-      },
-    })
-
-    // 10. Light Sensor
-    this.api.registerMatterAccessory({
-      uuid: 'matter-light-sensor',
-      displayName: 'Light Sensor',
-      deviceType: this.api.matterDeviceTypes.LightSensor,
-      serialNumber: 'LIGHT-SENSOR-001',
-      manufacturer: 'Matter Examples',
-      model: 'LightSensor v1',
-
-      clusters: {
-        illuminanceMeasurement: {
-          measuredValue: 1000, // Lux value
-          minMeasuredValue: 1,
-          maxMeasuredValue: 65535,
-        },
-      },
-    })
-
-    // 11. Motion Sensor
-    this.api.registerMatterAccessory({
-      uuid: 'matter-motion-sensor',
-      displayName: 'Motion Sensor',
-      deviceType: this.api.matterDeviceTypes.MotionSensor,
-      serialNumber: 'MOTION-001',
-      manufacturer: 'Matter Examples',
-      model: 'MotionSensor v1',
-
-      clusters: {
-        occupancySensing: {
-          occupancy: 0, // 0 = not occupied, 1 = occupied
-          occupancySensorType: 0, // PIR sensor
-        },
-      },
-    })
-
-    // 12. Contact Sensor
-    this.api.registerMatterAccessory({
-      uuid: 'matter-contact-sensor',
-      displayName: 'Contact Sensor',
-      deviceType: this.api.matterDeviceTypes.ContactSensor,
-      serialNumber: 'CONTACT-001',
-      manufacturer: 'Matter Examples',
-      model: 'ContactSensor v1',
-
-      clusters: {
-        booleanState: {
-          stateValue: false, // false = contact, true = no contact
-        },
-      },
-    })
-
-    // 13. Leak Sensor
-    this.api.registerMatterAccessory({
-      uuid: 'matter-leak-sensor',
-      displayName: 'Water Leak Sensor',
-      deviceType: this.api.matterDeviceTypes.LeakSensor,
-      serialNumber: 'LEAK-001',
-      manufacturer: 'Matter Examples',
-      model: 'LeakSensor v1',
-
-      clusters: {
-        booleanState: {
-          stateValue: false, // false = no leak, true = leak detected
-        },
-      },
-    })
-
-    // 14. Smoke Sensor
-    this.api.registerMatterAccessory({
-      uuid: 'matter-smoke-sensor',
-      displayName: 'Smoke/CO Alarm',
-      deviceType: this.api.matterDeviceTypes.SmokeSensor,
-      serialNumber: 'SMOKE-001',
-      manufacturer: 'Matter Examples',
-      model: 'SmokeCOAlarm v1',
-
-      clusters: {
-        smokeCoAlarm: {
-          smokeState: 0, // 0 = normal, 1 = warning, 2 = critical
-          coState: 0, // 0 = normal, 1 = warning, 2 = critical
-          batteryAlert: 0, // 0 = normal, 1 = warning, 2 = critical
-        },
-      },
-    })
-  }
-
-  /**
-   * HVAC Devices
-   */
-  private registerHVAC() {
-    // 15. Thermostat
-    this.api.registerMatterAccessory({
-      uuid: 'matter-thermostat',
-      displayName: 'Thermostat',
-      deviceType: this.api.matterDeviceTypes.Thermostat,
-      serialNumber: 'THERMO-001',
-      manufacturer: 'Matter Examples',
-      model: 'Thermostat v1',
-
-      clusters: {
-        thermostat: {
-          localTemperature: 2100, // 21°C (in hundredths)
-          occupiedCoolingSetpoint: 2400, // 24°C
-          occupiedHeatingSetpoint: 2000, // 20°C
-          systemMode: 1, // 0 = Off, 1 = Auto, 3 = Cool, 4 = Heat
-          controlSequenceOfOperation: 4, // Cooling and heating
-        },
-      },
-
-      handlers: {
-        thermostat: {
-          setpointRaiseLower: async (args: any) => {
-            this.log.info(`[Thermostat] Setpoint changed by ${args.amount / 10}°C`)
+          moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
+            const { level } = request
+            this.log.info(`[Dimmable Light] ✓ Handler \`moveToLevel\` called with ${level} (${Math.round(level / 254 * 100)}%)`)
           },
         },
       },
     })
 
-    // 16. Fan
-    this.api.registerMatterAccessory({
-      uuid: 'matter-fan',
-      displayName: 'Fan',
-      deviceType: this.api.matterDeviceTypes.Fan,
-      serialNumber: 'FAN-001',
+    // 3. Colour Temperature Light
+    this.api.matter.registerAccessory({
+      uuid: uuidLightColourTemp,
+      displayName: 'Colour Temperature Light',
+      deviceType: this.api.matter.deviceTypes.ColorTemperatureLight,
+      serialNumber: 'LIGHT-003',
       manufacturer: 'Matter Examples',
-      model: 'Fan v1',
-
-      clusters: {
-        fanControl: {
-          fanMode: 0, // 0 = Off, 1 = Low, 2 = Medium, 3 = High, 4 = On, 5 = Auto, 6 = Smart
-          percentCurrent: 0,
-          percentSetting: 0,
-        },
-      },
-
-      handlers: {
-        fanControl: {
-          step: async (args: any) => {
-            this.log.info(`[Fan] Step ${args.direction === 0 ? 'increase' : 'decrease'}`)
-          },
-        },
-      },
-    })
-  }
-
-  /**
-   * Security Devices
-   */
-  private registerSecurity() {
-    // 17. Door Lock
-    this.api.registerMatterAccessory({
-      uuid: 'matter-door-lock',
-      displayName: 'Smart Door Lock',
-      deviceType: this.api.matterDeviceTypes.DoorLock,
-      serialNumber: 'LOCK-001',
-      manufacturer: 'Matter Examples',
-      model: 'DoorLock v1',
-
-      clusters: {
-        doorLock: {
-          lockState: 1, // 0 = not fully locked, 1 = locked, 2 = unlocked
-          lockType: 0, // 0 = dead bolt
-          actuatorEnabled: true,
-        },
-      },
-
-      handlers: {
-        doorLock: {
-          lockDoor: async () => {
-            this.log.info('[Door Lock] Locked')
-          },
-          unlockDoor: async () => {
-            this.log.info('[Door Lock] Unlocked')
-          },
-        },
-      },
-    })
-  }
-
-  /**
-   * Other Devices
-   */
-  private registerOtherDevices() {
-    // 18. Window Covering
-    this.api.registerMatterAccessory({
-      uuid: 'matter-window-covering',
-      displayName: 'Window Blinds',
-      deviceType: this.api.matterDeviceTypes.WindowCovering,
-      serialNumber: 'BLIND-001',
-      manufacturer: 'Matter Examples',
-      model: 'WindowCovering v1',
-
-      clusters: {
-        windowCovering: {
-          currentPositionLiftPercent100ths: 0, // 0 = fully open, 10000 = fully closed
-          targetPositionLiftPercent100ths: 0,
-          type: 0, // 0 = rollershade
-          configStatus: 0x03, // operational and online
-        },
-      },
-
-      handlers: {
-        windowCovering: {
-          upOrOpen: async () => {
-            this.log.info('[Window Covering] Opening')
-          },
-          downOrClose: async () => {
-            this.log.info('[Window Covering] Closing')
-          },
-          stopMotion: async () => {
-            this.log.info('[Window Covering] Stopped')
-          },
-          goToLiftPercentage: async (args: any) => {
-            this.log.info(`[Window Covering] Moving to ${args.liftPercent100thsValue / 100}%`)
-          },
-        },
-      },
-    })
-
-    // 19. Generic Switch
-    this.api.registerMatterAccessory({
-      uuid: 'matter-generic-switch',
-      displayName: 'Generic Switch',
-      deviceType: this.api.matterDeviceTypes.GenericSwitch,
-      serialNumber: 'GSWITCH-001',
-      manufacturer: 'Matter Examples',
-      model: 'GenericSwitch v1',
-
-      clusters: {
-        switch: {
-          numberOfPositions: 2,
-          currentPosition: 0,
-        },
-      },
-    })
-
-    // 20. Pump
-    this.api.registerMatterAccessory({
-      uuid: 'matter-pump',
-      displayName: 'Water Pump',
-      deviceType: this.api.matterDeviceTypes.Pump,
-      serialNumber: 'PUMP-001',
-      manufacturer: 'Matter Examples',
-      model: 'Pump v1',
+      model: 'ColourTempLight v1',
 
       clusters: {
         onOff: {
           onOff: false,
         },
-        pumpConfigurationAndControl: {
-          effectiveOperationMode: 0, // 0 = normal
-          effectiveControlMode: 0, // 0 = constant speed
+        levelControl: {
+          currentLevel: 127,
+          minLevel: 1,
+          maxLevel: 254,
+        },
+        colorControl: {
+          colorMode: 2, // Colour temperature mode
+          colorTemperatureMireds: 250, // ~4000K
+          colorTempPhysicalMinMireds: 147, // 6800K (coolest)
+          colorTempPhysicalMaxMireds: 454, // 2200K (warmest)
+          coupleColorTempToLevelMinMireds: 147,
         },
       },
 
+      // These are called when the user controls the accessory via the Home app
       handlers: {
         onOff: {
-          on: async () => {
-            this.log.info('[Pump] Turned ON')
+          on: async (/* no args */) => {
+            this.log.info('[Colour Temp Light] handler `on` called (user controlled via Home app)')
           },
-          off: async () => {
-            this.log.info('[Pump] Turned OFF')
+          off: async (/* no args */) => {
+            this.log.info('[Colour Temp Light] Turned `off` called (user controlled via Home app)')
+          },
+        },
+        levelControl: {
+          moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
+            const { level } = request
+            this.log.info(`[Colour Light] ✓ Handler \`moveToLevel\` called with ${level} (${Math.round(level / 254 * 100)}%)`)
+          },
+        },
+        colorControl: {
+          moveToColorTemperatureLogic: async (request: { targetMireds: number, transitionTime: number }) => {
+            const { targetMireds, transitionTime } = request
+            const kelvin = Math.round(1000000 / targetMireds)
+            this.log.info(`[Colour Temp Light] ✓ Handler \`moveToColorTemperatureLogic\` called with ${targetMireds} mireds (~${kelvin}K), transition: ${transitionTime}s`)
           },
         },
       },
     })
 
-    // 21. Room Air Conditioner
-    this.api.registerMatterAccessory({
-      uuid: 'matter-air-conditioner',
-      displayName: 'Air Conditioner',
-      deviceType: this.api.matterDeviceTypes.RoomAirConditioner,
-      serialNumber: 'AC-001',
+    // 4. Colour Light (Hue/Saturation ONLY - no CCT)
+    this.api.matter.registerAccessory({
+      uuid: uuidLightColour,
+      displayName: 'Colour Light (HS)',
+      deviceType: this.api.matter.deviceTypes.ExtendedColorLight,
+      serialNumber: 'LIGHT-004',
       manufacturer: 'Matter Examples',
-      model: 'RoomAC v1',
+      model: 'ColorLight v1',
 
       clusters: {
         onOff: {
           onOff: false,
         },
-        thermostat: {
-          localTemperature: 2500, // 25°C
-          occupiedCoolingSetpoint: 2200, // 22°C
-          systemMode: 3, // Cool mode
-          controlSequenceOfOperation: 2, // Cooling only
+        levelControl: {
+          currentLevel: 127,
+          minLevel: 1,
+          maxLevel: 254,
         },
-        fanControl: {
-          fanMode: 5, // Auto
-          percentCurrent: 50,
-          percentSetting: 50,
+        colorControl: {
+          colorMode: 0, // Hue/Saturation mode
+          currentHue: 0, // Red (0 degrees)
+          currentSaturation: 254, // Full saturation
+          currentX: 41942, // Also provide XY for compatibility
+          currentY: 21626,
         },
       },
 
+      // These are called when the user controls the accessory via the Home app
       handlers: {
         onOff: {
           on: async () => {
-            this.log.info('[Air Conditioner] Turned ON')
+            this.log.info('[Colour Light HS] ✓ Handler `on` called (user controlled via Home app)')
           },
           off: async () => {
-            this.log.info('[Air Conditioner] Turned OFF')
+            this.log.info('[Colour Light HS] ✓ Handler `off` called (user controlled via Home app)')
           },
         },
-        thermostat: {
-          setpointRaiseLower: async (args: any) => {
-            this.log.info(`[Air Conditioner] Temperature setpoint changed by ${args.amount / 10}°C`)
+        levelControl: {
+          moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
+            const { level } = request
+            this.log.info(`[Colour Light HS] ✓ Handler \`moveToLevel\` called with ${level} (${Math.round(level / 254 * 100)}%)`)
           },
         },
-        fanControl: {
-          step: async (args: any) => {
-            this.log.info(`[Air Conditioner] Fan step ${args.direction === 0 ? 'increase' : 'decrease'}`)
+        colorControl: {
+          moveToColorLogic: async (request: { targetX: number, targetY: number, transitionTime: number }) => {
+            const { targetX, targetY, transitionTime } = request
+            const xFloat = (targetX / 65535).toFixed(4)
+            const yFloat = (targetY / 65535).toFixed(4)
+            this.log.info(`[Colour Light HS] ✓ Handler \`moveToColorLogic\` called with x=${targetX} (~${xFloat}), y=${targetY} (~${yFloat}), transition: ${transitionTime}s`)
+          },
+          moveToHueAndSaturationLogic: async (request: { targetHue: number, targetSaturation: number, transitionTime: number }) => {
+            const { targetHue, targetSaturation, transitionTime } = request
+            const hueDegrees = Math.round((targetHue / 254) * 360)
+            const saturationPercent = Math.round((targetSaturation / 254) * 100)
+            this.log.info(`[Colour Light HS] ✓ Handler \`moveToHueAndSaturationLogic\` called with hue=${targetHue} (~${hueDegrees}°), saturation=${targetSaturation} (~${saturationPercent}%), transition: ${transitionTime}s`)
+          },
+          // NOTE: No moveToColorTemperatureLogic handler - this light only supports color, not CCT
+        },
+      },
+    })
+
+    // 5. Extended Colour Light (Hue/Saturation + CCT)
+    this.api.matter.registerAccessory({
+      uuid: uuidLightExtendedColour,
+      displayName: 'Extended Colour Light (HS+CCT)',
+      deviceType: this.api.matter.deviceTypes.ExtendedColorLight,
+      serialNumber: 'LIGHT-005',
+      manufacturer: 'Matter Examples',
+      model: 'ExtendedColorLight v1',
+
+      clusters: {
+        onOff: {
+          onOff: false,
+        },
+        levelControl: {
+          currentLevel: 127,
+          minLevel: 1,
+          maxLevel: 254,
+        },
+        colorControl: {
+          colorMode: 0, // Hue/Saturation mode
+          currentHue: 0, // Red (0 degrees)
+          currentSaturation: 254, // Full saturation
+          currentX: 41942, // Also provide XY for compatibility
+          currentY: 21626,
+          colorTemperatureMireds: 250, // ~4000K (for CCT mode)
+          colorTempPhysicalMinMireds: 147, // 6800K (coolest)
+          colorTempPhysicalMaxMireds: 454, // 2200K (warmest)
+          coupleColorTempToLevelMinMireds: 147,
+        },
+      },
+
+      // These are called when the user controls the accessory via the Home app
+      handlers: {
+        onOff: {
+          on: async () => {
+            this.log.info('[Extended Colour Light] ✓ Handler `on` called (user controlled via Home app)')
+          },
+          off: async () => {
+            this.log.info('[Extended Colour Light] ✓ Handler `off` called (user controlled via Home app)')
+          },
+        },
+        levelControl: {
+          moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
+            const { level } = request
+            this.log.info(`[Extended Colour Light] ✓ Handler \`moveToLevel\` called with ${level} (${Math.round(level / 254 * 100)}%)`)
+          },
+        },
+        colorControl: {
+          moveToColorLogic: async (request: { targetX: number, targetY: number, transitionTime: number }) => {
+            const { targetX, targetY, transitionTime } = request
+            const xFloat = (targetX / 65535).toFixed(4)
+            const yFloat = (targetY / 65535).toFixed(4)
+            this.log.info(`[Extended Colour Light] ✓ Handler \`moveToColorLogic\` called with x=${targetX} (~${xFloat}), y=${targetY} (~${yFloat}), transition: ${transitionTime}s`)
+          },
+          moveToHueAndSaturationLogic: async (request: { targetHue: number, targetSaturation: number, transitionTime: number }) => {
+            const { targetHue, targetSaturation, transitionTime } = request
+            const hueDegrees = Math.round((targetHue / 254) * 360)
+            const saturationPercent = Math.round((targetSaturation / 254) * 100)
+            this.log.info(`[Extended Colour Light] ✓ Handler \`moveToHueAndSaturationLogic\` called with hue=${targetHue} (~${hueDegrees}°), saturation=${targetSaturation} (~${saturationPercent}%), transition: ${transitionTime}s`)
+          },
+          moveToColorTemperatureLogic: async (request: { targetMireds: number, transitionTime: number }) => {
+            const { targetMireds, transitionTime } = request
+            const kelvin = Math.round(1000000 / targetMireds)
+            this.log.info(`[Extended Colour Light] ✓ Handler \`moveToColorTemperatureLogic\` called with ${targetMireds} mireds (~${kelvin}K), transition: ${transitionTime}s`)
           },
         },
       },
