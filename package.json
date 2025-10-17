@@ -2,17 +2,17 @@
   "name": "@homebridge-plugins/homebridge-matter",
   "displayName": "Homebridge Matter",
   "type": "module",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A short description about what your plugin does.",
   "author": "Your Name",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/@homebridge-plugins/homebridge-matter#readme",
+  "homepage": "https://github.com/homebridge-plugins/homebridge-matter#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/@homebridge-plugins/homebridge-matter.git"
+    "url": "git+https://github.com/homebridge-plugins/homebridge-matter.git"
   },
   "bugs": {
-    "url": "https://github.com/@homebridge-plugins/homebridge-matter/issues"
+    "url": "https://github.com/homebridge-plugins/homebridge-matter/issues"
   },
   "keywords": [
     "homebridge-plugin"
@@ -34,7 +34,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^6.0.0",
     "@types/node": "^24.8.1",
-    "homebridge": "../homebridge",
+    "homebridge": "2.0.0-alpha.47",
     "nodemon": "^3.1.10",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
