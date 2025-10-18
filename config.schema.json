@@ -11,7 +11,7 @@
       "name": {
         "title": "Name",
         "type": "string",
-        "default": "Example Dynamic Platform"
+        "default": "Homebridge Matter"
       }
     }
   }

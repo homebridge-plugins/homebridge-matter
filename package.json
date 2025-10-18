@@ -1,11 +1,33 @@
 {
   "name": "@homebridge-plugins/homebridge-matter",
   "displayName": "Homebridge Matter",
+  "alias": "Matter",
   "type": "module",
   "version": "0.0.3",
-  "description": "A short description about what your plugin does.",
-  "author": "Your Name",
-  "license": "Apache-2.0",
+  "description": "Homebridge plugin to integrate Matter devices into HomeKit.",
+  "author": {
+    "name": "bwp91",
+    "email": "bwp91@icloud.com"
+  },
+  "license": "MIT",
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/bwp91"
+    },
+    {
+      "type": "kofi",
+      "url": "https://ko-fi.com/bwp91"
+    },
+    {
+      "type": "patreon",
+      "url": "https://www.patreon.com/bwp91"
+    },
+    {
+      "type": "paypal",
+      "url": "https://www.paypal.me/BenPotter"
+    }
+  ],
   "homepage": "https://github.com/homebridge-plugins/homebridge-matter#readme",
   "repository": {
     "type": "git",
@@ -15,7 +37,14 @@
     "url": "https://github.com/homebridge-plugins/homebridge-matter/issues"
   },
   "keywords": [
-    "homebridge-plugin"
+    "homebridge",
+    "homebridge-plugin",
+    "homebridge-matter",
+    "hoobs",
+    "hoobs-plugin",
+    "homekit",
+    "siri",
+    "matter"
   ],
   "main": "dist/index.js",
   "engines": {
@@ -29,7 +58,7 @@
     "watch": "npm run build && npm link && nodemon"
   },
   "dependencies": {
-    "homebridge-lib": "^7.1.9"
+    "@homebridge/plugin-ui-utils": "^2.1.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.0.0",
