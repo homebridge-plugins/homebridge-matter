@@ -7,13 +7,18 @@ import type {
   PlatformConfig,
 } from 'homebridge'
 
+import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js'
+
 /**
  * MatterPlatform
  * Demonstrates all available Matter device types in Homebridge
  */
 export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
-  // Track restored cached accessories (required for DynamicPlatformPlugin)
+  // Track restored HAP cached accessories (required for DynamicPlatformPlugin)
   public readonly accessories: Map<string, PlatformAccessory> = new Map()
+
+  // Track restored Matter cached accessories
+  public readonly matterAccessories: Map<string, any> = new Map()
 
   constructor(
     public readonly log: Logging,
@@ -39,19 +44,34 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
    * Required for DynamicPlatformPlugin
    * Called when homebridge restores cached accessories from disk at startup
    */
-  configureAccessory(/* accessory: PlatformAccessory */) {
-    // Note this is not used for Matter accessories, as they are registered dynamically
+  configureAccessory(accessory: PlatformAccessory) {
+    // Note this is not used for Matter accessories - use configureMatterAccessory instead
+    this.accessories.set(accessory.UUID, accessory)
+  }
+
+  /**
+   * Called for each cached Matter accessory restored from disk
+   * Track these so we can determine which accessories to remove in didFinishLaunching
+   */
+  configureMatterAccessory(accessory: any) {
+    this.log.info(`✓ Restored Matter accessory from cache: ${accessory.displayName}`)
+    // Track cached Matter accessories (in real plugin, compare with cloud devices and remove orphans)
+    this.matterAccessories.set(accessory.uuid, accessory)
   }
 
   /**
    * Register all Matter accessory examples
    */
   private registerMatterAccessories() {
+    this.log.info('='.repeat(80))
+    this.log.info('HAP cached accessories:', this.accessories.size)
+    this.log.info('Matter cached accessories:', this.matterAccessories.size)
+    this.log.info('='.repeat(80))
     this.log.info('Registering Matter accessories...')
 
     // Register each device type
     this.registerLightingDevices()
-    // this.registerSwitchesAndOutlets();
+    this.registerSwitchesAndOutlets()
     // this.registerSensors();
     // this.registerHVAC();
     // this.registerSecurity();
@@ -94,7 +114,8 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
     const uuidLightExtendedColour = this.api.matter.uuid.generate('matter-extended-colour-light')
 
     // 1. On/Off Light
-    this.api.matter.registerAccessory({
+    const accessories: any[] = []
+    accessories.push({
       uuid: uuidLightOnOff,
       displayName: 'On/Off Light',
       deviceType: this.api.matter.deviceTypes.OnOffLight,
@@ -122,7 +143,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
     })
 
     // 2. Dimmable Light
-    this.api.matter.registerAccessory({
+    accessories.push({
       uuid: uuidLightDimmable,
       displayName: 'Dimmable Light',
       deviceType: this.api.matter.deviceTypes.DimmableLight,
@@ -161,7 +182,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
     })
 
     // 3. Colour Temperature Light
-    this.api.matter.registerAccessory({
+    accessories.push({
       uuid: uuidLightColourTemp,
       displayName: 'Colour Temperature Light',
       deviceType: this.api.matter.deviceTypes.ColorTemperatureLight,
@@ -214,7 +235,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
     })
 
     // 4. Colour Light (Hue/Saturation ONLY - no CCT)
-    this.api.matter.registerAccessory({
+    accessories.push({
       uuid: uuidLightColour,
       displayName: 'Colour Light (HS)',
       deviceType: this.api.matter.deviceTypes.ExtendedColorLight,
@@ -275,7 +296,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
     })
 
     // 5. Extended Colour Light (Hue/Saturation + CCT)
-    this.api.matter.registerAccessory({
+    accessories.push({
       uuid: uuidLightExtendedColour,
       displayName: 'Extended Colour Light (HS+CCT)',
       deviceType: this.api.matter.deviceTypes.ExtendedColorLight,
@@ -342,5 +363,268 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
         },
       },
     })
+
+    // Register all lighting accessories
+    this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+  }
+
+  /**
+   * Switches and Outlets
+   */
+  private registerSwitchesAndOutlets() {
+    const uuidSwitch = this.api.matter.uuid.generate('matter-onoff-switch')
+    const uuidOutlet = this.api.matter.uuid.generate('matter-onoff-outlet')
+    const uuidDimmableOutlet = this.api.matter.uuid.generate('matter-dimmable-outlet')
+
+    const accessories: any[] = []
+
+    // 1. On/Off Switch
+    accessories.push({
+      uuid: uuidSwitch,
+      displayName: 'On/Off Switch',
+      deviceType: this.api.matter.deviceTypes.OnOffSwitch,
+      serialNumber: 'SWITCH-001',
+      manufacturer: 'Matter Examples',
+      model: 'OnOffSwitch v1',
+
+      clusters: {
+        onOff: {
+          onOff: false,
+        },
+      },
+
+      handlers: {
+        onOff: {
+          on: async () => {
+            this.log.info('[On/Off Switch] ✓ Handler `on` called (user controlled via Home app)')
+          },
+          off: async () => {
+            this.log.info('[On/Off Switch] ✓ Handler `off` called (user controlled via Home app)')
+          },
+        },
+      },
+    })
+
+    // 2. On/Off Outlet (Smart Plug)
+    accessories.push({
+      uuid: uuidOutlet,
+      displayName: 'On/Off Outlet',
+      deviceType: this.api.matter.deviceTypes.OnOffOutlet,
+      serialNumber: 'OUTLET-001',
+      manufacturer: 'Matter Examples',
+      model: 'OnOffOutlet v1',
+
+      clusters: {
+        onOff: {
+          onOff: false,
+        },
+      },
+
+      handlers: {
+        onOff: {
+          on: async () => {
+            this.log.info('[On/Off Outlet] ✓ Handler `on` called (user controlled via Home app)')
+          },
+          off: async () => {
+            this.log.info('[On/Off Outlet] ✓ Handler `off` called (user controlled via Home app)')
+          },
+        },
+      },
+    })
+
+    // 3. Dimmable Outlet
+    accessories.push({
+      uuid: uuidDimmableOutlet,
+      displayName: 'Dimmable Outlet',
+      deviceType: this.api.matter.deviceTypes.DimmableOutlet,
+      serialNumber: 'OUTLET-002',
+      manufacturer: 'Matter Examples',
+      model: 'DimmableOutlet v1',
+
+      clusters: {
+        onOff: {
+          onOff: false,
+        },
+        levelControl: {
+          currentLevel: 127,
+          minLevel: 1,
+          maxLevel: 254,
+        },
+      },
+
+      handlers: {
+        onOff: {
+          on: async () => {
+            this.log.info('[Dimmable Outlet] ✓ Handler `on` called (user controlled via Home app)')
+          },
+          off: async () => {
+            this.log.info('[Dimmable Outlet] ✓ Handler `off` called (user controlled via Home app)')
+          },
+        },
+        levelControl: {
+          moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
+            const { level } = request
+            this.log.info(`[Dimmable Outlet] ✓ Handler \`moveToLevel\` called with ${level} (${Math.round(level / 254 * 100)}%)`)
+          },
+        },
+      },
+    })
+
+    // Register all switch/outlet accessories
+    this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+
+    // Register sensor devices
+    this.registerSensors()
+  }
+
+  /**
+   * Register Matter sensor accessories
+   */
+  private registerSensors() {
+    this.log.info('═'.repeat(80))
+    this.log.info('Registering Matter Sensor Devices')
+    this.log.info('═'.repeat(80))
+
+    const accessories: any[] = []
+
+    // 1. Temperature Sensor
+    accessories.push({
+      uuid: this.api.hap.uuid.generate('matter-temperature-sensor'),
+      displayName: 'Temperature Sensor',
+      deviceType: this.api.matter.deviceTypes.TemperatureSensor,
+      serialNumber: 'TEMP-001',
+      manufacturer: 'Homebridge',
+      model: 'Temperature Sensor Example',
+      clusters: {
+        temperatureMeasurement: {
+          measuredValue: 2100, // 21.00°C (in hundredths of a degree Celsius)
+          minMeasuredValue: -5000, // -50°C
+          maxMeasuredValue: 10000, // 100°C
+        },
+      },
+    })
+
+    // 2. Humidity Sensor
+    accessories.push({
+      uuid: this.api.hap.uuid.generate('matter-humidity-sensor'),
+      displayName: 'Humidity Sensor',
+      deviceType: this.api.matter.deviceTypes.HumiditySensor,
+      serialNumber: 'HUM-001',
+      manufacturer: 'Homebridge',
+      model: 'Humidity Sensor Example',
+      clusters: {
+        relativeHumidityMeasurement: {
+          measuredValue: 5500, // 55% (in hundredths of a percent)
+          minMeasuredValue: 0,
+          maxMeasuredValue: 10000, // 100%
+        },
+      },
+    })
+
+    // 3. Light Sensor
+    accessories.push({
+      uuid: this.api.hap.uuid.generate('matter-light-sensor'),
+      displayName: 'Light Sensor',
+      deviceType: this.api.matter.deviceTypes.LightSensor,
+      serialNumber: 'LIGHT-001',
+      manufacturer: 'Homebridge',
+      model: 'Light Sensor Example',
+      clusters: {
+        illuminanceMeasurement: {
+          measuredValue: 5000, // 500 lux (in 10,000 * log10(lux) format)
+          minMeasuredValue: 1,
+          maxMeasuredValue: 65534,
+        },
+      },
+    })
+
+    // 4. Motion Sensor (Occupancy)
+    // Note: OccupancySensorDevice requires specifying features (PIR, Ultrasonic, or PhysicalContact)
+    const OccupancySensingServer = this.api.matter.deviceTypes.MotionSensor.requirements.OccupancySensingServer
+    const MotionSensorWithPIR = this.api.matter.deviceTypes.MotionSensor.with(
+      OccupancySensingServer.with('PassiveInfrared'),
+    )
+
+    accessories.push({
+      uuid: this.api.hap.uuid.generate('matter-motion-sensor'),
+      displayName: 'Motion Sensor',
+      deviceType: MotionSensorWithPIR,
+      serialNumber: 'MOTION-001',
+      manufacturer: 'Homebridge',
+      model: 'Motion Sensor Example',
+      clusters: {
+        occupancySensing: {
+          occupancy: {
+            occupied: false, // No motion detected
+          },
+        },
+      },
+    })
+
+    // 5. Contact Sensor
+    accessories.push({
+      uuid: this.api.hap.uuid.generate('matter-contact-sensor'),
+      displayName: 'Contact Sensor',
+      deviceType: this.api.matter.deviceTypes.ContactSensor,
+      serialNumber: 'CONTACT-001',
+      manufacturer: 'Homebridge',
+      model: 'Contact Sensor Example',
+      clusters: {
+        booleanState: {
+          stateValue: false, // Contact closed (false = closed, true = open)
+        },
+      },
+    })
+
+    // 6. Leak Sensor
+    accessories.push({
+      uuid: this.api.hap.uuid.generate('matter-leak-sensor'),
+      displayName: 'Leak Sensor',
+      deviceType: this.api.matter.deviceTypes.LeakSensor,
+      serialNumber: 'LEAK-001',
+      manufacturer: 'Homebridge',
+      model: 'Leak Sensor Example',
+      clusters: {
+        booleanState: {
+          stateValue: false, // No leak detected (false = dry, true = leak)
+        },
+      },
+    })
+
+    // 7. Smoke Sensor
+    // Note: SmokeCoAlarmDevice requires specifying features (SmokeAlarm and/or CoAlarm)
+    const SmokeCoAlarmServer = this.api.matter.deviceTypes.SmokeSensor.requirements.SmokeCoAlarmServer
+    const SmokeSensorWithBoth = this.api.matter.deviceTypes.SmokeSensor.with(
+      SmokeCoAlarmServer.with('SmokeAlarm', 'CoAlarm'),
+    )
+
+    accessories.push({
+      uuid: this.api.hap.uuid.generate('matter-smoke-sensor'),
+      displayName: 'Smoke Sensor',
+      deviceType: SmokeSensorWithBoth,
+      serialNumber: 'SMOKE-001',
+      manufacturer: 'Homebridge',
+      model: 'Smoke Sensor Example',
+      clusters: {
+        smokeCoAlarm: {
+          smokeState: 0, // 0 = Normal, 1 = Warning, 2 = Critical
+          coState: 0, // 0 = Normal, 1 = Warning, 2 = Critical
+          batteryAlert: 0, // 0 = Normal
+          testInProgress: false,
+          hardwareFaultAlert: false,
+          endOfServiceAlert: 0, // 0 = Normal
+          interconnectSmokeAlarm: 0, // 0 = Normal
+          interconnectCoAlarm: 0, // 0 = Normal
+        },
+      },
+    })
+
+    this.log.info(`✓ Registered ${accessories.length} sensor accessories`)
+    for (const acc of accessories) {
+      this.log.info(`  - ${acc.displayName}`)
+    }
+
+    // Register all sensor accessories
+    this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
   }
 }

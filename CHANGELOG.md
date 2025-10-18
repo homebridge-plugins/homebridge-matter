@@ -2,6 +2,10 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.0.4 (Unreleased)
+
+- follow homebridge api updates, examples for switches/sensors
+
 ## v0.0.3 (2025-10-17)
 
 ### Changes
