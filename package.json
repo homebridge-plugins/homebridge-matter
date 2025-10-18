@@ -3,7 +3,7 @@
   "displayName": "Homebridge Matter",
   "alias": "Matter",
   "type": "module",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Homebridge plugin to integrate Matter devices into HomeKit.",
   "author": {
     "name": "bwp91",
