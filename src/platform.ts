@@ -73,8 +73,10 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
     this.registerLightingDevices()
     this.registerSwitchesAndOutlets()
     // this.registerSensors();
-    // this.registerHVAC();
-    // this.registerSecurity();
+    this.registerHVAC()
+    this.registerSecurity()
+    this.registerWindowCoverings()
+    this.registerAppliances()
     // this.registerOtherDevices();
 
     this.log.info('Finished registering Matter accessories')
@@ -625,6 +627,656 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
     }
 
     // Register all sensor accessories
+    this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+  }
+
+  /**
+   * Register Matter HVAC accessories (Thermostats, Fans)
+   */
+  private registerHVAC() {
+    this.log.info('═'.repeat(80))
+    this.log.info('Registering Matter HVAC Devices')
+    this.log.info('═'.repeat(80))
+
+    const accessories: any[] = []
+
+    // 1. Thermostat
+    accessories.push({
+      uuid: this.api.matter.uuid.generate('matter-thermostat'),
+      displayName: 'Thermostat',
+      deviceType: this.api.matter.deviceTypes.Thermostat,
+      serialNumber: 'THERMO-001',
+      manufacturer: 'Matter Examples',
+      model: 'Thermostat v1',
+
+      clusters: {
+        thermostat: {
+          // Current temperature (in hundredths of degrees Celsius)
+          localTemperature: 2100, // 21.00°C
+
+          // Heating setpoint (target temperature in heat mode)
+          occupiedHeatingSetpoint: 2000, // 20.00°C
+          minHeatSetpointLimit: 700, // 7°C minimum
+          maxHeatSetpointLimit: 3000, // 30°C maximum
+
+          // Cooling setpoint (target temperature in cool mode)
+          occupiedCoolingSetpoint: 2400, // 24.00°C
+          minCoolSetpointLimit: 1600, // 16°C minimum
+          maxCoolSetpointLimit: 3200, // 32°C maximum
+
+          // System mode: 0=Off, 1=Auto, 3=Cool, 4=Heat
+          systemMode: 4, // Heat mode
+
+          // Control sequence: what modes are available (mandatory field)
+          // 4 = CoolingAndHeating (correct value when both Heating & Cooling features are present)
+          controlSequenceOfOperation: 4,
+        },
+      },
+
+      handlers: {
+        thermostat: {
+          // Called when user changes heating setpoint
+          setOccupiedHeatingSetpoint: async (request: { targetSetpoint: number }) => {
+            const tempC = (request.targetSetpoint / 100).toFixed(1)
+            this.log.info(`[Thermostat] ✓ Handler \`setOccupiedHeatingSetpoint\` called: ${request.targetSetpoint} (${tempC}°C)`)
+          },
+
+          // Called when user changes cooling setpoint
+          setOccupiedCoolingSetpoint: async (request: { targetSetpoint: number }) => {
+            const tempC = (request.targetSetpoint / 100).toFixed(1)
+            this.log.info(`[Thermostat] ✓ Handler \`setOccupiedCoolingSetpoint\` called: ${request.targetSetpoint} (${tempC}°C)`)
+          },
+
+          // Called when user changes mode (Off, Auto, Cool, Heat)
+          setSystemMode: async (request: { systemMode: number }) => {
+            const modes = ['Off', 'Auto', 'Reserved', 'Cool', 'Heat', 'Emergency Heating', 'Precooling', 'Fan Only']
+            const modeName = modes[request.systemMode] || `Unknown (${request.systemMode})`
+            this.log.info(`[Thermostat] ✓ Handler \`setSystemMode\` called: ${request.systemMode} (${modeName})`)
+          },
+        },
+      },
+    })
+
+    // 2. Fan
+    accessories.push({
+      uuid: this.api.matter.uuid.generate('matter-fan'),
+      displayName: 'Fan',
+      deviceType: this.api.matter.deviceTypes.Fan,
+      serialNumber: 'FAN-001',
+      manufacturer: 'Matter Examples',
+      model: 'Fan v1',
+
+      clusters: {
+        fanControl: {
+          // Fan mode: 0=Off, 1=Low, 2=Medium, 3=High, 4=On, 5=Auto, 6=Smart
+          fanMode: 0, // Off
+
+          // Fan mode sequence: indicates which modes are supported
+          // 0=OffLowMedHigh, 1=OffLowHigh, 2=OffLowMedHighAuto, 3=OffLowHighAuto, 4=OffOnAuto, 5=OffOn
+          fanModeSequence: 0, // OffLowMedHigh
+
+          // Percent setting (0-100)
+          percentSetting: 0,
+          percentCurrent: 0,
+
+          // Speed setting (0-100, some fans use this instead of percent)
+          speedSetting: 0,
+          speedCurrent: 0,
+        },
+      },
+
+      handlers: {
+        fanControl: {
+          // Called when user changes fan speed via percent slider
+          setPercentSetting: async (request: { percentSetting: number }) => {
+            this.log.info(`[Fan] ✓ Handler \`setPercentSetting\` called: ${request.percentSetting}%`)
+          },
+
+          // Called when user changes fan mode
+          setFanMode: async (request: { fanMode: number }) => {
+            const modes = ['Off', 'Low', 'Medium', 'High', 'On', 'Auto', 'Smart']
+            const modeName = modes[request.fanMode] || `Unknown (${request.fanMode})`
+            this.log.info(`[Fan] ✓ Handler \`setFanMode\` called: ${request.fanMode} (${modeName})`)
+          },
+
+          // Called when user presses up/down buttons to adjust speed
+          step: async (request: { direction: number, wrap: boolean, lowestOff: boolean }) => {
+            const dir = request.direction === 0 ? 'Up' : 'Down'
+            this.log.info(`[Fan] ✓ Handler \`step\` called: direction=${dir}, wrap=${request.wrap}, lowestOff=${request.lowestOff}`)
+          },
+        },
+      },
+    })
+
+    this.log.info(`✓ Registered ${accessories.length} HVAC accessories`)
+    for (const acc of accessories) {
+      this.log.info(`  - ${acc.displayName}`)
+    }
+
+    // Register all HVAC accessories
+    this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+  }
+
+  /**
+   * Register Matter Security & Access accessories (Door Locks, Garage Doors)
+   */
+  private registerSecurity() {
+    this.log.info('═'.repeat(80))
+    this.log.info('Registering Matter Security & Access Devices')
+    this.log.info('═'.repeat(80))
+
+    const accessories: any[] = []
+
+    // 1. Door Lock
+    accessories.push({
+      uuid: this.api.matter.uuid.generate('matter-door-lock'),
+      displayName: 'Door Lock',
+      deviceType: this.api.matter.deviceTypes.DoorLock,
+      serialNumber: 'LOCK-001',
+      manufacturer: 'Matter Examples',
+      model: 'DoorLock v1',
+
+      clusters: {
+        doorLock: {
+          // Lock state: 0=NotFullyLocked, 1=Locked, 2=Unlocked
+          lockState: 2, // Unlocked
+
+          // Lock type: 0=Deadbolt, 1=Magnetic, 2=Other, etc.
+          lockType: 0, // Deadbolt
+
+          // Actuator enabled (can be locked/unlocked)
+          actuatorEnabled: true,
+        },
+      },
+
+      handlers: {
+        doorLock: {
+          // Called when user locks the door
+          lockDoor: async () => {
+            this.log.info('[Door Lock] ✓ Handler `lockDoor` called - Locking door')
+
+            // Update the lock state to "Locked" (1)
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-door-lock'),
+              'doorLock',
+              { lockState: 1 },
+            )
+          },
+
+          // Called when user unlocks the door
+          unlockDoor: async () => {
+            this.log.info('[Door Lock] ✓ Handler `unlockDoor` called - Unlocking door')
+
+            // Update the lock state to "Unlocked" (2)
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-door-lock'),
+              'doorLock',
+              { lockState: 2 },
+            )
+          },
+        },
+      },
+    })
+
+    // 2. Garage Door Opener
+    // Note: Matter uses WindowCovering device type for garage doors
+    accessories.push({
+      uuid: this.api.matter.uuid.generate('matter-garage-door'),
+      displayName: 'Garage Door',
+      deviceType: this.api.matter.deviceTypes.WindowCovering,
+      serialNumber: 'GARAGE-001',
+      manufacturer: 'Matter Examples',
+      model: 'GarageDoor v1',
+
+      clusters: {
+        windowCovering: {
+          // Target position (0 = fully closed, 10000 = fully open)
+          targetPositionLiftPercent100ths: 0, // Closed
+
+          // Current position
+          currentPositionLiftPercent100ths: 0, // Closed
+
+          // Operational status
+          operationalStatus: {
+            global: 0, // Not moving
+            lift: 0,
+            tilt: 0,
+          },
+
+          // End product type
+          endProductType: 7, // Garage door
+
+          // Configuration: supports lift positioning
+          configStatus: {
+            operational: true,
+            onlineReserved: true,
+            liftMovementReversed: false,
+            liftPositionAware: true,
+            tiltPositionAware: false,
+            liftEncoderControlled: true,
+            tiltEncoderControlled: false,
+          },
+        },
+      },
+
+      handlers: {
+        windowCovering: {
+          // Called when user opens/closes garage door
+          goToLiftPercentage: async (request: { targetPercent: number }) => {
+            const percent = (request.targetPercent / 100).toFixed(0)
+            this.log.info(`[Garage Door] ✓ Handler \`goToLiftPercentage\` called: ${request.targetPercent} (${percent}% open)`)
+
+            // Update position
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-garage-door'),
+              'windowCovering',
+              {
+                currentPositionLiftPercent100ths: request.targetPercent,
+                targetPositionLiftPercent100ths: request.targetPercent,
+              },
+            )
+          },
+
+          // Called when user presses "up" (open)
+          upOrOpen: async () => {
+            this.log.info('[Garage Door] ✓ Handler `upOrOpen` called - Opening garage door')
+
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-garage-door'),
+              'windowCovering',
+              {
+                currentPositionLiftPercent100ths: 10000, // Fully open
+                targetPositionLiftPercent100ths: 10000,
+              },
+            )
+          },
+
+          // Called when user presses "down" (close)
+          downOrClose: async () => {
+            this.log.info('[Garage Door] ✓ Handler `downOrClose` called - Closing garage door')
+
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-garage-door'),
+              'windowCovering',
+              {
+                currentPositionLiftPercent100ths: 0, // Fully closed
+                targetPositionLiftPercent100ths: 0,
+              },
+            )
+          },
+
+          // Called when user presses "stop"
+          stopMotion: async () => {
+            this.log.info('[Garage Door] ✓ Handler `stopMotion` called - Stopping garage door')
+          },
+        },
+      },
+    })
+
+    this.log.info(`✓ Registered ${accessories.length} security & access accessories`)
+    for (const acc of accessories) {
+      this.log.info(`  - ${acc.displayName}`)
+    }
+
+    // Register all security accessories
+    this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+  }
+
+  /**
+   * Register Matter Window Covering accessories (Blinds, Shades)
+   */
+  private registerWindowCoverings() {
+    this.log.info('═'.repeat(80))
+    this.log.info('Registering Matter Window Covering Devices')
+    this.log.info('═'.repeat(80))
+
+    const accessories: any[] = []
+
+    // 1. Window Covering (Blind/Shade with position control)
+    accessories.push({
+      uuid: this.api.matter.uuid.generate('matter-window-blind'),
+      displayName: 'Window Blind',
+      deviceType: this.api.matter.deviceTypes.WindowCovering,
+      serialNumber: 'BLIND-001',
+      manufacturer: 'Matter Examples',
+      model: 'WindowBlind v1',
+
+      clusters: {
+        windowCovering: {
+          // Target position (0 = fully closed, 10000 = fully open, in hundredths of percent)
+          targetPositionLiftPercent100ths: 5000, // 50% open
+
+          // Current position
+          currentPositionLiftPercent100ths: 5000, // 50% open
+
+          // Operational status
+          operationalStatus: {
+            global: 0, // Not moving
+            lift: 0,
+            tilt: 0,
+          },
+
+          // End product type
+          endProductType: 0, // Rollershade
+
+          // Configuration
+          configStatus: {
+            operational: true,
+            onlineReserved: true,
+            liftMovementReversed: false,
+            liftPositionAware: true,
+            tiltPositionAware: false,
+            liftEncoderControlled: true,
+            tiltEncoderControlled: false,
+          },
+        },
+      },
+
+      handlers: {
+        windowCovering: {
+          // Called when user sets position via slider
+          goToLiftPercentage: async (request: { targetPercent: number }) => {
+            const percent = (request.targetPercent / 100).toFixed(0)
+            this.log.info(`[Window Blind] ✓ Handler \`goToLiftPercentage\` called: ${request.targetPercent} (${percent}% open)`)
+
+            // Update position
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-window-blind'),
+              'windowCovering',
+              {
+                currentPositionLiftPercent100ths: request.targetPercent,
+                targetPositionLiftPercent100ths: request.targetPercent,
+              },
+            )
+          },
+
+          // Called when user presses "up" (open)
+          upOrOpen: async () => {
+            this.log.info('[Window Blind] ✓ Handler `upOrOpen` called - Opening blind')
+
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-window-blind'),
+              'windowCovering',
+              {
+                currentPositionLiftPercent100ths: 10000, // Fully open
+                targetPositionLiftPercent100ths: 10000,
+              },
+            )
+          },
+
+          // Called when user presses "down" (close)
+          downOrClose: async () => {
+            this.log.info('[Window Blind] ✓ Handler `downOrClose` called - Closing blind')
+
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-window-blind'),
+              'windowCovering',
+              {
+                currentPositionLiftPercent100ths: 0, // Fully closed
+                targetPositionLiftPercent100ths: 0,
+              },
+            )
+          },
+
+          // Called when user presses "stop"
+          stopMotion: async () => {
+            this.log.info('[Window Blind] ✓ Handler `stopMotion` called - Stopping blind')
+          },
+        },
+      },
+    })
+
+    // 2. Window Covering with Tilt (Venetian Blind)
+    accessories.push({
+      uuid: this.api.matter.uuid.generate('matter-venetian-blind'),
+      displayName: 'Venetian Blind (Tilt)',
+      deviceType: this.api.matter.deviceTypes.WindowCovering,
+      serialNumber: 'BLIND-002',
+      manufacturer: 'Matter Examples',
+      model: 'VenetianBlind v1',
+
+      clusters: {
+        windowCovering: {
+          // Lift position (vertical position)
+          targetPositionLiftPercent100ths: 5000, // 50% open
+          currentPositionLiftPercent100ths: 5000,
+
+          // Tilt position (slat angle: 0 = closed, 10000 = fully open)
+          targetPositionTiltPercent100ths: 5000, // 50% tilted
+          currentPositionTiltPercent100ths: 5000,
+
+          // Operational status
+          operationalStatus: {
+            global: 0,
+            lift: 0,
+            tilt: 0,
+          },
+
+          // End product type
+          endProductType: 8, // Venetian blind
+
+          // Configuration: supports both lift and tilt
+          configStatus: {
+            operational: true,
+            onlineReserved: true,
+            liftMovementReversed: false,
+            liftPositionAware: true,
+            tiltPositionAware: true,
+            liftEncoderControlled: true,
+            tiltEncoderControlled: true,
+          },
+        },
+      },
+
+      handlers: {
+        windowCovering: {
+          // Called when user sets lift position
+          goToLiftPercentage: async (request: { targetPercent: number }) => {
+            const percent = (request.targetPercent / 100).toFixed(0)
+            this.log.info(`[Venetian Blind] ✓ Handler \`goToLiftPercentage\` called: ${request.targetPercent} (${percent}% open)`)
+
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-venetian-blind'),
+              'windowCovering',
+              {
+                currentPositionLiftPercent100ths: request.targetPercent,
+                targetPositionLiftPercent100ths: request.targetPercent,
+              },
+            )
+          },
+
+          // Called when user sets tilt angle
+          goToTiltPercentage: async (request: { targetPercent: number }) => {
+            const percent = (request.targetPercent / 100).toFixed(0)
+            this.log.info(`[Venetian Blind] ✓ Handler \`goToTiltPercentage\` called: ${request.targetPercent} (${percent}% tilted)`)
+
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-venetian-blind'),
+              'windowCovering',
+              {
+                currentPositionTiltPercent100ths: request.targetPercent,
+                targetPositionTiltPercent100ths: request.targetPercent,
+              },
+            )
+          },
+
+          upOrOpen: async () => {
+            this.log.info('[Venetian Blind] ✓ Handler `upOrOpen` called')
+          },
+
+          downOrClose: async () => {
+            this.log.info('[Venetian Blind] ✓ Handler `downOrClose` called')
+          },
+
+          stopMotion: async () => {
+            this.log.info('[Venetian Blind] ✓ Handler `stopMotion` called')
+          },
+        },
+      },
+    })
+
+    this.log.info(`✓ Registered ${accessories.length} window covering accessories`)
+    for (const acc of accessories) {
+      this.log.info(`  - ${acc.displayName}`)
+    }
+
+    // Register all window covering accessories
+    this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+  }
+
+  /**
+   * Register Matter Appliance accessories (Robotic Vacuum Cleaners, etc.)
+   */
+  private registerAppliances() {
+    this.log.info('═'.repeat(80))
+    this.log.info('Registering Matter Appliance Devices')
+    this.log.info('═'.repeat(80))
+
+    const accessories: any[] = []
+
+    // 1. Robotic Vacuum Cleaner
+    accessories.push({
+      uuid: this.api.matter.uuid.generate('matter-robot-vacuum'),
+      displayName: 'Robot Vacuum',
+      deviceType: this.api.matter.deviceTypes.RoboticVacuumCleaner,
+      serialNumber: 'VACUUM-001',
+      manufacturer: 'Matter Examples',
+      model: 'RobotVacuum v1',
+
+      clusters: {
+        rvcRunMode: {
+          // Supported run modes (0=Idle, 1=Cleaning, 2=Mapping)
+          supportedModes: [
+            { label: 'Idle', mode: 0, modeTags: [{ value: 16384 }] }, // 16384 = Idle tag
+            { label: 'Cleaning', mode: 1, modeTags: [{ value: 16385 }] }, // 16385 = Cleaning tag
+            { label: 'Mapping', mode: 2, modeTags: [{ value: 16386 }] }, // 16386 = Mapping tag
+          ],
+          // Current mode
+          currentMode: 0, // Idle
+        },
+
+        rvcOperationalState: {
+          // Operational state list (must include at least an error state)
+          operationalStateList: [
+            { operationalStateId: 0 }, // Stopped
+            { operationalStateId: 1 }, // Running
+            { operationalStateId: 2 }, // Paused
+            { operationalStateId: 3 }, // Error (required)
+            { operationalStateId: 64 }, // SeekingCharger
+            { operationalStateId: 65 }, // Charging
+            { operationalStateId: 66 }, // Docked
+          ],
+
+          // Current operational state (just the ID, not an object)
+          operationalState: 66, // Docked
+
+          // Error state
+          operationalError: {
+            errorStateId: 0, // No error
+          },
+        },
+
+        rvcCleanMode: {
+          // Supported clean modes (0=Vacuum, 1=Mop, 2=Vacuum+Mop)
+          supportedModes: [
+            { label: 'Vacuum', mode: 0, modeTags: [] },
+            { label: 'Mop', mode: 1, modeTags: [] },
+            { label: 'Vacuum & Mop', mode: 2, modeTags: [] },
+          ],
+          // Current clean mode
+          currentMode: 0, // Vacuum
+        },
+      },
+
+      handlers: {
+        rvcOperationalState: {
+          // Called when user presses "pause" in Home app
+          pause: async () => {
+            this.log.info('[Robot Vacuum] ✓ Handler `pause` called - Pausing cleaning')
+
+            // Update state to Paused (2)
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-robot-vacuum'),
+              'rvcOperationalState',
+              { operationalState: 2 }, // Paused
+            )
+          },
+
+          // Called when user presses "resume" or "start" in Home app
+          resume: async () => {
+            this.log.info('[Robot Vacuum] ✓ Handler `resume` called - Resuming cleaning')
+
+            // Update state to Running (1)
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-robot-vacuum'),
+              'rvcOperationalState',
+              { operationalState: 1 }, // Running
+            )
+          },
+
+          // Called when user sends robot to charging dock
+          goHome: async () => {
+            this.log.info('[Robot Vacuum] ✓ Handler `goHome` called - Returning to dock')
+
+            // Update state to SeekingCharger (64)
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-robot-vacuum'),
+              'rvcOperationalState',
+              { operationalState: 64 }, // SeekingCharger
+            )
+
+            // Simulate arriving at dock after 3 seconds
+            setTimeout(async () => {
+              this.log.info('[Robot Vacuum] → Arrived at dock, now docked')
+              await this.api.matter.updateAccessoryState(
+                this.api.matter.uuid.generate('matter-robot-vacuum'),
+                'rvcOperationalState',
+                { operationalState: 66 }, // Docked
+              )
+            }, 3000)
+          },
+        },
+
+        rvcRunMode: {
+          // Called when user changes run mode (Idle, Cleaning, Mapping)
+          changeToMode: async (request: { newMode: number }) => {
+            const modes = ['Idle', 'Cleaning', 'Mapping']
+            const modeName = modes[request.newMode] || `Unknown (${request.newMode})`
+            this.log.info(`[Robot Vacuum] ✓ Handler \`changeToMode\` called: ${request.newMode} (${modeName})`)
+
+            // Update the current mode
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-robot-vacuum'),
+              'rvcRunMode',
+              { currentMode: request.newMode },
+            )
+          },
+        },
+
+        rvcCleanMode: {
+          // Called when user changes clean mode (Vacuum, Mop, Vacuum+Mop)
+          changeToMode: async (request: { newMode: number }) => {
+            const modes = ['Vacuum', 'Mop', 'Vacuum & Mop']
+            const modeName = modes[request.newMode] || `Unknown (${request.newMode})`
+            this.log.info(`[Robot Vacuum] ✓ Handler \`changeToMode\` called: ${request.newMode} (${modeName})`)
+
+            // Update the current clean mode
+            await this.api.matter.updateAccessoryState(
+              this.api.matter.uuid.generate('matter-robot-vacuum'),
+              'rvcCleanMode',
+              { currentMode: request.newMode },
+            )
+          },
+        },
+      },
+    })
+
+    this.log.info(`✓ Registered ${accessories.length} appliance accessories`)
+    for (const acc of accessories) {
+      this.log.info(`  - ${acc.displayName}`)
+    }
+
+    // Register all appliance accessories
     this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
   }
 }
