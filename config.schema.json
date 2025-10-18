@@ -12,7 +12,231 @@
         "title": "Name",
         "type": "string",
         "default": "Homebridge Matter"
+      },
+      "enableOnOffLight": {
+        "title": "Enable On/Off Light",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the on/off light example accessory."
+      },
+      "enableDimmableLight": {
+        "title": "Enable Dimmable Light",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the dimmable light example accessory."
+      },
+      "enableColourTemperatureLight": {
+        "title": "Enable Colour Temperature Light",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the colour temperature light example accessory."
+      },
+      "enableColourLight": {
+        "title": "Enable Colour Light (HS)",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the colour light (hue/saturation) example accessory."
+      },
+      "enableExtendedColourLight": {
+        "title": "Enable Extended Colour Light (HS+CCT)",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the extended colour light (hue/saturation + colour temperature) example accessory."
+      },
+      "enableOnOffSwitch": {
+        "title": "Enable On/Off Switch",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the on/off switch example accessory"
+      },
+      "enableOnOffOutlet": {
+        "title": "Enable On/Off Outlet",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the on/off outlet (smart plug) example accessory."
+      },
+      "enableDimmableOutlet": {
+        "title": "Enable Dimmable Outlet",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the dimmable outlet example accessory."
+      },
+      "enableTemperatureSensor": {
+        "title": "Enable Temperature Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the temperature sensor example accessory."
+      },
+      "enableHumiditySensor": {
+        "title": "Enable Humidity Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the humidity sensor example accessory."
+      },
+      "enableLightSensor": {
+        "title": "Enable Light Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the light sensor example accessory."
+      },
+      "enableMotionSensor": {
+        "title": "Enable Motion Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the motion sensor example accessory."
+      },
+      "enableContactSensor": {
+        "title": "Enable Contact Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the contact sensor example accessory."
+      },
+      "enableLeakSensor": {
+        "title": "Enable Leak Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the leak sensor example accessory."
+      },
+      "enableSmokeSensor": {
+        "title": "Enable Smoke Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the smoke sensor example accessory."
+      },
+      "enableThermostat": {
+        "title": "Enable Thermostat",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the thermostat example accessory."
+      },
+      "enableFan": {
+        "title": "Enable Fan",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the fan example accessory."
+      },
+      "enableDoorLock": {
+        "title": "Enable Door Lock",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the door lock example accessory."
+      },
+      "enableGarageDoor": {
+        "title": "Enable Garage Door",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the garage door example accessory."
+      },
+      "enableWindowBlind": {
+        "title": "Enable Window Blind",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the window blind example accessory."
+      },
+      "enableVenetianBlind": {
+        "title": "Enable Venetian Blind (Tilt)",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the Venetian blind with tilt control example accessory."
+      },
+      "enableRobotVacuum": {
+        "title": "Enable Robot Vacuum",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the robotic vacuum cleaner example accessory."
       }
     }
-  }
+  },
+  "layout": [
+    {
+      "type": "fieldset",
+      "title": "Plugin Settings",
+      "items": ["name"]
+    },
+    {
+      "type": "fieldset",
+      "title": "Lighting Devices",
+      "description": "Enable or disable example lighting accessories",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableOnOffLight",
+        "enableDimmableLight",
+        "enableColourTemperatureLight",
+        "enableColourLight",
+        "enableExtendedColourLight"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Switches and Outlets",
+      "description": "Enable or disable example switch and outlet accessories.",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableOnOffSwitch",
+        "enableOnOffOutlet",
+        "enableDimmableOutlet"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Sensors",
+      "description": "Enable or disable example sensor accessories.",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableTemperatureSensor",
+        "enableHumiditySensor",
+        "enableLightSensor",
+        "enableMotionSensor",
+        "enableContactSensor",
+        "enableLeakSensor",
+        "enableSmokeSensor"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "HVAC Devices",
+      "description": "Enable or disable example HVAC accessories.",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableThermostat",
+        "enableFan"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Security and Access",
+      "description": "Enable or disable example security and access accessories.",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableDoorLock",
+        "enableGarageDoor"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Window Coverings",
+      "description": "Enable or disable example window covering accessories.",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableWindowBlind",
+        "enableVenetianBlind"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Appliances",
+      "description": "Enable or disable example appliance accessories.",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableRobotVacuum"
+      ]
+    }
+  ]
 }
