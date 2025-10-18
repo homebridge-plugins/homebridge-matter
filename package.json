@@ -3,7 +3,7 @@
   "displayName": "Homebridge Matter",
   "alias": "Matter",
   "type": "module",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Homebridge plugin to integrate Matter devices into HomeKit.",
   "author": {
     "name": "bwp91",
@@ -49,7 +49,7 @@
   "main": "dist/index.js",
   "engines": {
     "node": "^20.18.0 || ^22.10.0 || ^24.0.0",
-    "homebridge": "^2.0.0-alpha.0"
+    "homebridge": "^2.0.0-alpha.51"
   },
   "scripts": {
     "build": "rimraf ./dist && tsc",
@@ -63,7 +63,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^6.0.0",
     "@types/node": "^24.8.1",
-    "homebridge": "2.0.0-alpha.49",
+    "homebridge": "2.0.0-alpha.51",
     "nodemon": "^3.1.10",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
