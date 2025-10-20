@@ -1,52 +1,86 @@
 <p align="center">
-
-<img src="https://github.com/homebridge/branding/raw/latest/logos/homebridge-wordmark-logo-vertical.png" width="150">
-
+   <a href="https://github.com/homebridge-plugins/homebridge-matter"><img alt="Homebridge Verified" src="https://github.com/homebridge-plugins/homebridge-matter/blob/latest/plugin-header.png?raw=true" width="600px"></a>
 </p>
-
 <span align="center">
 
-# Homebridge Matter
+# homebridge-matter
+
+Homebridge plugin to showcase examples of Matter devices in Homebridge.
+
+[![npm](https://img.shields.io/npm/v/@homebridge-plugins/homebridge-matter/latest?label=latest)](https://www.npmjs.com/package/@homebridge-plugins/homebridge-matter)
+[![npm](https://img.shields.io/npm/v/@homebridge-plugins/homebridge-matter/beta?label=beta)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Beta-Version)
+
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+
+[![npm](https://img.shields.io/npm/dt/@homebridge-plugins/homebridge-matter)](https://www.npmjs.com/package/@homebridge-plugins/homebridge-matter)
+[![Discord](https://img.shields.io/discord/432663330281226270?color=728ED5&logo=discord&label=hb-discord)](https://discord.com/channels/432663330281226270/742733745743855627)
 
 </span>
 
-### Customise Plugin
+### Plugin Information
 
-You can now start customising the plugin template to suit your requirements.
+This plugin provides example implementations of Matter device types in Homebridge:
 
-- [`src/platform.ts`](./src/platform.ts) - this is where your device setup and discovery should go.
-- [`src/platformAccessory.ts`](./src/platformAccessory.ts) - this is where your accessory control logic should go, you can rename or create multiple instances of this file for each accessory type you need to implement as part of your platform plugin. You can refer to the [developer documentation](https://developers.homebridge.io/) to see what characteristics you need to implement for each service type.
-- [`config.schema.json`](./config.schema.json) - update the config schema to match the config you expect from the user. See the [Plugin Config Schema Documentation](https://developers.homebridge.io/#/config-schema).
+- **21+ Matter Device Types**: Complete implementations across all major Matter device categories
+- **Demonstration & Testing**: Perfect for developers building Matter plugins or testing Matter integrations
+- **Example Code Reference**: Clean, documented examples showing how to implement Matter devices in Homebridge
+- **Apple Home Compatible**: Special support for devices like robotic vacuum cleaners that require dedicated bridges
+- **Production Ready**: Built on the official Matter specification with proper cluster implementations
 
-### Matter State Management Guide
+#### Supported Matter Device Types
 
-**Important for Matter plugin developers:** Understanding how to manage accessory state is critical when working with Matter.
+**Section 4: Lighting Devices** (Matter Spec § 4) - 5 devices
+- On/Off Light
+- Dimmable Light
+- Colour Temperature Light
+- Colour Light (HS)
+- Extended Colour Light (HS+CCT)
 
-📖 **[Read the State Management Guide](./STATE_MANAGEMENT.md)** to learn:
+**Section 5: Smart Plugs/Actuators** (Matter Spec § 5) - 2 devices
+- On/Off Outlet
+- Dimmable Outlet
 
-- **Handlers** (Home app → Device) - How to respond when users control devices via Home app
-- **State Updates** (Device → Home app) - How to sync state when devices change externally (native app, physical buttons, webhooks, etc.)
-- Complete working examples for outlets, lights, and sensors
-- Differences between Matter and HAP (HomeKit Accessory Protocol) patterns
+**Section 6: Switches & Controllers** (Matter Spec § 6) - 1 device
+- On/Off Light Switch
 
-**Quick Overview:**
+**Section 7: Sensors** (Matter Spec § 7) - 7 devices
+- Contact Sensor
+- Light Sensor
+- Motion Sensor (Occupancy)
+- Temperature Sensor
+- Humidity Sensor
+- Smoke/CO Alarm
+- Water Leak Detector
 
-```typescript
-handlers: {
-  onOff: {
-    on: async () => {
-      await yourDeviceAPI.turnOn()
-    }
-  }
-}
+**Section 8: Closure Devices** (Matter Spec § 8) - 3 devices
+- Door Lock
+- Window Blind
+- Venetian Blind (with Tilt)
 
-// Pattern 2: Device changes externally → Update Home app
-function handleExternalChange(newState: boolean) {
-  this.api.updateMatterAccessoryState('device-uuid', 'onOff', {
-    onOff: newState,
-  })
-}
-```
+**Section 9: HVAC** (Matter Spec § 9) - 2 devices
+- Thermostat
+- Fan
 
-See [`STATE_MANAGEMENT.md`](./STATE_MANAGEMENT.md) for complete details and examples.
+**Section 12: Robotic Devices** (Matter Spec § 12) - 1 device
+- Robotic Vacuum Cleaner (published as an external accessory on a dedicated Matter bridge)
 
+### Prerequisites
+
+- To use this plugin, you will need to already have:
+  - [Node](https://nodejs.org): latest version of `v20`, `v22` or `v24` - any other major version is not supported.
+  - [Homebridge](https://homebridge.io): `>=2.0.0-alpha.55 <2.0.0-beta.0` - refer to link for more information and installation instructions.
+
+### Help/About
+
+- [Support Request](https://github.com/homebridge-plugins/homebridge-matter/issues/new/choose)
+- [Changelog](https://github.com/homebridge-plugins/homebridge-matter/blob/latest/CHANGELOG.md)
+- [About Me](https://github.com/sponsors/bwp91)
+
+### Credits
+
+- To the developers of [matter.js](https://github.com/matter-js/matter.js) who make the Matter integration possible.
+
+### Disclaimer
+
+- I am in no way affiliated with Matter and this plugin is a personal project that I maintain in my free time.
+- Use this plugin entirely at your own risk - please see licence for more information.
