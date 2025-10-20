@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.1.0 (2025-10-20)
+
+### Changes
+
+- added plugin header image
+
 ## v0.0.6 (2025-10-18)
 
 ### Changes
