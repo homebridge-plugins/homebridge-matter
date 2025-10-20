@@ -168,9 +168,9 @@
         document.getElementById('pageSupport').style.display = 'none'
         document.getElementById('pageDevices').style.display = 'block'
         const cachedAccessories =
-          typeof homebridge.getCachedAccessories === 'function'
-            ? await homebridge.getCachedAccessories()
-            : await homebridge.request('/getCachedAccessories')
+          typeof homebridge.getCachedMatterAccessories === 'function'
+            ? await homebridge.getCachedMatterAccessories()
+            : []
         if (cachedAccessories.length > 0) {
           cachedAccessories.sort((a, b) => {
             return a.displayName.toLowerCase() > b.displayName.toLowerCase()

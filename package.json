@@ -58,7 +58,7 @@
     "prepublishOnly": "npm run lint && npm run build"
   },
   "dependencies": {
-    "@homebridge/plugin-ui-utils": "^2.1.0",
+    "@homebridge/plugin-ui-utils": "^2.1.1-beta.0",
     "@matter/main": "^0.15.6"
   },
   "devDependencies": {
