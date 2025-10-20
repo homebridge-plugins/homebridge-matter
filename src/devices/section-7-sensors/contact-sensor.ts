@@ -1,0 +1,32 @@
+/**
+ * Contact Sensor Device (Matter Spec § 7.1)
+ *
+ * A sensor that detects open/close state (e.g., door, window).
+ */
+
+import type { DeviceContext } from '../types.js'
+
+export function registerContactSensor(context: DeviceContext): any[] {
+  const { api, config } = context
+  const accessories: any[] = []
+
+  if (!config.enableContactSensor) {
+    return accessories
+  }
+
+  accessories.push({
+    uuid: api.hap.uuid.generate('matter-contact-sensor'),
+    displayName: 'Contact Sensor',
+    deviceType: api.matter.deviceTypes.ContactSensor,
+    serialNumber: 'CONTACT-001',
+    manufacturer: 'Homebridge',
+    model: 'Contact Sensor Example',
+    clusters: {
+      booleanState: {
+        stateValue: false, // Contact closed (false = closed, true = open)
+      },
+    },
+  })
+
+  return accessories
+}
