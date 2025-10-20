@@ -15,7 +15,7 @@ export function registerWaterLeakDetector(context: DeviceContext): any[] {
   }
 
   accessories.push({
-    uuid: api.hap.uuid.generate('matter-leak-sensor'),
+    uuid: api.matter.uuid.generate('matter-leak-sensor'),
     displayName: 'Leak Sensor',
     deviceType: api.matter.deviceTypes.LeakSensor,
     serialNumber: 'LEAK-001',

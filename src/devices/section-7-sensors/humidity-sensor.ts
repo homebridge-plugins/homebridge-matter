@@ -15,7 +15,7 @@ export function registerHumiditySensor(context: DeviceContext): any[] {
   }
 
   accessories.push({
-    uuid: api.hap.uuid.generate('matter-humidity-sensor'),
+    uuid: api.matter.uuid.generate('matter-humidity-sensor'),
     displayName: 'Humidity Sensor',
     deviceType: api.matter.deviceTypes.HumiditySensor,
     serialNumber: 'HUM-001',

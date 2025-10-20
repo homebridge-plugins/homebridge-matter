@@ -34,7 +34,7 @@ import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js'
  *
  * Organized by official Matter Specification v1.4.1 categories
  */
-export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
+export class MatterPlatform implements DynamicPlatformPlugin {
   // Track restored HAP cached accessories (required for DynamicPlatformPlugin)
   // This is commented out here as this plugin does not have any HAP accessories
   // public readonly accessories: Map<string, PlatformAccessory> = new Map()
@@ -82,7 +82,25 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
   }
 
   /**
-   * Called when homebridge restores cached Matter accessories from disk at startup
+   * Called when homebridge restores cached Matter accessories from disk at startup.
+   *
+   * This is where you can access the `accessory.context` object to retrieve
+   * any custom data you stored when the accessory was originally registered.
+   *
+   * Example:
+   * ```typescript
+   * configureMatterAccessory(accessory: any) {
+   *   this.log.debug('Restoring:', accessory.displayName)
+   *
+   *   // Access your stored context data
+   *   if (accessory.context?.deviceId) {
+   *     this.log.debug('Device ID:', accessory.context.deviceId)
+   *     // Reconnect to your device using the stored ID
+   *   }
+   *
+   *   this.matterAccessories.set(accessory.uuid, accessory)
+   * }
+   * ```
    */
   configureMatterAccessory(accessory: any) {
     this.log.debug('Loading cached Matter accessory:', accessory.displayName)
@@ -127,13 +145,13 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       { enabled: this.config.enableOnOffOutlet, uuid: this.api.matter.uuid.generate('matter-onoff-outlet'), name: 'On/Off Outlet' },
       { enabled: this.config.enableDimmableOutlet, uuid: this.api.matter.uuid.generate('matter-dimmable-outlet'), name: 'Dimmable Outlet' },
       { enabled: this.config.enableOnOffSwitch, uuid: this.api.matter.uuid.generate('matter-onoff-switch'), name: 'On/Off Switch' },
-      { enabled: this.config.enableTemperatureSensor, uuid: this.api.hap.uuid.generate('matter-temperature-sensor'), name: 'Temperature Sensor' },
-      { enabled: this.config.enableHumiditySensor, uuid: this.api.hap.uuid.generate('matter-humidity-sensor'), name: 'Humidity Sensor' },
-      { enabled: this.config.enableLightSensor, uuid: this.api.hap.uuid.generate('matter-light-sensor'), name: 'Light Sensor' },
-      { enabled: this.config.enableMotionSensor, uuid: this.api.hap.uuid.generate('matter-motion-sensor'), name: 'Motion Sensor' },
-      { enabled: this.config.enableContactSensor, uuid: this.api.hap.uuid.generate('matter-contact-sensor'), name: 'Contact Sensor' },
-      { enabled: this.config.enableLeakSensor, uuid: this.api.hap.uuid.generate('matter-leak-sensor'), name: 'Leak Sensor' },
-      { enabled: this.config.enableSmokeSensor, uuid: this.api.hap.uuid.generate('matter-smoke-sensor'), name: 'Smoke Sensor' },
+      { enabled: this.config.enableTemperatureSensor, uuid: this.api.matter.uuid.generate('matter-temperature-sensor'), name: 'Temperature Sensor' },
+      { enabled: this.config.enableHumiditySensor, uuid: this.api.matter.uuid.generate('matter-humidity-sensor'), name: 'Humidity Sensor' },
+      { enabled: this.config.enableLightSensor, uuid: this.api.matter.uuid.generate('matter-light-sensor'), name: 'Light Sensor' },
+      { enabled: this.config.enableMotionSensor, uuid: this.api.matter.uuid.generate('matter-motion-sensor'), name: 'Motion Sensor' },
+      { enabled: this.config.enableContactSensor, uuid: this.api.matter.uuid.generate('matter-contact-sensor'), name: 'Contact Sensor' },
+      { enabled: this.config.enableLeakSensor, uuid: this.api.matter.uuid.generate('matter-leak-sensor'), name: 'Leak Sensor' },
+      { enabled: this.config.enableSmokeSensor, uuid: this.api.matter.uuid.generate('matter-smoke-sensor'), name: 'Smoke Sensor' },
       { enabled: this.config.enableDoorLock, uuid: this.api.matter.uuid.generate('matter-door-lock'), name: 'Door Lock' },
       { enabled: this.config.enableWindowBlind, uuid: this.api.matter.uuid.generate('matter-window-blind'), name: 'Window Blind' },
       { enabled: this.config.enableVenetianBlind, uuid: this.api.matter.uuid.generate('matter-venetian-blind'), name: 'Venetian Blind' },
@@ -156,13 +174,25 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
 
   /**
    * Section 4: Lighting Devices (Matter Spec § 4)
+   *
+   * This method demonstrates the standard pattern for registering Matter devices:
+   * 1. Create a context object containing api, log, and config
+   * 2. Call device registration functions to collect accessories
+   * 3. Register accessories with Homebridge using api.matter.registerPlatformAccessories()
+   *
+   * Each device registration function returns an array of accessories (empty if disabled).
+   * The spread operator (...) flattens all arrays into a single accessories array.
    */
   private registerSection4Lighting() {
     this.log.info('═'.repeat(80))
     this.log.info('Section 4: Lighting Devices (Matter Spec § 4)')
     this.log.info('═'.repeat(80))
 
+    // Step 1: Create context object to pass to device registration functions
     const context = { api: this.api, log: this.log, config: this.config }
+
+    // Step 2: Call device registration functions to collect accessories
+    // Each function checks config and returns [] if disabled, or [accessory] if enabled
     const accessories = [
       ...registerOnOffLight(context),
       ...registerDimmableLight(context),
@@ -170,11 +200,14 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       ...registerExtendedColorLight(context),
     ]
 
+    // Step 3: Register all collected accessories with Homebridge
     if (accessories.length > 0) {
       this.log.info(`✓ Registered ${accessories.length} lighting device(s)`)
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
+
+      // This is the key API call that registers Matter accessories with Homebridge
       this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
@@ -301,9 +334,18 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
   /**
    * Section 12: Robotic Devices (Matter Spec § 12)
    *
-   * ⚠️ IMPORTANT: RVC devices are published as external accessories
-   * Apple Home requires RVC devices to be on their own dedicated Matter bridge.
-   * Using publishExternalAccessories ensures each RVC device gets its own bridge.
+   * ⚠️ IMPORTANT: RVC devices use a DIFFERENT API than other devices!
+   *
+   * This demonstrates api.matter.publishExternalAccessories() instead of
+   * api.matter.registerPlatformAccessories(). The key differences:
+   *
+   * 1. publishExternalAccessories() creates a dedicated Matter bridge for each device
+   * 2. Each device gets its own port and commissioning codes (QR + manual)
+   * 3. Required for RVC devices to work with Apple Home
+   * 4. Use for devices that need isolation (cameras, doorbells, RVC, etc.)
+   *
+   * When this runs, you'll see separate commissioning codes in the logs for the robot vacuum.
+   * Use those codes to pair the vacuum as a separate bridge in your Home app.
    */
   private registerSection12Robotic() {
     this.log.info('═'.repeat(80))
@@ -320,8 +362,9 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName} (dedicated bridge for Apple Home compatibility)`)
       }
-      // Use publishExternalAccessories to give each RVC device its own bridge
-      // This is required for Apple Home compatibility
+
+      // DIFFERENT API: publishExternalAccessories() instead of registerPlatformAccessories()
+      // This gives each device its own Matter bridge, required for RVC devices in Apple Home
       this.api.matter.publishExternalAccessories(PLUGIN_NAME, accessories)
     }
   }

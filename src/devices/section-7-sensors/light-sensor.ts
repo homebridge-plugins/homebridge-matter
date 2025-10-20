@@ -15,7 +15,7 @@ export function registerLightSensor(context: DeviceContext): any[] {
   }
 
   accessories.push({
-    uuid: api.hap.uuid.generate('matter-light-sensor'),
+    uuid: api.matter.uuid.generate('matter-light-sensor'),
     displayName: 'Light Sensor',
     deviceType: api.matter.deviceTypes.LightSensor,
     serialNumber: 'LIGHT-001',

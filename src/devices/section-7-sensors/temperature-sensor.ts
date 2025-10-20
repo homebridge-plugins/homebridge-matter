@@ -15,7 +15,7 @@ export function registerTemperatureSensor(context: DeviceContext): any[] {
   }
 
   accessories.push({
-    uuid: api.hap.uuid.generate('matter-temperature-sensor'),
+    uuid: api.matter.uuid.generate('matter-temperature-sensor'),
     displayName: 'Temperature Sensor',
     deviceType: api.matter.deviceTypes.TemperatureSensor,
     serialNumber: 'TEMP-001',

@@ -22,7 +22,7 @@ export function registerOccupancySensor(context: DeviceContext): any[] {
   )
 
   accessories.push({
-    uuid: api.hap.uuid.generate('matter-motion-sensor'),
+    uuid: api.matter.uuid.generate('matter-motion-sensor'),
     displayName: 'Motion Sensor',
     deviceType: MotionSensorWithPIR,
     serialNumber: 'MOTION-001',

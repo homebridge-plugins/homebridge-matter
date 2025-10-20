@@ -4,6 +4,8 @@
  * A lock that can be locked and unlocked remotely.
  */
 
+import { MatterTypes } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 export function registerDoorLock(context: DeviceContext): any[] {
@@ -14,50 +16,68 @@ export function registerDoorLock(context: DeviceContext): any[] {
     return accessories
   }
 
+  // Generate UUID once and reuse in handlers
+  const doorLockUuid = api.matter.uuid.generate('matter-door-lock')
+
   accessories.push({
-    uuid: api.matter.uuid.generate('matter-door-lock'),
+    uuid: doorLockUuid,
     displayName: 'Door Lock',
     deviceType: api.matter.deviceTypes.DoorLock,
     serialNumber: 'LOCK-001',
     manufacturer: 'Matter Examples',
     model: 'DoorLock v1',
 
+    // Optional: Persistent storage for custom data (survives Homebridge restarts)
+    // Useful for storing device IDs, API credentials, cached state, etc.
+    // Access later via configureMatterAccessory() when Homebridge restarts
+    // context: {
+    //   lockDeviceId: 'abc123',
+    //   apiEndpoint: 'https://api.mylock.com',
+    //   lastKnownState: 2, // 2 = Unlocked
+    // },
+
     clusters: {
       doorLock: {
-        // Lock state: 0=NotFullyLocked, 1=Locked, 2=Unlocked
-        lockState: 2, // Unlocked
+        // Lock state using MatterTypes enum for type safety
+        lockState: MatterTypes.DoorLock.LockState.Unlocked, // Unlocked (initial state)
 
-        // Lock type: 0=Deadbolt, 1=Magnetic, 2=Other, etc.
-        lockType: 0, // Deadbolt
+        // Lock type using MatterTypes enum
+        lockType: MatterTypes.DoorLock.LockType.DeadBolt,
 
-        // Actuator enabled (can be locked/unlocked)
+        // Actuator enabled (can be locked/unlocked remotely)
         actuatorEnabled: true,
       },
     },
 
     handlers: {
       doorLock: {
-        // Called when user locks the door
+        // Called when user locks the door via Home app
         lockDoor: async () => {
           log.info('[Door Lock] ✓ Handler `lockDoor` called - Locking door')
 
-          // Update the lock state to "Locked" (1)
-          await api.matter.updateAccessoryState(
-            api.matter.uuid.generate('matter-door-lock'),
+          // TODO: Add your actual lock device control logic here
+          // Example: await myLockAPI.lock()
+
+          // Update the Matter state to reflect the lock is now locked
+          return api.matter.updateAccessoryState(
+            doorLockUuid,
             'doorLock',
-            { lockState: 1 },
+            { lockState: MatterTypes.DoorLock.LockState.Locked },
           )
         },
 
-        // Called when user unlocks the door
+        // Called when user unlocks the door via Home app
         unlockDoor: async () => {
           log.info('[Door Lock] ✓ Handler `unlockDoor` called - Unlocking door')
 
-          // Update the lock state to "Unlocked" (2)
-          await api.matter.updateAccessoryState(
-            api.matter.uuid.generate('matter-door-lock'),
+          // TODO: Add your actual lock device control logic here
+          // Example: await myLockAPI.unlock()
+
+          // Update the Matter state to reflect the lock is now unlocked
+          return api.matter.updateAccessoryState(
+            doorLockUuid,
             'doorLock',
-            { lockState: 2 },
+            { lockState: MatterTypes.DoorLock.LockState.Unlocked },
           )
         },
       },

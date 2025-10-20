@@ -65,6 +65,14 @@
   </button>
 </div>
 <div
+  id="experimentalBanner"
+  class="alert alert-danger mb-0 mt-3 text-center"
+  role="alert"
+  style="display: none; border-left: 4px solid #dc3545;"
+>
+  <strong>⚠️ Experimental:</strong> This plugin is still in development and should be considered experimental
+</div>
+<div
   id="disabledBanner"
   class="alert alert-secondary mb-0 mt-3"
   role="alert"
@@ -85,11 +93,51 @@
     <table class="table w-100 mt-3" id="deviceTable" style="display: none;">
       <thead>
         <tr class="table-active">
-          <th scope="col" style="width: 40%;">Device Name</th>
-          <th scope="col" style="width: 60%;" id="displayName"></th>
+          <th scope="col" style="width: 40%;">Property</th>
+          <th scope="col" style="width: 60%;">Value</th>
         </tr>
       </thead>
       <tbody>
+        <tr>
+          <th scope="row">Display Name</th>
+          <td id="displayName"></td>
+        </tr>
+        <tr>
+          <th scope="row">Plugin</th>
+          <td id="plugin"></td>
+        </tr>
+        <tr>
+          <th scope="row">Platform</th>
+          <td id="platform"></td>
+        </tr>
+        <tr>
+          <th scope="row">UUID</th>
+          <td id="uuid"></td>
+        </tr>
+        <tr>
+          <th scope="row">Device Type</th>
+          <td id="deviceType"></td>
+        </tr>
+        <tr>
+          <th scope="row">Serial Number</th>
+          <td id="serialNumber"></td>
+        </tr>
+        <tr>
+          <th scope="row">Manufacturer</th>
+          <td id="manufacturer"></td>
+        </tr>
+        <tr>
+          <th scope="row">Model</th>
+          <td id="model"></td>
+        </tr>
+        <tr>
+          <th scope="row">Device ID</th>
+          <td id="deviceId"></td>
+        </tr>
+        <tr>
+          <th scope="row">Protocol</th>
+          <td id="protocol"></td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -150,6 +198,7 @@
           homebridge.showSpinner()
           document.getElementById('pageIntro').style.display = 'none'
           document.getElementById('menuWrapper').style.display = 'inline-flex'
+          showExperimentalBanner()
           showSettings()
           homebridge.hideSpinner()
         })
@@ -185,19 +234,31 @@
         cachedAccessories.forEach(a => {
           const option = document.createElement('option')
           option.text = a.displayName
-          option.value = a.context.hbDeviceId
+          option.value = a.uuid
           deviceSelect.add(option)
         })
-        showDeviceInfo = async hbDeviceId => {
+        showDeviceInfo = async uuid => {
           homebridge.showSpinner()
-          const thisAcc = cachedAccessories.find(x => x.context.hbDeviceId === hbDeviceId)
-          const context = thisAcc.context
+          const thisAcc = cachedAccessories.find(x => x.uuid === uuid)
+
+          // Populate device information
+          document.getElementById('displayName').innerHTML = thisAcc.displayName || 'N/A'
+          document.getElementById('plugin').innerHTML = thisAcc.plugin || 'N/A'
+          document.getElementById('platform').innerHTML = thisAcc.platform || 'N/A'
+          document.getElementById('uuid').innerHTML = thisAcc.uuid || 'N/A'
+          document.getElementById('deviceType').innerHTML = thisAcc.deviceType?.name || 'N/A'
+          document.getElementById('serialNumber').innerHTML = thisAcc.serialNumber || 'N/A'
+          document.getElementById('manufacturer').innerHTML = thisAcc.manufacturer || 'N/A'
+          document.getElementById('model').innerHTML = thisAcc.model || 'N/A'
+          document.getElementById('deviceId').innerHTML = thisAcc.$deviceId || 'N/A'
+          document.getElementById('protocol').innerHTML = thisAcc.$protocol || 'N/A'
+
           document.getElementById('deviceTable').style.display = 'inline-table'
           homebridge.hideSpinner()
         }
         deviceSelect.addEventListener('change', event => showDeviceInfo(event.target.value))
         if (cachedAccessories.length > 0) {
-          showDeviceInfo(cachedAccessories[0].context.hbDeviceId)
+          showDeviceInfo(cachedAccessories[0].uuid)
         } else {
           const option = document.createElement('option')
           option.text = 'No Devices'
@@ -234,6 +295,9 @@
         homebridge.showSchemaForm()
         homebridge.hideSpinner()
       }
+      showExperimentalBanner = () => {
+        document.getElementById('experimentalBanner').style.display = 'block'
+      }
       showDisabledBanner = () => {
         document.getElementById('disabledBanner').style.display = 'block'
       }
@@ -251,6 +315,7 @@
       disabledEnable.addEventListener('click', () => enablePlugin())
       if (currentConfig.length) {
         document.getElementById('menuWrapper').style.display = 'inline-flex'
+        showExperimentalBanner()
         showSettings()
         if (currentConfig[0].disablePlugin) {
           showDisabledBanner()

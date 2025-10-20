@@ -15,7 +15,7 @@ export function registerContactSensor(context: DeviceContext): any[] {
   }
 
   accessories.push({
-    uuid: api.hap.uuid.generate('matter-contact-sensor'),
+    uuid: api.matter.uuid.generate('matter-contact-sensor'),
     displayName: 'Contact Sensor',
     deviceType: api.matter.deviceTypes.ContactSensor,
     serialNumber: 'CONTACT-001',

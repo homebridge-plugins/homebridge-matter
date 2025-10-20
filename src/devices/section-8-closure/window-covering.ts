@@ -14,8 +14,11 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
   // Variant 1: Window Blind (lift only)
   if (config.enableWindowBlind) {
+    // Generate UUID once and reuse in handlers
+    const windowBlindUuid = api.matter.uuid.generate('matter-window-blind')
+
     accessories.push({
-      uuid: api.matter.uuid.generate('matter-window-blind'),
+      uuid: windowBlindUuid,
       displayName: 'Window Blind',
       deviceType: api.matter.deviceTypes.WindowCovering,
       serialNumber: 'BLIND-001',
@@ -57,8 +60,8 @@ export function registerWindowCovering(context: DeviceContext): any[] {
             const percent = (request.targetPercent / 100).toFixed(0)
             log.info(`[Window Blind] ✓ Handler \`goToLiftPercentage\` called: ${request.targetPercent} (${percent}% open)`)
 
-            await api.matter.updateAccessoryState(
-              api.matter.uuid.generate('matter-window-blind'),
+            return api.matter.updateAccessoryState(
+              windowBlindUuid,
               'windowCovering',
               {
                 currentPositionLiftPercent100ths: request.targetPercent,
@@ -70,8 +73,8 @@ export function registerWindowCovering(context: DeviceContext): any[] {
           upOrOpen: async () => {
             log.info('[Window Blind] ✓ Handler `upOrOpen` called - Opening blind')
 
-            await api.matter.updateAccessoryState(
-              api.matter.uuid.generate('matter-window-blind'),
+            return api.matter.updateAccessoryState(
+              windowBlindUuid,
               'windowCovering',
               {
                 currentPositionLiftPercent100ths: 10000, // Fully open
@@ -83,8 +86,8 @@ export function registerWindowCovering(context: DeviceContext): any[] {
           downOrClose: async () => {
             log.info('[Window Blind] ✓ Handler `downOrClose` called - Closing blind')
 
-            await api.matter.updateAccessoryState(
-              api.matter.uuid.generate('matter-window-blind'),
+            return api.matter.updateAccessoryState(
+              windowBlindUuid,
               'windowCovering',
               {
                 currentPositionLiftPercent100ths: 0, // Fully closed
@@ -103,8 +106,11 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
   // Variant 2: Venetian Blind (lift + tilt)
   if (config.enableVenetianBlind) {
+    // Generate UUID once and reuse in handlers
+    const venetianBlindUuid = api.matter.uuid.generate('matter-venetian-blind')
+
     accessories.push({
-      uuid: api.matter.uuid.generate('matter-venetian-blind'),
+      uuid: venetianBlindUuid,
       displayName: 'Venetian Blind (Tilt)',
       deviceType: api.matter.deviceTypes.WindowCovering,
       serialNumber: 'BLIND-002',
@@ -150,8 +156,8 @@ export function registerWindowCovering(context: DeviceContext): any[] {
             const percent = (request.targetPercent / 100).toFixed(0)
             log.info(`[Venetian Blind] ✓ Handler \`goToLiftPercentage\` called: ${request.targetPercent} (${percent}% open)`)
 
-            await api.matter.updateAccessoryState(
-              api.matter.uuid.generate('matter-venetian-blind'),
+            return api.matter.updateAccessoryState(
+              venetianBlindUuid,
               'windowCovering',
               {
                 currentPositionLiftPercent100ths: request.targetPercent,
@@ -164,8 +170,8 @@ export function registerWindowCovering(context: DeviceContext): any[] {
             const percent = (request.targetPercent / 100).toFixed(0)
             log.info(`[Venetian Blind] ✓ Handler \`goToTiltPercentage\` called: ${request.targetPercent} (${percent}% tilted)`)
 
-            await api.matter.updateAccessoryState(
-              api.matter.uuid.generate('matter-venetian-blind'),
+            return api.matter.updateAccessoryState(
+              venetianBlindUuid,
               'windowCovering',
               {
                 currentPositionTiltPercent100ths: request.targetPercent,
@@ -177,8 +183,8 @@ export function registerWindowCovering(context: DeviceContext): any[] {
           upOrOpen: async () => {
             log.info('[Venetian Blind] ✓ Handler `upOrOpen` called - Opening blind')
 
-            await api.matter.updateAccessoryState(
-              api.matter.uuid.generate('matter-venetian-blind'),
+            return api.matter.updateAccessoryState(
+              venetianBlindUuid,
               'windowCovering',
               {
                 currentPositionLiftPercent100ths: 10000, // Fully open
@@ -190,8 +196,8 @@ export function registerWindowCovering(context: DeviceContext): any[] {
           downOrClose: async () => {
             log.info('[Venetian Blind] ✓ Handler `downOrClose` called - Closing blind')
 
-            await api.matter.updateAccessoryState(
-              api.matter.uuid.generate('matter-venetian-blind'),
+            return api.matter.updateAccessoryState(
+              venetianBlindUuid,
               'windowCovering',
               {
                 currentPositionLiftPercent100ths: 0, // Fully closed

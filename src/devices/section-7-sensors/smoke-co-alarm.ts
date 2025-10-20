@@ -21,7 +21,7 @@ export function registerSmokeCoAlarm(context: DeviceContext): any[] {
   )
 
   accessories.push({
-    uuid: api.hap.uuid.generate('matter-smoke-sensor'),
+    uuid: api.matter.uuid.generate('matter-smoke-sensor'),
     displayName: 'Smoke Sensor',
     deviceType: SmokeSensorWithBoth,
     serialNumber: 'SMOKE-001',

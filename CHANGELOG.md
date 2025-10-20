@@ -2,6 +2,13 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.1.1 (Unreleased)
+
+### Changes
+
+- show cached accessories in the plugin ui
+- general improvements to repo and examples
+
 ## v0.1.0 (2025-10-20)
 
 ### Changes

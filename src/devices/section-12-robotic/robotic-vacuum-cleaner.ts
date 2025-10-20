@@ -15,7 +15,7 @@
  * 1. Dedicated Matter Server: Gets its own MatterServer instance
  * 2. Automatic Port Allocation: Receives a unique port (e.g., 5541)
  * 3. Separate Commissioning: Gets its own QR code and manual pairing code
- * 4. Isolation: Completely independent from other Matter accessories
+ * 4. Isolation: Completely independent of other Matter accessories
  * 5. Apple Home Compatible: Works properly with Apple Home's RVC requirements
  *
  * When you start Homebridge, you'll see logs like:
@@ -163,7 +163,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
 
           // Update Matter state to reflect the change
           // This notifies all connected Home apps of the new state
-          await api.matter.updateAccessoryState(
+          return api.matter.updateAccessoryState(
             uuid, // Use the same UUID we generated above
             'rvcOperationalState',
             { operationalState: 2 }, // 2 = Paused
@@ -185,7 +185,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
           // Example: await yourVacuumAPI.resume()
 
           // Update Matter state to Running
-          await api.matter.updateAccessoryState(
+          return api.matter.updateAccessoryState(
             uuid,
             'rvcOperationalState',
             { operationalState: 1 }, // 1 = Running
@@ -207,7 +207,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
           // Example: await yourVacuumAPI.returnToDock()
 
           // Update Matter state to SeekingCharger
-          await api.matter.updateAccessoryState(
+          return api.matter.updateAccessoryState(
             uuid,
             'rvcOperationalState',
             { operationalState: 64 }, // 64 = SeekingCharger
@@ -246,7 +246,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
           // }
 
           // Update Matter state
-          await api.matter.updateAccessoryState(
+          return api.matter.updateAccessoryState(
             uuid,
             'rvcRunMode',
             { currentMode: request.newMode },
@@ -282,7 +282,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
           // }
 
           // Update Matter state
-          await api.matter.updateAccessoryState(
+          return api.matter.updateAccessoryState(
             uuid,
             'rvcCleanMode',
             { currentMode: request.newMode },
@@ -329,13 +329,13 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
 //      try {
 //        await vacuumAPI.pause()
 //        log.info('Successfully paused vacuum')
-//        await api.matter.updateAccessoryState(uuid, 'rvcOperationalState', {
+//        return api.matter.updateAccessoryState(uuid, 'rvcOperationalState', {
 //          operationalState: 2 // Paused
 //        })
 //      } catch (error) {
 //        log.error('Failed to pause vacuum:', error)
 //        // Optionally set error state
-//        await api.matter.updateAccessoryState(uuid, 'rvcOperationalState', {
+//        return api.matter.updateAccessoryState(uuid, 'rvcOperationalState', {
 //          operationalState: 3, // Error
 //          operationalError: { errorStateId: 1 }
 //        })

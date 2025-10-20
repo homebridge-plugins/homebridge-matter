@@ -41,7 +41,7 @@ export default antfu(
       'style/quote-props': ['error', 'consistent-as-needed'],
       'test/no-only-tests': 'error',
       'unicorn/no-useless-spread': 'error',
-      'unused-imports/no-unused-vars': ['error', { caughtErrors: 'none' }],
+      'unused-imports/no-unused-vars': 0,
     },
     typescript: true,
   },
