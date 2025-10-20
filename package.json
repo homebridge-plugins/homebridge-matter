@@ -53,9 +53,9 @@
   },
   "scripts": {
     "build": "rimraf ./dist && tsc && npm run plugin-ui",
-    "plugin-ui": "rsync ./src/homebridge-ui/public/index.html ./dist/homebridge-ui/public/",
+    "plugin-ui": "mkdir -p ./dist/homebridge-ui/public && cp ./src/homebridge-ui/server.js ./dist/homebridge-ui/ && cp ./src/homebridge-ui/public/index.html ./dist/homebridge-ui/public/",
     "lint": "eslint . --fix",
-    "prepublishOnly": "npm run lint && npm run build && npm run plugin-ui"
+    "prepublishOnly": "npm run lint && npm run build"
   },
   "dependencies": {
     "@homebridge/plugin-ui-utils": "^2.1.0",
