@@ -4,7 +4,7 @@
   "alias": "Matter",
   "type": "module",
   "version": "0.0.6",
-  "description": "Homebridge plugin to integrate Matter devices into HomeKit.",
+  "description": "Homebridge plugin to showcase examples of Matter devices in Homebridge.",
   "author": {
     "name": "bwp91",
     "email": "bwp91@icloud.com"
@@ -49,22 +49,22 @@
   "main": "dist/index.js",
   "engines": {
     "node": "^20.18.0 || ^22.10.0 || ^24.0.0",
-    "homebridge": "^2.0.0-alpha.51"
+    "homebridge": ">=2.0.0-alpha.55 <2.0.0-beta.0"
   },
   "scripts": {
-    "build": "rimraf ./dist && tsc",
+    "build": "rimraf ./dist && tsc && npm run plugin-ui",
+    "plugin-ui": "rsync ./src/homebridge-ui/public/index.html ./dist/homebridge-ui/public/",
     "lint": "eslint . --fix",
-    "prepublishOnly": "npm run lint && npm run build",
-    "watch": "npm run build && npm link && nodemon"
+    "prepublishOnly": "npm run lint && npm run build && npm run plugin-ui"
   },
   "dependencies": {
-    "@homebridge/plugin-ui-utils": "^2.1.0"
+    "@homebridge/plugin-ui-utils": "^2.1.0",
+    "@matter/main": "^0.15.6"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.0.0",
     "@types/node": "^24.8.1",
-    "homebridge": "2.0.0-alpha.51",
-    "nodemon": "^3.1.10",
+    "homebridge": "2.0.0-alpha.55",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
