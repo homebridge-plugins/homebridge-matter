@@ -8,6 +8,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 
 - added plugin header image
 - update plugin repo meta files
+- added custom plugin ui
 
 ## v0.0.6 (2025-10-18)
 

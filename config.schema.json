@@ -3,6 +3,8 @@
   "pluginType": "platform",
   "singular": true,
   "strictValidation": false,
+  "customUi": true,
+  "customUiPath": "./dist/homebridge-ui",
   "schema": {
     "type": "object",
     "required": ["name"],
