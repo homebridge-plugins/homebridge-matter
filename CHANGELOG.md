@@ -11,6 +11,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - added custom plugin ui
 - plugin code refactoring + more devices
 - add plugin workflows, including release workflows
+- Add Claude Code GitHub Workflow (#1)
 
 ## v0.0.6 (2025-10-18)
 
