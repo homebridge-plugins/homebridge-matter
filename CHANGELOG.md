@@ -8,6 +8,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 
 - show cached accessories in the plugin ui
 - general improvements to repo and examples
+- try to improve robotic vacuum examples
 
 ## v0.1.0 (2025-10-20)
 
