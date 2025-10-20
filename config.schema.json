@@ -2,9 +2,10 @@
   "pluginAlias": "Matter",
   "pluginType": "platform",
   "singular": true,
-  "strictValidation": false,
+  "strictValidation": true,
   "customUi": true,
   "customUiPath": "./dist/homebridge-ui",
+  "headerDisplay": "<p align=\"center\"><img width=\"60%\" src=\"https://github.com/homebridge-plugins/homebridge-matter/blob/latest/plugin-header.png?raw=true\"></p><p align=\"center\">For help and support please visit our <a href=\"https://github.com/homebridge-plugins/homebridge-matter/wiki\">GitHub Wiki</a>. We hope you find this plugin useful!</p>",
   "schema": {
     "type": "object",
     "required": ["name"],
@@ -19,133 +20,127 @@
         "title": "Enable On/Off Light",
         "type": "boolean",
         "default": false,
-        "description": "Enable the on/off light example accessory."
+        "description": "Enable the on/off light example accessory (Matter Spec § 4.1)."
       },
       "enableDimmableLight": {
         "title": "Enable Dimmable Light",
         "type": "boolean",
         "default": false,
-        "description": "Enable the dimmable light example accessory."
+        "description": "Enable the dimmable light example accessory (Matter Spec § 4.2)."
       },
       "enableColourTemperatureLight": {
         "title": "Enable Colour Temperature Light",
         "type": "boolean",
         "default": false,
-        "description": "Enable the colour temperature light example accessory."
+        "description": "Enable the colour temperature light example accessory (Matter Spec § 4.3)."
       },
       "enableColourLight": {
         "title": "Enable Colour Light (HS)",
         "type": "boolean",
         "default": false,
-        "description": "Enable the colour light (hue/saturation) example accessory."
+        "description": "Enable the colour light (hue/saturation) example accessory (Matter Spec § 4.4)."
       },
       "enableExtendedColourLight": {
         "title": "Enable Extended Colour Light (HS+CCT)",
         "type": "boolean",
         "default": false,
-        "description": "Enable the extended colour light (hue/saturation + colour temperature) example accessory."
-      },
-      "enableOnOffSwitch": {
-        "title": "Enable On/Off Switch",
-        "type": "boolean",
-        "default": false,
-        "description": "Enable the on/off switch example accessory"
+        "description": "Enable the extended colour light (hue/saturation + colour temperature) example accessory (Matter Spec § 4.4)."
       },
       "enableOnOffOutlet": {
         "title": "Enable On/Off Outlet",
         "type": "boolean",
         "default": false,
-        "description": "Enable the on/off outlet (smart plug) example accessory."
+        "description": "Enable the on/off outlet (smart plug) example accessory (Matter Spec § 5.1)."
       },
       "enableDimmableOutlet": {
         "title": "Enable Dimmable Outlet",
         "type": "boolean",
         "default": false,
-        "description": "Enable the dimmable outlet example accessory."
+        "description": "Enable the dimmable outlet example accessory (Matter Spec § 5.2)."
       },
-      "enableTemperatureSensor": {
-        "title": "Enable Temperature Sensor",
+      "enableOnOffSwitch": {
+        "title": "Enable On/Off Light Switch",
         "type": "boolean",
         "default": false,
-        "description": "Enable the temperature sensor example accessory."
-      },
-      "enableHumiditySensor": {
-        "title": "Enable Humidity Sensor",
-        "type": "boolean",
-        "default": false,
-        "description": "Enable the humidity sensor example accessory."
-      },
-      "enableLightSensor": {
-        "title": "Enable Light Sensor",
-        "type": "boolean",
-        "default": false,
-        "description": "Enable the light sensor example accessory."
-      },
-      "enableMotionSensor": {
-        "title": "Enable Motion Sensor",
-        "type": "boolean",
-        "default": false,
-        "description": "Enable the motion sensor example accessory."
+        "description": "Enable the on/off light switch example accessory (Matter Spec § 6.1)."
       },
       "enableContactSensor": {
         "title": "Enable Contact Sensor",
         "type": "boolean",
         "default": false,
-        "description": "Enable the contact sensor example accessory."
+        "description": "Enable the contact sensor example accessory (Matter Spec § 7.1)."
       },
-      "enableLeakSensor": {
-        "title": "Enable Leak Sensor",
+      "enableLightSensor": {
+        "title": "Enable Light Sensor",
         "type": "boolean",
         "default": false,
-        "description": "Enable the leak sensor example accessory."
+        "description": "Enable the light sensor example accessory (Matter Spec § 7.2)."
+      },
+      "enableMotionSensor": {
+        "title": "Enable Motion Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the motion sensor (occupancy sensor) example accessory (Matter Spec § 7.3)."
+      },
+      "enableTemperatureSensor": {
+        "title": "Enable Temperature Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the temperature sensor example accessory (Matter Spec § 7.4)."
+      },
+      "enableHumiditySensor": {
+        "title": "Enable Humidity Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the humidity sensor example accessory (Matter Spec § 7.7)."
       },
       "enableSmokeSensor": {
-        "title": "Enable Smoke Sensor",
+        "title": "Enable Smoke/CO Alarm",
         "type": "boolean",
         "default": false,
-        "description": "Enable the smoke sensor example accessory."
+        "description": "Enable the smoke and carbon monoxide alarm example accessory (Matter Spec § 7.9)."
       },
-      "enableThermostat": {
-        "title": "Enable Thermostat",
+      "enableLeakSensor": {
+        "title": "Enable Water Leak Detector",
         "type": "boolean",
         "default": false,
-        "description": "Enable the thermostat example accessory."
-      },
-      "enableFan": {
-        "title": "Enable Fan",
-        "type": "boolean",
-        "default": false,
-        "description": "Enable the fan example accessory."
+        "description": "Enable the water leak detector example accessory (Matter Spec § 7.12)."
       },
       "enableDoorLock": {
         "title": "Enable Door Lock",
         "type": "boolean",
         "default": false,
-        "description": "Enable the door lock example accessory."
-      },
-      "enableGarageDoor": {
-        "title": "Enable Garage Door",
-        "type": "boolean",
-        "default": false,
-        "description": "Enable the garage door example accessory."
+        "description": "Enable the door lock example accessory (Matter Spec § 8.1)."
       },
       "enableWindowBlind": {
         "title": "Enable Window Blind",
         "type": "boolean",
         "default": false,
-        "description": "Enable the window blind example accessory."
+        "description": "Enable the window blind example accessory (Matter Spec § 8.3)."
       },
       "enableVenetianBlind": {
         "title": "Enable Venetian Blind (Tilt)",
         "type": "boolean",
         "default": false,
-        "description": "Enable the Venetian blind with tilt control example accessory."
+        "description": "Enable the Venetian blind with tilt control example accessory (Matter Spec § 8.3)."
       },
-      "enableRobotVacuum": {
-        "title": "Enable Robot Vacuum",
+      "enableThermostat": {
+        "title": "Enable Thermostat",
         "type": "boolean",
         "default": false,
-        "description": "Enable the robotic vacuum cleaner example accessory."
+        "description": "Enable the thermostat example accessory (Matter Spec § 9.1)."
+      },
+      "enableFan": {
+        "title": "Enable Fan",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the fan example accessory (Matter Spec § 9.2)."
+      },
+      "enableRobotVacuum": {
+        "title": "Enable Robotic Vacuum Cleaner (Apple Home Compatible)",
+        "type": "boolean",
+        "default": false,
+        "description": "✅ Enable the robotic vacuum cleaner example accessory (Matter Spec § 12.1). This device is automatically published on its own dedicated Matter bridge for Apple Home compatibility. You'll receive separate commissioning codes (QR code + manual code) for the robot vacuum."
       }
     }
   },
@@ -157,8 +152,8 @@
     },
     {
       "type": "fieldset",
-      "title": "Lighting Devices",
-      "description": "Enable or disable example lighting accessories",
+      "title": "Section 4: Lighting Devices",
+      "description": "Matter Specification § 4 - Fundamental lighting device types (5 devices implemented)",
       "expandable": true,
       "expanded": false,
       "items": [
@@ -171,36 +166,57 @@
     },
     {
       "type": "fieldset",
-      "title": "Switches and Outlets",
-      "description": "Enable or disable example switch and outlet accessories.",
+      "title": "Section 5: Smart Plugs/Actuators",
+      "description": "Matter Specification § 5 - Devices that control power and fluid flow (2 devices implemented)",
       "expandable": true,
       "expanded": false,
       "items": [
-        "enableOnOffSwitch",
         "enableOnOffOutlet",
         "enableDimmableOutlet"
       ]
     },
     {
       "type": "fieldset",
-      "title": "Sensors",
-      "description": "Enable or disable example sensor accessories.",
+      "title": "Section 6: Switches & Controllers",
+      "description": "Matter Specification § 6 - Input devices and control interfaces (1 device implemented)",
       "expandable": true,
       "expanded": false,
       "items": [
-        "enableTemperatureSensor",
-        "enableHumiditySensor",
-        "enableLightSensor",
-        "enableMotionSensor",
-        "enableContactSensor",
-        "enableLeakSensor",
-        "enableSmokeSensor"
+        "enableOnOffSwitch"
       ]
     },
     {
       "type": "fieldset",
-      "title": "HVAC Devices",
-      "description": "Enable or disable example HVAC accessories.",
+      "title": "Section 7: Sensors",
+      "description": "Matter Specification § 7 - All sensor types (7 devices implemented)",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableContactSensor",
+        "enableLightSensor",
+        "enableMotionSensor",
+        "enableTemperatureSensor",
+        "enableHumiditySensor",
+        "enableSmokeSensor",
+        "enableLeakSensor"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Section 8: Closure Devices",
+      "description": "Matter Specification § 8 - Locks and window coverings (3 devices implemented)",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableDoorLock",
+        "enableWindowBlind",
+        "enableVenetianBlind"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Section 9: HVAC",
+      "description": "Matter Specification § 9 - Heating, ventilation, and air conditioning (2 devices implemented)",
       "expandable": true,
       "expanded": false,
       "items": [
@@ -210,30 +226,8 @@
     },
     {
       "type": "fieldset",
-      "title": "Security and Access",
-      "description": "Enable or disable example security and access accessories.",
-      "expandable": true,
-      "expanded": false,
-      "items": [
-        "enableDoorLock",
-        "enableGarageDoor"
-      ]
-    },
-    {
-      "type": "fieldset",
-      "title": "Window Coverings",
-      "description": "Enable or disable example window covering accessories.",
-      "expandable": true,
-      "expanded": false,
-      "items": [
-        "enableWindowBlind",
-        "enableVenetianBlind"
-      ]
-    },
-    {
-      "type": "fieldset",
-      "title": "Appliances",
-      "description": "Enable or disable example appliance accessories.",
+      "title": "Section 12: Robotic Devices",
+      "description": "Matter Specification § 12 - Autonomous cleaning devices (1 device implemented)",
       "expandable": true,
       "expanded": false,
       "items": [
