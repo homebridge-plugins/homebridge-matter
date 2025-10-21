@@ -61,7 +61,7 @@ export function registerDoorLock(context: DeviceContext): any[] {
           // Update the Matter state to reflect the lock is now locked
           return api.matter.updateAccessoryState(
             doorLockUuid,
-            'doorLock',
+            api.matter.clusterNames.DoorLock,
             { lockState: MatterTypes.DoorLock.LockState.Locked },
           )
         },
@@ -76,7 +76,7 @@ export function registerDoorLock(context: DeviceContext): any[] {
           // Update the Matter state to reflect the lock is now unlocked
           return api.matter.updateAccessoryState(
             doorLockUuid,
-            'doorLock',
+            api.matter.clusterNames.DoorLock,
             { lockState: MatterTypes.DoorLock.LockState.Unlocked },
           )
         },

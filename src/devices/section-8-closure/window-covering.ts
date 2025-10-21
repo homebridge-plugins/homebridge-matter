@@ -62,7 +62,7 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
             return api.matter.updateAccessoryState(
               windowBlindUuid,
-              'windowCovering',
+              api.matter.clusterNames.WindowCovering,
               {
                 currentPositionLiftPercent100ths: request.targetPercent,
                 targetPositionLiftPercent100ths: request.targetPercent,
@@ -75,7 +75,7 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
             return api.matter.updateAccessoryState(
               windowBlindUuid,
-              'windowCovering',
+              api.matter.clusterNames.WindowCovering,
               {
                 currentPositionLiftPercent100ths: 10000, // Fully open
                 targetPositionLiftPercent100ths: 10000,
@@ -88,7 +88,7 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
             return api.matter.updateAccessoryState(
               windowBlindUuid,
-              'windowCovering',
+              api.matter.clusterNames.WindowCovering,
               {
                 currentPositionLiftPercent100ths: 0, // Fully closed
                 targetPositionLiftPercent100ths: 0,
@@ -158,7 +158,7 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
             return api.matter.updateAccessoryState(
               venetianBlindUuid,
-              'windowCovering',
+              api.matter.clusterNames.WindowCovering,
               {
                 currentPositionLiftPercent100ths: request.targetPercent,
                 targetPositionLiftPercent100ths: request.targetPercent,
@@ -172,7 +172,7 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
             return api.matter.updateAccessoryState(
               venetianBlindUuid,
-              'windowCovering',
+              api.matter.clusterNames.WindowCovering,
               {
                 currentPositionTiltPercent100ths: request.targetPercent,
                 targetPositionTiltPercent100ths: request.targetPercent,
@@ -185,7 +185,7 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
             return api.matter.updateAccessoryState(
               venetianBlindUuid,
-              'windowCovering',
+              api.matter.clusterNames.WindowCovering,
               {
                 currentPositionLiftPercent100ths: 10000, // Fully open
                 targetPositionLiftPercent100ths: 10000,
@@ -198,7 +198,7 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
             return api.matter.updateAccessoryState(
               venetianBlindUuid,
-              'windowCovering',
+              api.matter.clusterNames.WindowCovering,
               {
                 currentPositionLiftPercent100ths: 0, // Fully closed
                 targetPositionLiftPercent100ths: 0,

@@ -340,7 +340,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             // Update Matter state to reflect the change
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcOperationalState',
+              api.matter.clusterNames.RvcOperationalState,
               { operationalState: MatterTypes.RvcOperationalState.OperationalState.Paused },
             )
           } catch (error) {
@@ -348,7 +348,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             // Update to error state
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcOperationalState',
+              api.matter.clusterNames.RvcOperationalState,
               {
                 operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
                 operationalError: {
@@ -382,14 +382,14 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             // Update Matter state to Running
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcOperationalState',
+              api.matter.clusterNames.RvcOperationalState,
               { operationalState: MatterTypes.RvcOperationalState.OperationalState.Running },
             )
           } catch (error) {
             log.error('[Robot Vacuum] Failed to resume:', error)
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcOperationalState',
+              api.matter.clusterNames.RvcOperationalState,
               {
                 operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
                 operationalError: {
@@ -422,7 +422,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             // Update Matter state to SeekingCharger
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcOperationalState',
+              api.matter.clusterNames.RvcOperationalState,
               { operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger },
             )
 
@@ -437,7 +437,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             log.error('[Robot Vacuum] Failed to return home:', error)
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcOperationalState',
+              api.matter.clusterNames.RvcOperationalState,
               {
                 operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
                 operationalError: {
@@ -487,14 +487,14 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             // Update Matter state
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcRunMode',
+              api.matter.clusterNames.RvcRunMode,
               { currentMode: request.newMode },
             )
           } catch (error) {
             log.error('[Robot Vacuum] Failed to change run mode:', error)
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcOperationalState',
+              api.matter.clusterNames.RvcOperationalState,
               {
                 operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
                 operationalError: {
@@ -540,14 +540,14 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             // Update Matter state
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcCleanMode',
+              api.matter.clusterNames.RvcCleanMode,
               { currentMode: request.newMode },
             )
           } catch (error) {
             log.error('[Robot Vacuum] Failed to change clean mode:', error)
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcOperationalState',
+              api.matter.clusterNames.RvcOperationalState,
               {
                 operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
                 operationalError: {
@@ -602,7 +602,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             log.error('[Robot Vacuum] Failed to select areas:', error)
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcOperationalState',
+              api.matter.clusterNames.RvcOperationalState,
               {
                 operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
                 operationalError: {
@@ -638,7 +638,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             log.error('[Robot Vacuum] Failed to skip area:', error)
             return api.matter.updateAccessoryState(
               uuid,
-              'rvcOperationalState',
+              api.matter.clusterNames.RvcOperationalState,
               {
                 operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
                 operationalError: {
