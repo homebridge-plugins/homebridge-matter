@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.1.3 (Unreleased)
+
+### Changes
+
+- add realistic state changes to vacuum example
+
 ## v0.1.2 (2025-10-21)
 
 ### Changes

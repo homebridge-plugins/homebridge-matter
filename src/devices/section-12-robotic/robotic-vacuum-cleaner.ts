@@ -1,3 +1,5 @@
+/* global NodeJS */
+
 /**
  * Robotic Vacuum Cleaner Device (Matter Spec § 12.1)
  *
@@ -54,6 +56,33 @@
 import { MatterTypes } from 'homebridge'
 
 import type { DeviceContext } from '../types.js'
+
+/**
+ * Timer management for realistic vacuum behavior
+ * Stores active timers so they can be cleared when state changes
+ */
+const activeTimers = new Map<string, NodeJS.Timeout[]>()
+
+/**
+ * Clear all active timers for a vacuum
+ */
+function clearVacuumTimers(uuid: string): void {
+  const timers = activeTimers.get(uuid)
+  if (timers) {
+    timers.forEach(timer => clearTimeout(timer))
+    activeTimers.delete(uuid)
+  }
+}
+
+/**
+ * Store a timer for a vacuum
+ */
+function addVacuumTimer(uuid: string, timer: NodeJS.Timeout): void {
+  if (!activeTimers.has(uuid)) {
+    activeTimers.set(uuid, [])
+  }
+  activeTimers.get(uuid)!.push(timer)
+}
 
 /**
  * Registers a Robotic Vacuum Cleaner accessory.
@@ -316,43 +345,37 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
         /**
          * pause() - Called when user presses "pause" in Home app
          *
-         * Best practices:
-         * 1. Validate current state (can't pause if docked/charging)
-         * 2. Send command to physical device
-         * 3. Wait for confirmation
-         * 4. Update Matter state
-         * 5. Handle errors appropriately
+         * REALISTIC BEHAVIOR:
+         * - Immediately pauses the vacuum
+         * - Cancels any active cleaning or docking sequences
+         * - Stays paused until user resumes or sends home
          */
         pause: async () => {
           log.info('[Robot Vacuum] ✓ Handler `pause` called - Pausing cleaning')
 
           try {
-            // TODO: Add validation - can we pause in current state?
-            // const currentState = accessory.clusters.rvcOperationalState.operationalState
-            // if (currentState === MatterTypes.RvcOperationalState.OperationalState.Charging ||
-            //     currentState === MatterTypes.RvcOperationalState.OperationalState.Docked) {
-            //   throw new Error('Cannot pause while docked or charging')
-            // }
+            // Clear any active automated sequences (cleaning, docking, etc.)
+            clearVacuumTimers(uuid)
+            log.info('[Robot Vacuum] Cleared active timers')
 
             // TODO: Send pause command to your actual robot vacuum
             // Example: await yourVacuumAPI.pause()
 
-            // Update Matter state to reflect the change
-            return api.matter.updateAccessoryState(
+            // Update Matter state to Paused
+            api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               { operationalState: MatterTypes.RvcOperationalState.OperationalState.Paused },
             )
           } catch (error) {
             log.error('[Robot Vacuum] Failed to pause:', error)
-            // Update to error state
-            return api.matter.updateAccessoryState(
+            api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
                 operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
                 operationalError: {
-                  errorStateId: 1, // Generic error
+                  errorStateId: 1,
                   errorStateLabel: 'Failed to pause vacuum',
                 },
               },
@@ -363,31 +386,79 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
         /**
          * resume() - Called when user presses "resume" or "start" in Home app
          *
-         * This should resume a paused cleaning session or start a new one.
-         * Make sure to validate the current state before resuming.
+         * REALISTIC BEHAVIOR:
+         * 1. Immediately starts cleaning (Running state)
+         * 2. After 10 seconds: Cleaning complete, automatically returns to dock (SeekingCharger)
+         * 3. After 10 more seconds: Reaches dock and starts charging (Charging)
+         * 4. After 10 more seconds: Fully charged and ready (Docked)
+         *
+         * This simulates a complete cleaning cycle without needing an external app.
          */
         resume: async () => {
-          log.info('[Robot Vacuum] ✓ Handler `resume` called - Resuming cleaning')
+          log.info('[Robot Vacuum] ✓ Handler `resume` called - Starting cleaning cycle')
 
           try {
-            // TODO: Add validation
-            // const currentState = accessory.clusters.rvcOperationalState.operationalState
-            // if (currentState === MatterTypes.RvcOperationalState.OperationalState.SeekingCharger) {
-            //   throw new Error('Cannot resume while seeking charger')
-            // }
+            // Clear any previous timers to avoid conflicts
+            clearVacuumTimers(uuid)
 
-            // TODO: Send resume command to your actual robot vacuum
+            // TODO: Send start/resume command to your actual robot vacuum
             // Example: await yourVacuumAPI.resume()
 
-            // Update Matter state to Running
-            return api.matter.updateAccessoryState(
+            // Step 1: Start cleaning immediately
+            api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               { operationalState: MatterTypes.RvcOperationalState.OperationalState.Running },
             )
+            log.info('[Robot Vacuum] State: Running (cleaning started)')
+
+            // Step 2: After 10 seconds, finish cleaning and head home
+            const timer1 = setTimeout(() => {
+              log.info('[Robot Vacuum] Cleaning complete after 10 seconds, returning to dock')
+              api.matter.updateAccessoryState(
+                uuid,
+                api.matter.clusterNames.RvcOperationalState,
+                { operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger },
+              )
+              log.info('[Robot Vacuum] State: SeekingCharger (heading to dock)')
+
+              // Clear current area since we're done cleaning
+              api.matter.updateAccessoryState(uuid, 'serviceArea', {
+                currentArea: null,
+              })
+
+              // Step 3: After 10 more seconds, reach dock and start charging
+              const timer2 = setTimeout(() => {
+                log.info('[Robot Vacuum] Reached dock after 10 seconds, starting charge')
+                api.matter.updateAccessoryState(
+                  uuid,
+                  api.matter.clusterNames.RvcOperationalState,
+                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.Charging },
+                )
+                log.info('[Robot Vacuum] State: Charging (on dock, charging battery)')
+
+                // Step 4: After 10 more seconds, fully charged and ready
+                const timer3 = setTimeout(() => {
+                  log.info('[Robot Vacuum] Fully charged after 10 seconds, ready for next cycle')
+                  api.matter.updateAccessoryState(
+                    uuid,
+                    api.matter.clusterNames.RvcOperationalState,
+                    { operationalState: MatterTypes.RvcOperationalState.OperationalState.Docked },
+                  )
+                  log.info('[Robot Vacuum] State: Docked (ready and fully charged)')
+                }, 10000)
+
+                addVacuumTimer(uuid, timer3)
+              }, 10000)
+
+              addVacuumTimer(uuid, timer2)
+            }, 10000)
+
+            addVacuumTimer(uuid, timer1)
           } catch (error) {
             log.error('[Robot Vacuum] Failed to resume:', error)
-            return api.matter.updateAccessoryState(
+            clearVacuumTimers(uuid)
+            api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
@@ -404,13 +475,20 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
         /**
          * goHome() - Called when user sends robot to charging dock
          *
-         * This command should interrupt any current activity and return
-         * the vacuum to its charging station.
+         * REALISTIC BEHAVIOR:
+         * 1. Immediately cancels cleaning and heads to dock (SeekingCharger)
+         * 2. After 10 seconds: Reaches dock and starts charging (Charging)
+         * 3. After 10 more seconds: Fully charged and ready (Docked)
+         *
+         * This simulates the robot navigating back to its dock and charging.
          */
         goHome: async () => {
           log.info('[Robot Vacuum] ✓ Handler `goHome` called - Returning to dock')
 
           try {
+            // Clear any active cleaning timers
+            clearVacuumTimers(uuid)
+
             // TODO: Send return-to-dock command to your actual robot vacuum
             // Example: await yourVacuumAPI.returnToDock()
 
@@ -419,23 +497,43 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               currentArea: null,
             })
 
-            // Update Matter state to SeekingCharger
-            return api.matter.updateAccessoryState(
+            // Step 1: Start heading to dock immediately
+            api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               { operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger },
             )
+            log.info('[Robot Vacuum] State: SeekingCharger (navigating to dock)')
 
-            // TIP: Set up monitoring to track docking progress:
-            // - When vacuum reaches dock: update to Charging state
-            // - When fully charged: update to Docked state
-            // Example:
-            // await api.matter.updateAccessoryState(uuid, 'rvcOperationalState', {
-            //   operationalState: MatterTypes.RvcOperationalState.OperationalState.Charging
-            // })
+            // Step 2: After 10 seconds, reach dock and start charging
+            const timer1 = setTimeout(() => {
+              log.info('[Robot Vacuum] Reached dock after 10 seconds, starting charge')
+              api.matter.updateAccessoryState(
+                uuid,
+                api.matter.clusterNames.RvcOperationalState,
+                { operationalState: MatterTypes.RvcOperationalState.OperationalState.Charging },
+              )
+              log.info('[Robot Vacuum] State: Charging (on dock, charging battery)')
+
+              // Step 3: After 10 more seconds, fully charged and ready
+              const timer2 = setTimeout(() => {
+                log.info('[Robot Vacuum] Fully charged after 10 seconds, ready for next cycle')
+                api.matter.updateAccessoryState(
+                  uuid,
+                  api.matter.clusterNames.RvcOperationalState,
+                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.Docked },
+                )
+                log.info('[Robot Vacuum] State: Docked (ready and fully charged)')
+              }, 10000)
+
+              addVacuumTimer(uuid, timer2)
+            }, 10000)
+
+            addVacuumTimer(uuid, timer1)
           } catch (error) {
             log.error('[Robot Vacuum] Failed to return home:', error)
-            return api.matter.updateAccessoryState(
+            clearVacuumTimers(uuid)
+            api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
@@ -459,14 +557,15 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
          *
          * Run Modes:
          * 0 = Idle - Device is inactive
-         * 1 = Quick-Cleaning - Single cleaning cycle
-         * 2 = Auto-Cleaning - Continuous/scheduled cleaning
-         * 3 = Mapping - Map the environment
+         * 1 = Quick-Cleaning - Single cleaning cycle (5 seconds)
+         * 2 = Auto-Cleaning - Full cleaning cycle (10 seconds)
+         * 3 = Mapping - Map the environment (10 seconds, then stop)
          *
-         * Implementation notes:
-         * - Changing to a cleaning mode should start the vacuum
-         * - Changing to Idle should stop current activity
-         * - Update operational state accordingly
+         * REALISTIC BEHAVIOR:
+         * - Changing to Idle: Stops immediately (Stopped state)
+         * - Changing to Quick-Cleaning: Cleans for 5 seconds, then docks
+         * - Changing to Auto-Cleaning: Cleans for 10 seconds, then docks
+         * - Changing to Mapping: Maps for 10 seconds, then returns to Stopped
          */
         changeToMode: async (request: { newMode: number }) => {
           const modes = ['Idle', 'Quick-Cleaning', 'Auto-Cleaning', 'Mapping']
@@ -474,25 +573,124 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
           log.info(`[Robot Vacuum] ✓ Handler \`changeToMode\` (run mode) called: ${request.newMode} (${modeName})`)
 
           try {
-            // TODO: Send mode change command to your actual robot vacuum
-            // Example:
-            // if (request.newMode === 0) {
-            //   await yourVacuumAPI.stop()
-            // } else if (request.newMode === 1 || request.newMode === 2) {
-            //   await yourVacuumAPI.startCleaning()
-            // } else if (request.newMode === 3) {
-            //   await yourVacuumAPI.startMapping()
-            // }
+            // Clear any active timers
+            clearVacuumTimers(uuid)
 
-            // Update Matter state
-            return api.matter.updateAccessoryState(
+            // Update run mode
+            api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcRunMode,
               { currentMode: request.newMode },
             )
+
+            // Handle different modes with realistic behavior
+            if (request.newMode === 0) {
+              // Mode 0: Idle - Stop immediately
+              log.info('[Robot Vacuum] Switching to Idle mode - stopping')
+              api.matter.updateAccessoryState(
+                uuid,
+                api.matter.clusterNames.RvcOperationalState,
+                { operationalState: MatterTypes.RvcOperationalState.OperationalState.Stopped },
+              )
+            } else if (request.newMode === 1) {
+              // Mode 1: Quick-Cleaning - Clean for 5 seconds, then dock
+              log.info('[Robot Vacuum] Starting Quick-Cleaning mode (5 seconds)')
+              api.matter.updateAccessoryState(
+                uuid,
+                api.matter.clusterNames.RvcOperationalState,
+                { operationalState: MatterTypes.RvcOperationalState.OperationalState.Running },
+              )
+
+              // After 5 seconds, return to dock
+              const timer1 = setTimeout(() => {
+                log.info('[Robot Vacuum] Quick-Cleaning complete, returning to dock')
+                api.matter.updateAccessoryState(
+                  uuid,
+                  api.matter.clusterNames.RvcOperationalState,
+                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger },
+                )
+
+                // 10 seconds to dock and charge (same as before)
+                const timer2 = setTimeout(() => {
+                  api.matter.updateAccessoryState(
+                    uuid,
+                    api.matter.clusterNames.RvcOperationalState,
+                    { operationalState: MatterTypes.RvcOperationalState.OperationalState.Charging },
+                  )
+
+                  const timer3 = setTimeout(() => {
+                    api.matter.updateAccessoryState(
+                      uuid,
+                      api.matter.clusterNames.RvcOperationalState,
+                      { operationalState: MatterTypes.RvcOperationalState.OperationalState.Docked },
+                    )
+                  }, 10000)
+                  addVacuumTimer(uuid, timer3)
+                }, 10000)
+                addVacuumTimer(uuid, timer2)
+              }, 5000)
+              addVacuumTimer(uuid, timer1)
+            } else if (request.newMode === 2) {
+              // Mode 2: Auto-Cleaning - Clean for 10 seconds, then dock
+              log.info('[Robot Vacuum] Starting Auto-Cleaning mode (10 seconds)')
+              api.matter.updateAccessoryState(
+                uuid,
+                api.matter.clusterNames.RvcOperationalState,
+                { operationalState: MatterTypes.RvcOperationalState.OperationalState.Running },
+              )
+
+              // After 10 seconds, return to dock (same logic as resume)
+              const timer1 = setTimeout(() => {
+                log.info('[Robot Vacuum] Auto-Cleaning complete, returning to dock')
+                api.matter.updateAccessoryState(
+                  uuid,
+                  api.matter.clusterNames.RvcOperationalState,
+                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger },
+                )
+
+                const timer2 = setTimeout(() => {
+                  api.matter.updateAccessoryState(
+                    uuid,
+                    api.matter.clusterNames.RvcOperationalState,
+                    { operationalState: MatterTypes.RvcOperationalState.OperationalState.Charging },
+                  )
+
+                  const timer3 = setTimeout(() => {
+                    api.matter.updateAccessoryState(
+                      uuid,
+                      api.matter.clusterNames.RvcOperationalState,
+                      { operationalState: MatterTypes.RvcOperationalState.OperationalState.Docked },
+                    )
+                  }, 10000)
+                  addVacuumTimer(uuid, timer3)
+                }, 10000)
+                addVacuumTimer(uuid, timer2)
+              }, 10000)
+              addVacuumTimer(uuid, timer1)
+            } else if (request.newMode === 3) {
+              // Mode 3: Mapping - Map for 10 seconds, then stop (no docking)
+              log.info('[Robot Vacuum] Starting Mapping mode (10 seconds)')
+              api.matter.updateAccessoryState(
+                uuid,
+                api.matter.clusterNames.RvcOperationalState,
+                { operationalState: MatterTypes.RvcOperationalState.OperationalState.Running },
+              )
+
+              // After 10 seconds, stop mapping
+              const timer1 = setTimeout(() => {
+                log.info('[Robot Vacuum] Mapping complete, stopping')
+                api.matter.updateAccessoryState(
+                  uuid,
+                  api.matter.clusterNames.RvcOperationalState,
+                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.Stopped },
+                )
+              }, 10000)
+              addVacuumTimer(uuid, timer1)
+            }
           } catch (error) {
             log.error('[Robot Vacuum] Failed to change run mode:', error)
-            return api.matter.updateAccessoryState(
+            clearVacuumTimers(uuid)
+            api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
@@ -571,36 +769,108 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
          * selectAreas() - Called when user selects specific rooms to clean
          *
          * @param request - Request object
-         * @param request.areas - Array of area IDs to clean
+         * @param request.newAreas - Array of area IDs to clean (Matter spec uses "newAreas")
          *
-         * Example usage:
-         * - User selects "Kitchen" and "Living Room" in Home app
-         * - request.areas = [0, 1] (Kitchen=0, Living Room=1)
-         * - Empty array means "clean all areas"
+         * REALISTIC BEHAVIOR:
+         * - Stores the selected areas
+         * - Automatically starts cleaning those areas sequentially
+         * - Each area takes 5 seconds to clean
+         * - Updates currentArea to show which room is being cleaned
+         * - After all areas cleaned, returns to dock
+         *
+         * Example: User selects Kitchen (0) and Living Room (1)
+         * 1. Clean Kitchen for 5 seconds
+         * 2. Clean Living Room for 5 seconds
+         * 3. Return to dock
          */
-        selectAreas: async (request: { areas: number[] }) => {
+        selectAreas: async (request: { newAreas: number[] }) => {
           const areaNames = ['Kitchen', 'Living Room', 'Bedroom', 'Bathroom']
-          const selectedNames = request.areas.map(id => areaNames[id] || `Area ${id}`)
+          const areas = request.newAreas || []
+          const selectedNames = areas.map(id => areaNames[id] || `Area ${id}`)
           log.info(`[Robot Vacuum] ✓ Handler \`selectAreas\` called - Selected areas: ${selectedNames.join(', ') || 'All areas'}`)
 
           try {
-            // TODO: Send area selection to your actual robot vacuum
-            // Example:
-            // if (request.areas.length > 0) {
-            //   await yourVacuumAPI.setCleaningAreas(request.areas)
-            // } else {
-            //   await yourVacuumAPI.setCleaningAreas('all')
-            // }
+            // Clear any active timers
+            clearVacuumTimers(uuid)
 
-            // Update Matter state
-            return api.matter.updateAccessoryState(
+            // Update selected areas
+            api.matter.updateAccessoryState(
               uuid,
               'serviceArea',
-              { selectedAreas: request.areas },
+              { selectedAreas: areas },
             )
+
+            // If no areas selected, just store and return
+            if (areas.length === 0) {
+              log.info('[Robot Vacuum] No specific areas selected, ready to clean all areas')
+              return
+            }
+
+            // Start cleaning the selected areas sequentially
+            log.info(`[Robot Vacuum] Starting area-based cleaning: ${selectedNames.join(' → ')}`)
+
+            // Start running
+            api.matter.updateAccessoryState(
+              uuid,
+              api.matter.clusterNames.RvcOperationalState,
+              { operationalState: MatterTypes.RvcOperationalState.OperationalState.Running },
+            )
+
+            // Clean each area sequentially (5 seconds per area)
+            let delay = 0
+            for (let i = 0; i < areas.length; i++) {
+              const areaId = areas[i]
+              const areaName = areaNames[areaId] || `Area ${areaId}`
+
+              const timer = setTimeout(() => {
+                log.info(`[Robot Vacuum] Now cleaning: ${areaName} (${i + 1}/${areas.length})`)
+                api.matter.updateAccessoryState(uuid, 'serviceArea', {
+                  currentArea: areaId,
+                })
+              }, delay)
+              addVacuumTimer(uuid, timer)
+
+              delay += 5000 // 5 seconds per area
+            }
+
+            // After all areas are cleaned, return to dock
+            const finalTimer = setTimeout(() => {
+              log.info('[Robot Vacuum] All areas cleaned, returning to dock')
+              api.matter.updateAccessoryState(uuid, 'serviceArea', {
+                currentArea: null,
+              })
+              api.matter.updateAccessoryState(
+                uuid,
+                api.matter.clusterNames.RvcOperationalState,
+                { operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger },
+              )
+
+              // 10 seconds to reach dock
+              const dockTimer1 = setTimeout(() => {
+                api.matter.updateAccessoryState(
+                  uuid,
+                  api.matter.clusterNames.RvcOperationalState,
+                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.Charging },
+                )
+
+                // 10 seconds to charge
+                const dockTimer2 = setTimeout(() => {
+                  api.matter.updateAccessoryState(
+                    uuid,
+                    api.matter.clusterNames.RvcOperationalState,
+                    { operationalState: MatterTypes.RvcOperationalState.OperationalState.Docked },
+                  )
+                  log.info('[Robot Vacuum] Area-based cleaning complete, docked and charged')
+                }, 10000)
+                addVacuumTimer(uuid, dockTimer2)
+              }, 10000)
+              addVacuumTimer(uuid, dockTimer1)
+            }, delay)
+            addVacuumTimer(uuid, finalTimer)
           } catch (error) {
             log.error('[Robot Vacuum] Failed to select areas:', error)
-            return api.matter.updateAccessoryState(
+            clearVacuumTimers(uuid)
+            api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
