@@ -53,8 +53,6 @@
  * ```
  */
 
-import { MatterTypes } from 'homebridge'
-
 import type { DeviceContext } from '../types.js'
 
 /**
@@ -135,30 +133,30 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             label: 'Idle',
             mode: 0,
             modeTags: [
-              { value: MatterTypes.RvcRunMode.ModeTag.Idle },
+              { value: api.matter.types.RvcRunMode.ModeTag.Idle },
             ],
           },
           {
             label: 'Quick-Cleaning',
             mode: 1,
             modeTags: [
-              { value: MatterTypes.RvcRunMode.ModeTag.Cleaning },
-              { value: MatterTypes.ModeBase.ModeTag.Quick },
+              { value: api.matter.types.RvcRunMode.ModeTag.Cleaning },
+              { value: api.matter.types.ModeBase.ModeTag.Quick },
             ],
           },
           {
             label: 'Auto-Cleaning',
             mode: 2,
             modeTags: [
-              { value: MatterTypes.RvcRunMode.ModeTag.Cleaning },
-              { value: MatterTypes.ModeBase.ModeTag.Auto },
+              { value: api.matter.types.RvcRunMode.ModeTag.Cleaning },
+              { value: api.matter.types.ModeBase.ModeTag.Auto },
             ],
           },
           {
             label: 'Mapping',
             mode: 3,
             modeTags: [
-              { value: MatterTypes.RvcRunMode.ModeTag.Mapping },
+              { value: api.matter.types.RvcRunMode.ModeTag.Mapping },
             ],
           },
         ],
@@ -175,41 +173,41 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
         // Must include at least an error state (ID 3) per Matter spec
         operationalStateList: [
           {
-            operationalStateId: MatterTypes.RvcOperationalState.OperationalState.Stopped,
+            operationalStateId: api.matter.types.RvcOperationalState.OperationalState.Stopped,
             operationalStateLabel: 'Stopped',
           },
           {
-            operationalStateId: MatterTypes.RvcOperationalState.OperationalState.Running,
+            operationalStateId: api.matter.types.RvcOperationalState.OperationalState.Running,
             operationalStateLabel: 'Running',
           },
           {
-            operationalStateId: MatterTypes.RvcOperationalState.OperationalState.Paused,
+            operationalStateId: api.matter.types.RvcOperationalState.OperationalState.Paused,
             operationalStateLabel: 'Paused',
           },
           {
-            operationalStateId: MatterTypes.RvcOperationalState.OperationalState.Error,
+            operationalStateId: api.matter.types.RvcOperationalState.OperationalState.Error,
             operationalStateLabel: 'Error',
           }, // REQUIRED by Matter spec
           {
-            operationalStateId: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger,
+            operationalStateId: api.matter.types.RvcOperationalState.OperationalState.SeekingCharger,
             operationalStateLabel: 'Seeking Charger',
           },
           {
-            operationalStateId: MatterTypes.RvcOperationalState.OperationalState.Charging,
+            operationalStateId: api.matter.types.RvcOperationalState.OperationalState.Charging,
             operationalStateLabel: 'Charging',
           },
           {
-            operationalStateId: MatterTypes.RvcOperationalState.OperationalState.Docked,
+            operationalStateId: api.matter.types.RvcOperationalState.OperationalState.Docked,
             operationalStateLabel: 'Docked',
           },
         ],
 
         // Current operational state (just the ID number, not an object)
-        operationalState: MatterTypes.RvcOperationalState.OperationalState.Docked, // Start in Docked state
+        operationalState: api.matter.types.RvcOperationalState.OperationalState.Docked, // Start in Docked state
 
         // Error state - indicates if device has an error
         operationalError: {
-          errorStateId: MatterTypes.OperationalState.ErrorState.NoError, // No error
+          errorStateId: api.matter.types.OperationalState.ErrorState.NoError, // No error
           errorStateLabel: '', // Empty when no error
         },
       },
@@ -225,22 +223,22 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             label: 'Vacuum',
             mode: 0,
             modeTags: [
-              { value: MatterTypes.RvcCleanMode.ModeTag.Vacuum },
+              { value: api.matter.types.RvcCleanMode.ModeTag.Vacuum },
             ],
           },
           {
             label: 'Mop',
             mode: 1,
             modeTags: [
-              { value: MatterTypes.RvcCleanMode.ModeTag.Mop },
+              { value: api.matter.types.RvcCleanMode.ModeTag.Mop },
             ],
           },
           {
             label: 'Vacuum & Mop',
             mode: 2,
             modeTags: [
-              { value: MatterTypes.RvcCleanMode.ModeTag.Vacuum },
-              { value: MatterTypes.RvcCleanMode.ModeTag.Mop }, // Both tags for combined mode
+              { value: api.matter.types.RvcCleanMode.ModeTag.Vacuum },
+              { value: api.matter.types.RvcCleanMode.ModeTag.Mop }, // Both tags for combined mode
             ],
           },
         ],
@@ -365,7 +363,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
-              { operationalState: MatterTypes.RvcOperationalState.OperationalState.Paused },
+              { operationalState: api.matter.types.RvcOperationalState.OperationalState.Paused },
             )
           } catch (error) {
             log.error('[Robot Vacuum] Failed to pause:', error)
@@ -373,7 +371,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
-                operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
+                operationalState: api.matter.types.RvcOperationalState.OperationalState.Error,
                 operationalError: {
                   errorStateId: 1,
                   errorStateLabel: 'Failed to pause vacuum',
@@ -408,7 +406,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
-              { operationalState: MatterTypes.RvcOperationalState.OperationalState.Running },
+              { operationalState: api.matter.types.RvcOperationalState.OperationalState.Running },
             )
             log.info('[Robot Vacuum] State: Running (cleaning started)')
 
@@ -418,7 +416,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               api.matter.updateAccessoryState(
                 uuid,
                 api.matter.clusterNames.RvcOperationalState,
-                { operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger },
+                { operationalState: api.matter.types.RvcOperationalState.OperationalState.SeekingCharger },
               )
               log.info('[Robot Vacuum] State: SeekingCharger (heading to dock)')
 
@@ -433,7 +431,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
                 api.matter.updateAccessoryState(
                   uuid,
                   api.matter.clusterNames.RvcOperationalState,
-                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.Charging },
+                  { operationalState: api.matter.types.RvcOperationalState.OperationalState.Charging },
                 )
                 log.info('[Robot Vacuum] State: Charging (on dock, charging battery)')
 
@@ -443,7 +441,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
                   api.matter.updateAccessoryState(
                     uuid,
                     api.matter.clusterNames.RvcOperationalState,
-                    { operationalState: MatterTypes.RvcOperationalState.OperationalState.Docked },
+                    { operationalState: api.matter.types.RvcOperationalState.OperationalState.Docked },
                   )
                   log.info('[Robot Vacuum] State: Docked (ready and fully charged)')
                 }, 10000)
@@ -462,7 +460,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
-                operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
+                operationalState: api.matter.types.RvcOperationalState.OperationalState.Error,
                 operationalError: {
                   errorStateId: 1,
                   errorStateLabel: 'Failed to resume vacuum',
@@ -501,7 +499,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
-              { operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger },
+              { operationalState: api.matter.types.RvcOperationalState.OperationalState.SeekingCharger },
             )
             log.info('[Robot Vacuum] State: SeekingCharger (navigating to dock)')
 
@@ -511,7 +509,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               api.matter.updateAccessoryState(
                 uuid,
                 api.matter.clusterNames.RvcOperationalState,
-                { operationalState: MatterTypes.RvcOperationalState.OperationalState.Charging },
+                { operationalState: api.matter.types.RvcOperationalState.OperationalState.Charging },
               )
               log.info('[Robot Vacuum] State: Charging (on dock, charging battery)')
 
@@ -521,7 +519,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
                 api.matter.updateAccessoryState(
                   uuid,
                   api.matter.clusterNames.RvcOperationalState,
-                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.Docked },
+                  { operationalState: api.matter.types.RvcOperationalState.OperationalState.Docked },
                 )
                 log.info('[Robot Vacuum] State: Docked (ready and fully charged)')
               }, 10000)
@@ -537,7 +535,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
-                operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
+                operationalState: api.matter.types.RvcOperationalState.OperationalState.Error,
                 operationalError: {
                   errorStateId: 1,
                   errorStateLabel: 'Failed to return to dock',
@@ -590,7 +588,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               api.matter.updateAccessoryState(
                 uuid,
                 api.matter.clusterNames.RvcOperationalState,
-                { operationalState: MatterTypes.RvcOperationalState.OperationalState.Stopped },
+                { operationalState: api.matter.types.RvcOperationalState.OperationalState.Stopped },
               )
             } else if (request.newMode === 1) {
               // Mode 1: Quick-Cleaning - Clean for 5 seconds, then dock
@@ -598,7 +596,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               api.matter.updateAccessoryState(
                 uuid,
                 api.matter.clusterNames.RvcOperationalState,
-                { operationalState: MatterTypes.RvcOperationalState.OperationalState.Running },
+                { operationalState: api.matter.types.RvcOperationalState.OperationalState.Running },
               )
 
               // After 5 seconds, return to dock
@@ -607,7 +605,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
                 api.matter.updateAccessoryState(
                   uuid,
                   api.matter.clusterNames.RvcOperationalState,
-                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger },
+                  { operationalState: api.matter.types.RvcOperationalState.OperationalState.SeekingCharger },
                 )
 
                 // 10 seconds to dock and charge (same as before)
@@ -615,14 +613,14 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
                   api.matter.updateAccessoryState(
                     uuid,
                     api.matter.clusterNames.RvcOperationalState,
-                    { operationalState: MatterTypes.RvcOperationalState.OperationalState.Charging },
+                    { operationalState: api.matter.types.RvcOperationalState.OperationalState.Charging },
                   )
 
                   const timer3 = setTimeout(() => {
                     api.matter.updateAccessoryState(
                       uuid,
                       api.matter.clusterNames.RvcOperationalState,
-                      { operationalState: MatterTypes.RvcOperationalState.OperationalState.Docked },
+                      { operationalState: api.matter.types.RvcOperationalState.OperationalState.Docked },
                     )
                   }, 10000)
                   addVacuumTimer(uuid, timer3)
@@ -636,7 +634,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               api.matter.updateAccessoryState(
                 uuid,
                 api.matter.clusterNames.RvcOperationalState,
-                { operationalState: MatterTypes.RvcOperationalState.OperationalState.Running },
+                { operationalState: api.matter.types.RvcOperationalState.OperationalState.Running },
               )
 
               // After 10 seconds, return to dock (same logic as resume)
@@ -645,21 +643,21 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
                 api.matter.updateAccessoryState(
                   uuid,
                   api.matter.clusterNames.RvcOperationalState,
-                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger },
+                  { operationalState: api.matter.types.RvcOperationalState.OperationalState.SeekingCharger },
                 )
 
                 const timer2 = setTimeout(() => {
                   api.matter.updateAccessoryState(
                     uuid,
                     api.matter.clusterNames.RvcOperationalState,
-                    { operationalState: MatterTypes.RvcOperationalState.OperationalState.Charging },
+                    { operationalState: api.matter.types.RvcOperationalState.OperationalState.Charging },
                   )
 
                   const timer3 = setTimeout(() => {
                     api.matter.updateAccessoryState(
                       uuid,
                       api.matter.clusterNames.RvcOperationalState,
-                      { operationalState: MatterTypes.RvcOperationalState.OperationalState.Docked },
+                      { operationalState: api.matter.types.RvcOperationalState.OperationalState.Docked },
                     )
                   }, 10000)
                   addVacuumTimer(uuid, timer3)
@@ -673,7 +671,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               api.matter.updateAccessoryState(
                 uuid,
                 api.matter.clusterNames.RvcOperationalState,
-                { operationalState: MatterTypes.RvcOperationalState.OperationalState.Running },
+                { operationalState: api.matter.types.RvcOperationalState.OperationalState.Running },
               )
 
               // After 10 seconds, stop mapping
@@ -682,7 +680,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
                 api.matter.updateAccessoryState(
                   uuid,
                   api.matter.clusterNames.RvcOperationalState,
-                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.Stopped },
+                  { operationalState: api.matter.types.RvcOperationalState.OperationalState.Stopped },
                 )
               }, 10000)
               addVacuumTimer(uuid, timer1)
@@ -694,7 +692,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
-                operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
+                operationalState: api.matter.types.RvcOperationalState.OperationalState.Error,
                 operationalError: {
                   errorStateId: 1,
                   errorStateLabel: `Failed to change to ${modeName} mode`,
@@ -747,7 +745,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
-                operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
+                operationalState: api.matter.types.RvcOperationalState.OperationalState.Error,
                 operationalError: {
                   errorStateId: 1,
                   errorStateLabel: `Failed to change to ${modeName} mode`,
@@ -813,7 +811,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             api.matter.updateAccessoryState(
               uuid,
               api.matter.clusterNames.RvcOperationalState,
-              { operationalState: MatterTypes.RvcOperationalState.OperationalState.Running },
+              { operationalState: api.matter.types.RvcOperationalState.OperationalState.Running },
             )
 
             // Clean each area sequentially (5 seconds per area)
@@ -842,7 +840,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               api.matter.updateAccessoryState(
                 uuid,
                 api.matter.clusterNames.RvcOperationalState,
-                { operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger },
+                { operationalState: api.matter.types.RvcOperationalState.OperationalState.SeekingCharger },
               )
 
               // 10 seconds to reach dock
@@ -850,7 +848,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
                 api.matter.updateAccessoryState(
                   uuid,
                   api.matter.clusterNames.RvcOperationalState,
-                  { operationalState: MatterTypes.RvcOperationalState.OperationalState.Charging },
+                  { operationalState: api.matter.types.RvcOperationalState.OperationalState.Charging },
                 )
 
                 // 10 seconds to charge
@@ -858,7 +856,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
                   api.matter.updateAccessoryState(
                     uuid,
                     api.matter.clusterNames.RvcOperationalState,
-                    { operationalState: MatterTypes.RvcOperationalState.OperationalState.Docked },
+                    { operationalState: api.matter.types.RvcOperationalState.OperationalState.Docked },
                   )
                   log.info('[Robot Vacuum] Area-based cleaning complete, docked and charged')
                 }, 10000)
@@ -874,7 +872,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
-                operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
+                operationalState: api.matter.types.RvcOperationalState.OperationalState.Error,
                 operationalError: {
                   errorStateId: 1,
                   errorStateLabel: 'Failed to select cleaning areas',
@@ -910,7 +908,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
               uuid,
               api.matter.clusterNames.RvcOperationalState,
               {
-                operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
+                operationalState: api.matter.types.RvcOperationalState.OperationalState.Error,
                 operationalError: {
                   errorStateId: 1,
                   errorStateLabel: 'Failed to skip current area',
@@ -1018,15 +1016,15 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
 // // Helper functions to convert vacuum states to Matter states
 // convertToMatterOperationalState(status: string): number {
 //   const stateMap = {
-//     'idle': MatterTypes.RvcOperationalState.OperationalState.Stopped,
-//     'cleaning': MatterTypes.RvcOperationalState.OperationalState.Running,
-//     'paused': MatterTypes.RvcOperationalState.OperationalState.Paused,
-//     'error': MatterTypes.RvcOperationalState.OperationalState.Error,
-//     'returning': MatterTypes.RvcOperationalState.OperationalState.SeekingCharger,
-//     'charging': MatterTypes.RvcOperationalState.OperationalState.Charging,
-//     'docked': MatterTypes.RvcOperationalState.OperationalState.Docked
+//     'idle': api.matter.types.RvcOperationalState.OperationalState.Stopped,
+//     'cleaning': api.matter.types.RvcOperationalState.OperationalState.Running,
+//     'paused': api.matter.types.RvcOperationalState.OperationalState.Paused,
+//     'error': api.matter.types.RvcOperationalState.OperationalState.Error,
+//     'returning': api.matter.types.RvcOperationalState.OperationalState.SeekingCharger,
+//     'charging': api.matter.types.RvcOperationalState.OperationalState.Charging,
+//     'docked': api.matter.types.RvcOperationalState.OperationalState.Docked
 //   }
-//   return stateMap[status] ?? MatterTypes.RvcOperationalState.OperationalState.Stopped
+//   return stateMap[status] ?? api.matter.types.RvcOperationalState.OperationalState.Stopped
 // }
 // ```
 //
@@ -1067,12 +1065,12 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
 //         log.info('Successfully paused vacuum')
 //
 //         return api.matter.updateAccessoryState(uuid, 'rvcOperationalState', {
-//           operationalState: MatterTypes.RvcOperationalState.OperationalState.Paused
+//           operationalState: api.matter.types.RvcOperationalState.OperationalState.Paused
 //         })
 //       } catch (error) {
 //         log.error('Failed to pause vacuum:', error)
 //         return api.matter.updateAccessoryState(uuid, 'rvcOperationalState', {
-//           operationalState: MatterTypes.RvcOperationalState.OperationalState.Error,
+//           operationalState: api.matter.types.RvcOperationalState.OperationalState.Error,
 //           operationalError: {
 //             errorStateId: 1,
 //             errorStateLabel: 'Failed to pause'
@@ -1165,7 +1163,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
 //   private async startCleaning() {
 //     this.currentState = 'cleaning'
 //     await api.matter.updateAccessoryState(uuid, 'rvcOperationalState', {
-//       operationalState: MatterTypes.RvcOperationalState.OperationalState.Running
+//       operationalState: api.matter.types.RvcOperationalState.OperationalState.Running
 //     })
 //
 //     // Start cleaning selected areas or all areas
@@ -1178,7 +1176,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
 //   private async returnToDock() {
 //     this.currentState = 'returning'
 //     await api.matter.updateAccessoryState(uuid, 'rvcOperationalState', {
-//       operationalState: MatterTypes.RvcOperationalState.OperationalState.SeekingCharger
+//       operationalState: api.matter.types.RvcOperationalState.OperationalState.SeekingCharger
 //     })
 //
 //     await vacuumAPI.returnToDock()
@@ -1230,9 +1228,9 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
 // function canPause(currentState: number): boolean {
 //   // Can't pause if docked, charging, or seeking charger
 //   return ![
-//     MatterTypes.RvcOperationalState.OperationalState.SeekingCharger,
-//     MatterTypes.RvcOperationalState.OperationalState.Charging,
-//     MatterTypes.RvcOperationalState.OperationalState.Docked
+//     api.matter.types.RvcOperationalState.OperationalState.SeekingCharger,
+//     api.matter.types.RvcOperationalState.OperationalState.Charging,
+//     api.matter.types.RvcOperationalState.OperationalState.Docked
 //   ].includes(currentState)
 // }
 //

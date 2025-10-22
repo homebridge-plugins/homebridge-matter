@@ -4,8 +4,6 @@
  * A device for controlling heating and cooling systems.
  */
 
-import { MatterTypes } from 'homebridge'
-
 import type { DeviceContext } from '../types.js'
 
 export function registerThermostat(context: DeviceContext): any[] {
@@ -40,10 +38,10 @@ export function registerThermostat(context: DeviceContext): any[] {
         maxCoolSetpointLimit: 3200, // Maximum: 32°C
 
         // System mode using MatterTypes enum for type safety
-        systemMode: MatterTypes.Thermostat.SystemMode.Heat, // Currently in Heat mode
+        systemMode: api.matter.types.Thermostat.SystemMode.Heat, // Currently in Heat mode
 
         // Control sequence: defines what modes are available (mandatory)
-        controlSequenceOfOperation: MatterTypes.Thermostat.ControlSequenceOfOperation.CoolingAndHeating,
+        controlSequenceOfOperation: api.matter.types.Thermostat.ControlSequenceOfOperation.CoolingAndHeating,
       },
     },
 

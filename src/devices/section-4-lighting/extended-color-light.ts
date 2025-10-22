@@ -35,8 +35,6 @@
 
 import type { MatterRequests } from 'homebridge'
 
-import { MatterTypes } from 'homebridge'
-
 import type { DeviceContext } from '../types.js'
 
 export function registerExtendedColorLight(context: DeviceContext): any[] {
@@ -63,7 +61,7 @@ export function registerExtendedColorLight(context: DeviceContext): any[] {
           maxLevel: 254,
         },
         colorControl: {
-          colorMode: MatterTypes.ColorControl.ColorMode.CurrentHueAndCurrentSaturation, // Hue/Saturation mode
+          colorMode: api.matter.types.ColorControl.ColorMode.CurrentHueAndCurrentSaturation, // Hue/Saturation mode
           currentHue: 0, // Red (0 degrees)
           currentSaturation: 254, // Full saturation
           currentX: 41942, // Also provide XY for compatibility
@@ -134,7 +132,7 @@ export function registerExtendedColorLight(context: DeviceContext): any[] {
           maxLevel: 254,
         },
         colorControl: {
-          colorMode: MatterTypes.ColorControl.ColorMode.CurrentHueAndCurrentSaturation, // Hue/Saturation mode
+          colorMode: api.matter.types.ColorControl.ColorMode.CurrentHueAndCurrentSaturation, // Hue/Saturation mode
           currentHue: 0, // Red (0 degrees)
           currentSaturation: 254, // Full saturation
           currentX: 41942, // Also provide XY for compatibility
@@ -217,9 +215,9 @@ export function registerExtendedColorLight(context: DeviceContext): any[] {
       // Color mode
       const mode = accessory.clusters.colorControl.colorMode
       const modeNames: Record<number, string> = {
-        [MatterTypes.ColorControl.ColorMode.CurrentHueAndCurrentSaturation]: 'Hue/Saturation',
-        [MatterTypes.ColorControl.ColorMode.CurrentXAndCurrentY]: 'XY',
-        [MatterTypes.ColorControl.ColorMode.ColorTemperatureMireds]: 'Color Temperature',
+        [api.matter.types.ColorControl.ColorMode.CurrentHueAndCurrentSaturation]: 'Hue/Saturation',
+        [api.matter.types.ColorControl.ColorMode.CurrentXAndCurrentY]: 'XY',
+        [api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds]: 'Color Temperature',
       }
       const modeName = modeNames[mode] || 'Unknown'
 
@@ -352,7 +350,7 @@ export function registerExtendedColorLight(context: DeviceContext): any[] {
           //     // to keep HS and XY in sync (HomeKit can use either)
           //
           //     // Update colorMode to indicate we're using Hue/Saturation
-          //     accessory.clusters.colorControl.colorMode = MatterTypes.ColorControl.ColorMode.CurrentHueAndCurrentSaturation
+          //     accessory.clusters.colorControl.colorMode = api.matter.types.ColorControl.ColorMode.CurrentHueAndCurrentSaturation
           //
           //     // Update hue and saturation
           //     accessory.clusters.colorControl.currentHue = newHue
@@ -367,7 +365,7 @@ export function registerExtendedColorLight(context: DeviceContext): any[] {
           //
           //     // Notify HomeKit of all color control changes at once
           //     await api.matter.updateAccessoryState(accessory.uuid, api.matter.clusterNames.ColorControl, {
-          //       colorMode: MatterTypes.ColorControl.ColorMode.CurrentHueAndCurrentSaturation,
+          //       colorMode: api.matter.types.ColorControl.ColorMode.CurrentHueAndCurrentSaturation,
           //       currentHue: newHue,
           //       currentSaturation: newSaturation,
           //       // currentX: Math.round(x * 65535),
@@ -386,20 +384,20 @@ export function registerExtendedColorLight(context: DeviceContext): any[] {
           //
           //   // Check if color temp actually changed or mode switched
           //   const miredsChanged = newMireds !== homekitMireds
-          //   const modeChanged = homekitColorMode !== MatterTypes.ColorControl.ColorMode.ColorTemperatureMireds // Not in ColorTemp mode
+          //   const modeChanged = homekitColorMode !== api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds // Not in ColorTemp mode
           //
           //   if (miredsChanged || modeChanged) {
           //     log.info(`[Extended Color Light] Color temp changed: ${deviceState.colorTemp}K (${newMireds} mireds)`)
           //
           //     // Update colorMode to indicate we're using Color Temperature
-          //     accessory.clusters.colorControl.colorMode = MatterTypes.ColorControl.ColorMode.ColorTemperatureMireds
+          //     accessory.clusters.colorControl.colorMode = api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds
           //
           //     // Update color temperature
           //     accessory.clusters.colorControl.colorTemperatureMireds = newMireds
           //
           //     // Notify HomeKit
           //     await api.matter.updateAccessoryState(accessory.uuid, api.matter.clusterNames.ColorControl, {
-          //       colorMode: MatterTypes.ColorControl.ColorMode.ColorTemperatureMireds,
+          //       colorMode: api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds,
           //       colorTemperatureMireds: newMireds,
           //     })
           //
@@ -451,12 +449,12 @@ export function registerExtendedColorLight(context: DeviceContext): any[] {
       //       const newSat = Math.round((deviceState.saturation / 100) * 254)
       //       if (newHue !== accessory.clusters.colorControl.currentHue ||
       //           newSat !== accessory.clusters.colorControl.currentSaturation ||
-      //           accessory.clusters.colorControl.colorMode !== MatterTypes.ColorControl.ColorMode.CurrentHueAndCurrentSaturation) {
-      //         accessory.clusters.colorControl.colorMode = MatterTypes.ColorControl.ColorMode.CurrentHueAndCurrentSaturation
+      //           accessory.clusters.colorControl.colorMode !== api.matter.types.ColorControl.ColorMode.CurrentHueAndCurrentSaturation) {
+      //         accessory.clusters.colorControl.colorMode = api.matter.types.ColorControl.ColorMode.CurrentHueAndCurrentSaturation
       //         accessory.clusters.colorControl.currentHue = newHue
       //         accessory.clusters.colorControl.currentSaturation = newSat
       //         await api.matter.updateAccessoryState(accessory.uuid, api.matter.clusterNames.ColorControl, {
-      //           colorMode: MatterTypes.ColorControl.ColorMode.CurrentHueAndCurrentSaturation,
+      //           colorMode: api.matter.types.ColorControl.ColorMode.CurrentHueAndCurrentSaturation,
       //           currentHue: newHue,
       //           currentSaturation: newSat,
       //         })
@@ -465,11 +463,11 @@ export function registerExtendedColorLight(context: DeviceContext): any[] {
       //     } else if (deviceState.mode === 'white' && deviceState.colorTemp) {
       //       const newMireds = Math.round(1000000 / deviceState.colorTemp)
       //       if (newMireds !== accessory.clusters.colorControl.colorTemperatureMireds ||
-      //           accessory.clusters.colorControl.colorMode !== MatterTypes.ColorControl.ColorMode.ColorTemperatureMireds) {
-      //         accessory.clusters.colorControl.colorMode = MatterTypes.ColorControl.ColorMode.ColorTemperatureMireds
+      //           accessory.clusters.colorControl.colorMode !== api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds) {
+      //         accessory.clusters.colorControl.colorMode = api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds
       //         accessory.clusters.colorControl.colorTemperatureMireds = newMireds
       //         await api.matter.updateAccessoryState(accessory.uuid, api.matter.clusterNames.ColorControl, {
-      //           colorMode: MatterTypes.ColorControl.ColorMode.ColorTemperatureMireds,
+      //           colorMode: api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds,
       //           colorTemperatureMireds: newMireds,
       //         })
       //         updated = true
@@ -504,9 +502,9 @@ export function registerExtendedColorLight(context: DeviceContext): any[] {
     //    - Then all controllers are notified
     //
     // 1. COLOR MODES:
-    //    - MatterTypes.ColorControl.ColorMode.CurrentHueAndCurrentSaturation (0): Hue/Saturation (0-254 each)
-    //    - MatterTypes.ColorControl.ColorMode.CurrentXAndCurrentY (1): CIE 1931 color space (0-65535 each)
-    //    - MatterTypes.ColorControl.ColorMode.ColorTemperatureMireds (2): Color Temperature in mireds
+    //    - api.matter.types.ColorControl.ColorMode.CurrentHueAndCurrentSaturation (0): Hue/Saturation (0-254 each)
+    //    - api.matter.types.ColorControl.ColorMode.CurrentXAndCurrentY (1): CIE 1931 color space (0-65535 each)
+    //    - api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds (2): Color Temperature in mireds
     //    - Always update colorMode when switching between color and white
     //
     // 2. VALUE CONVERSIONS:

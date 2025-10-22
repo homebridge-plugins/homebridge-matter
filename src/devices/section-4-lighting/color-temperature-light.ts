@@ -6,8 +6,6 @@
 
 import type { MatterRequests } from 'homebridge'
 
-import { MatterTypes } from 'homebridge'
-
 import type { DeviceContext } from '../types.js'
 
 export function registerColorTemperatureLight(context: DeviceContext): any[] {
@@ -36,7 +34,7 @@ export function registerColorTemperatureLight(context: DeviceContext): any[] {
         maxLevel: 254, // Maximum brightness
       },
       colorControl: {
-        colorMode: MatterTypes.ColorControl.ColorMode.ColorTemperatureMireds, // Color temperature mode
+        colorMode: api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds, // Color temperature mode
         colorTemperatureMireds: 250, // Current color temp: ~4000K (neutral white)
         colorTempPhysicalMinMireds: 147, // Coolest temp: 6800K (blue-ish white)
         colorTempPhysicalMaxMireds: 454, // Warmest temp: 2200K (orange-ish warm)

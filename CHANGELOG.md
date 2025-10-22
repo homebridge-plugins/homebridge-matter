@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changes
 
 - add realistic state changes to vacuum example
+- recover from homebridge matter api changes
 
 ## v0.1.2 (2025-10-21)
 

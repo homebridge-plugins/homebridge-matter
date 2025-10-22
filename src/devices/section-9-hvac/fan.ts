@@ -4,8 +4,6 @@
  * A fan with speed control and mode selection.
  */
 
-import { MatterTypes } from 'homebridge'
-
 import type { DeviceContext } from '../types.js'
 
 export function registerFan(context: DeviceContext): any[] {
@@ -26,12 +24,12 @@ export function registerFan(context: DeviceContext): any[] {
 
     clusters: {
       fanControl: {
-        // Fan mode using MatterTypes enum for type safety
-        fanMode: MatterTypes.FanControl.FanMode.Off, // Initial state: Off
+        // Fan mode using api.matter.types enum for type safety
+        fanMode: api.matter.types.FanControl.FanMode.Off, // Initial state: Off
 
         // Fan mode sequence: defines which modes this fan supports
         // 0=OffLowMedHigh, 1=OffLowHigh, 2=OffLowMedHighAuto, 3=OffLowHighAuto, 4=OffOnAuto, 5=OffOn
-        fanModeSequence: MatterTypes.FanControl.FanModeSequence.OffLowMedHigh, // Supports: Off, Low, Medium, High
+        fanModeSequence: api.matter.types.FanControl.FanModeSequence.OffLowMedHigh, // Supports: Off, Low, Medium, High
 
         // Percent-based speed control (0-100)
         percentSetting: 0, // Target speed percentage

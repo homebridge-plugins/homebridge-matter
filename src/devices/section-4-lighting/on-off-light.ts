@@ -440,36 +440,32 @@ export function registerOnOffLight(context: DeviceContext): any[] {
   //    // Shows: ['fanMode', 'fanModeSequence', 'percentSetting', 'percentCurrent', ...]
   //    ```
   //
-  //    METHOD 3: MatterTypes Namespace (BEST - for enum values with type safety!)
-  //    Homebridge exports ALL Matter.js cluster types via the MatterTypes namespace.
+  //    METHOD 3: api.matter.types Namespace (BEST - for enum values with type safety!)
+  //    Homebridge exports ALL Matter.js cluster types via the api.matter.types namespace.
   //    This gives you full access to enums, types, and constants with TypeScript autocomplete!
   //
-  //    EXAMPLE: Fan Speed Values (using MatterTypes)
+  //    EXAMPLE: Fan Speed Values (using api.matter.types)
   //    For a fan, you might wonder: "What values can fanMode accept?"
   //    ```typescript
-  //    import { MatterTypes } from 'homebridge'
-  //
-  //    // Access FanMode enum with full type safety and autocomplete
+  //    // Access FanMode enum with full type safety and autocomplete (no import needed!)
   //    api.matter.updateAccessoryState(
   //      fanUuid,
   //      api.matter.clusterNames.FanControl,
-  //      { fanMode: MatterTypes.FanControl.FanMode.High }
+  //      { fanMode: api.matter.types.FanControl.FanMode.High }
   //    )
   //
   //    // All FanMode values available:
-  //    // - MatterTypes.FanControl.FanMode.Off      (0)
-  //    // - MatterTypes.FanControl.FanMode.Low      (1)
-  //    // - MatterTypes.FanControl.FanMode.Medium   (2)
-  //    // - MatterTypes.FanControl.FanMode.High     (3)
-  //    // - MatterTypes.FanControl.FanMode.On       (4)
-  //    // - MatterTypes.FanControl.FanMode.Auto     (5)
-  //    // - MatterTypes.FanControl.FanMode.Smart    (6)
+  //    // - api.matter.types.FanControl.FanMode.Off      (0)
+  //    // - api.matter.types.FanControl.FanMode.Low      (1)
+  //    // - api.matter.types.FanControl.FanMode.Medium   (2)
+  //    // - api.matter.types.FanControl.FanMode.High     (3)
+  //    // - api.matter.types.FanControl.FanMode.On       (4)
+  //    // - api.matter.types.FanControl.FanMode.Auto     (5)
+  //    // - api.matter.types.FanControl.FanMode.Smart    (6)
   //    ```
   //
-  //    EXAMPLE: Thermostat System Mode (using MatterTypes)
+  //    EXAMPLE: Thermostat System Mode (using api.matter.types)
   //    ```typescript
-  //    import { MatterTypes } from 'homebridge'
-  //
   //    api.matter.updateAccessoryState(
   //      thermostatUuid,
   //      api.matter.clusterNames.Thermostat,
@@ -477,58 +473,56 @@ export function registerOnOffLight(context: DeviceContext): any[] {
   //        localTemperature: 2200,           // 22.00°C (hundredths)
   //        occupiedHeatingSetpoint: 2000,    // 20.00°C
   //        occupiedCoolingSetpoint: 2400,    // 24.00°C
-  //        systemMode: MatterTypes.Thermostat.SystemMode.Heat,
+  //        systemMode: api.matter.types.Thermostat.SystemMode.Heat,
   //      }
   //    )
   //
   //    // All SystemMode values available:
-  //    // - MatterTypes.Thermostat.SystemMode.Off             (0)
-  //    // - MatterTypes.Thermostat.SystemMode.Auto            (1)
-  //    // - MatterTypes.Thermostat.SystemMode.Cool            (3)
-  //    // - MatterTypes.Thermostat.SystemMode.Heat            (4)
-  //    // - MatterTypes.Thermostat.SystemMode.EmergencyHeat   (5)
-  //    // - MatterTypes.Thermostat.SystemMode.Precooling      (6)
-  //    // - MatterTypes.Thermostat.SystemMode.FanOnly         (7)
+  //    // - api.matter.types.Thermostat.SystemMode.Off             (0)
+  //    // - api.matter.types.Thermostat.SystemMode.Auto            (1)
+  //    // - api.matter.types.Thermostat.SystemMode.Cool            (3)
+  //    // - api.matter.types.Thermostat.SystemMode.Heat            (4)
+  //    // - api.matter.types.Thermostat.SystemMode.EmergencyHeat   (5)
+  //    // - api.matter.types.Thermostat.SystemMode.Precooling      (6)
+  //    // - api.matter.types.Thermostat.SystemMode.FanOnly         (7)
   //    ```
   //
-  //    EXAMPLE: Door Lock State (using MatterTypes)
+  //    EXAMPLE: Door Lock State (using api.matter.types)
   //    ```typescript
-  //    import { MatterTypes } from 'homebridge'
-  //
   //    api.matter.updateAccessoryState(
   //      lockUuid,
   //      api.matter.clusterNames.DoorLock,
-  //      { lockState: MatterTypes.DoorLock.LockState.Locked }
+  //      { lockState: api.matter.types.DoorLock.LockState.Locked }
   //    )
   //
   //    // All LockState values available:
-  //    // - MatterTypes.DoorLock.LockState.NotFullyLocked  (0)
-  //    // - MatterTypes.DoorLock.LockState.Locked          (1)
-  //    // - MatterTypes.DoorLock.LockState.Unlocked        (2)
+  //    // - api.matter.types.DoorLock.LockState.NotFullyLocked  (0)
+  //    // - api.matter.types.DoorLock.LockState.Locked          (1)
+  //    // - api.matter.types.DoorLock.LockState.Unlocked        (2)
   //    ```
   //
   //    DISCOVERING ENUM VALUES:
   //    Three ways to find available enum values:
-  //    1. TypeScript Autocomplete: Type `MatterTypes.FanControl.` and see suggestions
+  //    1. TypeScript Autocomplete: Type `api.matter.types.FanControl.` and see suggestions
   //    2. Matter.js Reference: https://github.com/project-chip/matter.js
   //    3. Matter Specification: https://csa-iot.org/developer-resource/specifications-download-request/
   //
-  //    ALL AVAILABLE CLUSTERS IN MatterTypes:
-  //    MatterTypes exports ALL 130+ Matter clusters using original matter.js names:
-  //    - MatterTypes.FanControl
-  //    - MatterTypes.Thermostat
-  //    - MatterTypes.DoorLock
-  //    - MatterTypes.ColorControl
-  //    - MatterTypes.WindowCovering
-  //    - MatterTypes.SmokeCoAlarm
-  //    - MatterTypes.OccupancySensing
-  //    - MatterTypes.TemperatureMeasurement
+  //    ALL AVAILABLE CLUSTERS IN api.matter.types:
+  //    api.matter.types exports ALL 130+ Matter clusters using original matter.js names:
+  //    - api.matter.types.FanControl
+  //    - api.matter.types.Thermostat
+  //    - api.matter.types.DoorLock
+  //    - api.matter.types.ColorControl
+  //    - api.matter.types.WindowCovering
+  //    - api.matter.types.SmokeCoAlarm
+  //    - api.matter.types.OccupancySensing
+  //    - api.matter.types.TemperatureMeasurement
   //    - ... and 120+ more!
   //
   //    COMMON ATTRIBUTE VALUE TYPES:
   //    - Boolean: true/false (e.g., onOff, occupied)
   //    - Uint8/Uint16: 0-254, 0-100, 0-65535 (e.g., currentLevel, hue, saturation)
-  //    - Enum: Use MatterTypes for type-safe enum values (see examples above)
+  //    - Enum: Use api.matter.types for type-safe enum values (see examples above)
   //    - Temperature: Usually in hundredths of degrees C (2500 = 25.00°C)
   //    - Percentage: Usually 0-100 for sensors, 0-254 for controls (Matter range)
   // ═════════════════════════════════════════════════════════════════════════════

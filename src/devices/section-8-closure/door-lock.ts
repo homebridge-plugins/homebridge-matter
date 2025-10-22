@@ -4,8 +4,6 @@
  * A lock that can be locked and unlocked remotely.
  */
 
-import { MatterTypes } from 'homebridge'
-
 import type { DeviceContext } from '../types.js'
 
 export function registerDoorLock(context: DeviceContext): any[] {
@@ -39,10 +37,10 @@ export function registerDoorLock(context: DeviceContext): any[] {
     clusters: {
       doorLock: {
         // Lock state using MatterTypes enum for type safety
-        lockState: MatterTypes.DoorLock.LockState.Unlocked, // Unlocked (initial state)
+        lockState: api.matter.types.DoorLock.LockState.Unlocked, // Unlocked (initial state)
 
         // Lock type using MatterTypes enum
-        lockType: MatterTypes.DoorLock.LockType.DeadBolt,
+        lockType: api.matter.types.DoorLock.LockType.DeadBolt,
 
         // Actuator enabled (can be locked/unlocked remotely)
         actuatorEnabled: true,
@@ -62,7 +60,7 @@ export function registerDoorLock(context: DeviceContext): any[] {
           return api.matter.updateAccessoryState(
             doorLockUuid,
             api.matter.clusterNames.DoorLock,
-            { lockState: MatterTypes.DoorLock.LockState.Locked },
+            { lockState: api.matter.types.DoorLock.LockState.Locked },
           )
         },
 
@@ -77,7 +75,7 @@ export function registerDoorLock(context: DeviceContext): any[] {
           return api.matter.updateAccessoryState(
             doorLockUuid,
             api.matter.clusterNames.DoorLock,
-            { lockState: MatterTypes.DoorLock.LockState.Unlocked },
+            { lockState: api.matter.types.DoorLock.LockState.Unlocked },
           )
         },
       },
