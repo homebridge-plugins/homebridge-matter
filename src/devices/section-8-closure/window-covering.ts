@@ -4,6 +4,13 @@
  * Handles multiple variants:
  * - Window Blind: Standard lift-only window covering
  * - Venetian Blind: Window covering with both lift and tilt control
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - WindowCovering cluster for motorized blinds/shades
+ * - Multiple control commands (lift, tilt, stop)
+ * - Position tracking in hundredths of percent
  */
 
 import type { DeviceContext } from '../types.js'
@@ -14,11 +21,8 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
   // Variant 1: Window Blind (lift only)
   if (config.enableWindowBlind) {
-    // Generate UUID once and reuse in handlers
-    const windowBlindUuid = api.matter.uuid.generate('matter-window-blind')
-
     accessories.push({
-      uuid: windowBlindUuid,
+      uuid: api.matter.uuid.generate('matter-window-blind'),
       displayName: 'Window Blind',
       deviceType: api.matter.deviceTypes.WindowCovering,
       serialNumber: 'BLIND-001',
@@ -58,46 +62,23 @@ export function registerWindowCovering(context: DeviceContext): any[] {
         windowCovering: {
           goToLiftPercentage: async (request: { targetPercent: number }) => {
             const percent = (request.targetPercent / 100).toFixed(0)
-            log.info(`[Window Blind] ✓ Handler \`goToLiftPercentage\` called: ${request.targetPercent} (${percent}% open)`)
-
-            return api.matter.updateAccessoryState(
-              windowBlindUuid,
-              api.matter.clusterNames.WindowCovering,
-              {
-                currentPositionLiftPercent100ths: request.targetPercent,
-                targetPositionLiftPercent100ths: request.targetPercent,
-              },
-            )
+            log.info(`[Window Blind] Moving to ${percent}% open`)
+            // TODO: await myBlindAPI.setPosition(percent)
           },
 
           upOrOpen: async () => {
-            log.info('[Window Blind] ✓ Handler `upOrOpen` called - Opening blind')
-
-            return api.matter.updateAccessoryState(
-              windowBlindUuid,
-              api.matter.clusterNames.WindowCovering,
-              {
-                currentPositionLiftPercent100ths: 10000, // Fully open
-                targetPositionLiftPercent100ths: 10000,
-              },
-            )
+            log.info('[Window Blind] Opening blind')
+            // TODO: await myBlindAPI.open()
           },
 
           downOrClose: async () => {
-            log.info('[Window Blind] ✓ Handler `downOrClose` called - Closing blind')
-
-            return api.matter.updateAccessoryState(
-              windowBlindUuid,
-              api.matter.clusterNames.WindowCovering,
-              {
-                currentPositionLiftPercent100ths: 0, // Fully closed
-                targetPositionLiftPercent100ths: 0,
-              },
-            )
+            log.info('[Window Blind] Closing blind')
+            // TODO: await myBlindAPI.close()
           },
 
           stopMotion: async () => {
-            log.info('[Window Blind] ✓ Handler `stopMotion` called - Stopping blind')
+            log.info('[Window Blind] Stopping blind')
+            // TODO: await myBlindAPI.stop()
           },
         },
       },
@@ -106,11 +87,8 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
   // Variant 2: Venetian Blind (lift + tilt)
   if (config.enableVenetianBlind) {
-    // Generate UUID once and reuse in handlers
-    const venetianBlindUuid = api.matter.uuid.generate('matter-venetian-blind')
-
     accessories.push({
-      uuid: venetianBlindUuid,
+      uuid: api.matter.uuid.generate('matter-venetian-blind'),
       displayName: 'Venetian Blind (Tilt)',
       deviceType: api.matter.deviceTypes.WindowCovering,
       serialNumber: 'BLIND-002',
@@ -154,60 +132,29 @@ export function registerWindowCovering(context: DeviceContext): any[] {
         windowCovering: {
           goToLiftPercentage: async (request: { targetPercent: number }) => {
             const percent = (request.targetPercent / 100).toFixed(0)
-            log.info(`[Venetian Blind] ✓ Handler \`goToLiftPercentage\` called: ${request.targetPercent} (${percent}% open)`)
-
-            return api.matter.updateAccessoryState(
-              venetianBlindUuid,
-              api.matter.clusterNames.WindowCovering,
-              {
-                currentPositionLiftPercent100ths: request.targetPercent,
-                targetPositionLiftPercent100ths: request.targetPercent,
-              },
-            )
+            log.info(`[Venetian Blind] Moving to ${percent}% open`)
+            // TODO: await myBlindAPI.setLiftPosition(percent)
           },
 
           goToTiltPercentage: async (request: { targetPercent: number }) => {
             const percent = (request.targetPercent / 100).toFixed(0)
-            log.info(`[Venetian Blind] ✓ Handler \`goToTiltPercentage\` called: ${request.targetPercent} (${percent}% tilted)`)
-
-            return api.matter.updateAccessoryState(
-              venetianBlindUuid,
-              api.matter.clusterNames.WindowCovering,
-              {
-                currentPositionTiltPercent100ths: request.targetPercent,
-                targetPositionTiltPercent100ths: request.targetPercent,
-              },
-            )
+            log.info(`[Venetian Blind] Tilting to ${percent}%`)
+            // TODO: await myBlindAPI.setTiltAngle(percent)
           },
 
           upOrOpen: async () => {
-            log.info('[Venetian Blind] ✓ Handler `upOrOpen` called - Opening blind')
-
-            return api.matter.updateAccessoryState(
-              venetianBlindUuid,
-              api.matter.clusterNames.WindowCovering,
-              {
-                currentPositionLiftPercent100ths: 10000, // Fully open
-                targetPositionLiftPercent100ths: 10000,
-              },
-            )
+            log.info('[Venetian Blind] Opening blind')
+            // TODO: await myBlindAPI.open()
           },
 
           downOrClose: async () => {
-            log.info('[Venetian Blind] ✓ Handler `downOrClose` called - Closing blind')
-
-            return api.matter.updateAccessoryState(
-              venetianBlindUuid,
-              api.matter.clusterNames.WindowCovering,
-              {
-                currentPositionLiftPercent100ths: 0, // Fully closed
-                targetPositionLiftPercent100ths: 0,
-              },
-            )
+            log.info('[Venetian Blind] Closing blind')
+            // TODO: await myBlindAPI.close()
           },
 
           stopMotion: async () => {
-            log.info('[Venetian Blind] ✓ Handler `stopMotion` called - Stopping blind')
+            log.info('[Venetian Blind] Stopping blind')
+            // TODO: await myBlindAPI.stop()
           },
         },
       },

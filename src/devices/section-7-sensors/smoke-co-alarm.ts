@@ -2,6 +2,12 @@
  * Smoke/CO Alarm Device (Matter Spec § 7.9)
  *
  * A combined smoke and carbon monoxide alarm sensor.
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - SmokeCoAlarm cluster for smoke/CO detection
+ * - Device feature configuration (SmokeAlarm and CoAlarm features)
  */
 
 import type { DeviceContext } from '../types.js'

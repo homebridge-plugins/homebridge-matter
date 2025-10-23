@@ -2,6 +2,11 @@
  * On/Off Plug-in Unit Device (Matter Spec § 5.1)
  *
  * A plug-in unit with on/off control (smart plug).
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - Basic OnOff cluster implementation for outlets
  */
 
 import type { DeviceContext } from '../types.js'
@@ -31,10 +36,13 @@ export function registerOnOffPlugInUnit(context: DeviceContext): any[] {
     handlers: {
       onOff: {
         on: async () => {
-          log.info('[On/Off Outlet] ✓ Handler `on` called (user controlled via Home app)')
+          log.info('[On/Off Outlet] Turning ON')
+          // TODO: await myOutletAPI.turnOn()
         },
+
         off: async () => {
-          log.info('[On/Off Outlet] ✓ Handler `off` called (user controlled via Home app)')
+          log.info('[On/Off Outlet] Turning OFF')
+          // TODO: await myOutletAPI.turnOff()
         },
       },
     },

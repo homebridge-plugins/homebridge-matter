@@ -2,6 +2,12 @@
  * Door Lock Device (Matter Spec § 8.1)
  *
  * A lock that can be locked and unlocked remotely.
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - DoorLock cluster with lock/unlock commands
+ * - Using api.matter.types for type-safe enum values
  */
 
 import type { DeviceContext } from '../types.js'
@@ -14,69 +20,32 @@ export function registerDoorLock(context: DeviceContext): any[] {
     return accessories
   }
 
-  // Generate UUID once and reuse in handlers
-  const doorLockUuid = api.matter.uuid.generate('matter-door-lock')
-
   accessories.push({
-    uuid: doorLockUuid,
+    uuid: api.matter.uuid.generate('matter-door-lock'),
     displayName: 'Door Lock',
     deviceType: api.matter.deviceTypes.DoorLock,
     serialNumber: 'LOCK-001',
     manufacturer: 'Matter Examples',
     model: 'DoorLock v1',
 
-    // Optional: Persistent storage for custom data (survives Homebridge restarts)
-    // Useful for storing device IDs, API credentials, cached state, etc.
-    // Access later via configureMatterAccessory() when Homebridge restarts
-    // context: {
-    //   lockDeviceId: 'abc123',
-    //   apiEndpoint: 'https://api.mylock.com',
-    //   lastKnownState: 2, // 2 = Unlocked
-    // },
-
     clusters: {
       doorLock: {
-        // Lock state using MatterTypes enum for type safety
-        lockState: api.matter.types.DoorLock.LockState.Unlocked, // Unlocked (initial state)
-
-        // Lock type using MatterTypes enum
+        lockState: api.matter.types.DoorLock.LockState.Unlocked,
         lockType: api.matter.types.DoorLock.LockType.DeadBolt,
-
-        // Actuator enabled (can be locked/unlocked remotely)
         actuatorEnabled: true,
       },
     },
 
     handlers: {
       doorLock: {
-        // Called when user locks the door via Home app
         lockDoor: async () => {
-          log.info('[Door Lock] ✓ Handler `lockDoor` called - Locking door')
-
-          // TODO: Add your actual lock device control logic here
-          // Example: await myLockAPI.lock()
-
-          // Update the Matter state to reflect the lock is now locked
-          return api.matter.updateAccessoryState(
-            doorLockUuid,
-            api.matter.clusterNames.DoorLock,
-            { lockState: api.matter.types.DoorLock.LockState.Locked },
-          )
+          log.info('[Door Lock] Locking door')
+          // TODO: await myLockAPI.lock()
         },
 
-        // Called when user unlocks the door via Home app
         unlockDoor: async () => {
-          log.info('[Door Lock] ✓ Handler `unlockDoor` called - Unlocking door')
-
-          // TODO: Add your actual lock device control logic here
-          // Example: await myLockAPI.unlock()
-
-          // Update the Matter state to reflect the lock is now unlocked
-          return api.matter.updateAccessoryState(
-            doorLockUuid,
-            api.matter.clusterNames.DoorLock,
-            { lockState: api.matter.types.DoorLock.LockState.Unlocked },
-          )
+          log.info('[Door Lock] Unlocking door')
+          // TODO: await myLockAPI.unlock()
         },
       },
     },

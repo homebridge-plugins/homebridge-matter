@@ -5,52 +5,17 @@
  *
  * A robotic vacuum cleaner with autonomous cleaning capabilities.
  *
- * ✅ Apple Home Compatibility - EXTERNAL ACCESSORIES
- * This device is published using api.matter.publishExternalAccessories() in platform.ts.
- * RVC devices MUST be on their own dedicated Matter bridge for Apple Home compatibility.
+ * For comprehensive documentation, see: ../../../MATTER_API.md
  *
- * IMPORTANT: This function only CREATES the accessory configuration.
- * The actual publishing happens in platform.ts using publishExternalAccessories().
+ * This example demonstrates:
+ * - Complex multi-cluster device (RvcRunMode, RvcOperationalState, RvcCleanMode, ServiceArea)
+ * - External accessory publishing (required for Apple Home RVC devices)
+ * - Using api.matter.types for mode tags and operational states
+ * - Zone/room-based cleaning (Matter 1.4+ ServiceArea cluster)
+ * - Realistic state transitions with timer-based automation
  *
- * What happens when this device is published as external:
- * ─────────────────────────────────────────────────────────────
- * 1. Dedicated Matter Server: Gets its own MatterServer instance
- * 2. Automatic Port Allocation: Receives a unique port (e.g., 5541)
- * 3. Separate Commissioning: Gets its own QR code and manual pairing code
- * 4. Isolation: Completely independent of other Matter accessories
- * 5. Apple Home Compatible: Works properly with Apple Home's RVC requirements
- *
- * When you start Homebridge, you'll see logs like:
- * ```
- * [Matter] Publishing 1 external Matter accessory
- * [Matter] Allocated port 5541 for external Matter accessory: Robot Vacuum
- * [Matter] ✓ External Matter accessory published: Robot Vacuum on port 5541
- * [Matter] 📱 Commissioning codes for Robot Vacuum:
- * [Matter]    QR Code: MT:Y.K9042C00KA0648G00
- * [Matter]    Manual Code: 3492-8840-7309-5200-911
- * ```
- *
- * Use the separate QR code to commission this device in Apple Home.
- *
- * For developers implementing similar devices:
- * ──────────────────────────────────────────────
- * If you need to create your own device that requires isolation (like cameras,
- * doorbells, or other complex devices that Apple Home requires on separate bridges),
- * follow this pattern:
- *
- * 1. Create the accessory configuration in a device file (like this one)
- * 2. Return it from your registration function
- * 3. In platform.ts, use api.matter.publishExternalAccessories() instead of
- *    api.matter.registerPlatformAccessories()
- *
- * Example in your platform.ts:
- * ```typescript
- * const accessories = [...registerYourDevice(context)]
- * if (accessories.length > 0) {
- *   // Use publishExternalAccessories for devices that need isolation
- *   this.api.matter.publishExternalAccessories(PLUGIN_NAME, accessories)
- * }
- * ```
+ * IMPORTANT: This device is published using api.matter.publishExternalAccessories() in
+ * platform.ts because RVC devices require dedicated Matter bridges for Apple Home compatibility.
  */
 
 import type { DeviceContext } from '../types.js'
@@ -82,15 +47,6 @@ function addVacuumTimer(uuid: string, timer: NodeJS.Timeout): void {
   activeTimers.get(uuid)!.push(timer)
 }
 
-/**
- * Registers a Robotic Vacuum Cleaner accessory.
- *
- * NOTE: This returns the accessory configuration but does NOT publish it.
- * Publishing happens in platform.ts using api.matter.publishExternalAccessories().
- *
- * @param context - Device context containing API, logger, and config
- * @returns Array of RVC accessory configurations (empty if disabled)
- */
 export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
   const { api, log, config } = context
   const accessories: any[] = []
@@ -99,35 +55,19 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
     return accessories
   }
 
-  // Generate UUID for this accessory - will be used for external bridge identification
   const uuid = api.matter.uuid.generate('matter-robot-vacuum')
 
   accessories.push({
-    // Unique identifier for this accessory
-    // This UUID will also be used to identify the external Matter bridge
     uuid,
-
-    // Display name shown in Home apps
     displayName: 'Robot Vacuum',
-
-    // Matter device type - RoboticVacuumCleaner (from Matter Spec § 12.1)
     deviceType: api.matter.deviceTypes.RoboticVacuumCleaner,
-
-    // Device identification
     serialNumber: 'VACUUM-001',
     manufacturer: 'Matter Examples',
     model: 'RobotVacuum v1',
 
-    // Matter clusters define the functionality of this device
-    // RVC devices require these three clusters: rvcRunMode, rvcOperationalState, rvcCleanMode
-    // Optional clusters: serviceArea (Matter 1.4+)
     clusters: {
-      // ════════════════════════════════════════════════════════════════════════════
-      // RVC Run Mode Cluster (0x0054) - Defines operational modes
-      // ════════════════════════════════════════════════════════════════════════════
+      // RVC Run Mode Cluster - Defines operational modes (Idle, Cleaning, Mapping, etc.)
       rvcRunMode: {
-        // Supported run modes with enhanced mode tags for better controller compatibility
-        // Mode tags help controllers understand the purpose and behavior of each mode
         supportedModes: [
           {
             label: 'Idle',
@@ -160,17 +100,11 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             ],
           },
         ],
-        // Current mode - initial state
-        currentMode: 0, // Start in Idle mode
+        currentMode: 0, // Idle
       },
 
-      // ════════════════════════════════════════════════════════════════════════════
-      // RVC Operational State Cluster (0x0061) - Tracks current activity
-      // ════════════════════════════════════════════════════════════════════════════
+      // RVC Operational State Cluster - Tracks current activity (Stopped, Running, Paused, etc.)
       rvcOperationalState: {
-        // List of all possible operational states with descriptive labels
-        // Labels help with debugging and may be displayed in some controllers
-        // Must include at least an error state (ID 3) per Matter spec
         operationalStateList: [
           {
             operationalStateId: api.matter.types.RvcOperationalState.OperationalState.Stopped,
@@ -187,7 +121,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
           {
             operationalStateId: api.matter.types.RvcOperationalState.OperationalState.Error,
             operationalStateLabel: 'Error',
-          }, // REQUIRED by Matter spec
+          },
           {
             operationalStateId: api.matter.types.RvcOperationalState.OperationalState.SeekingCharger,
             operationalStateLabel: 'Seeking Charger',
@@ -201,23 +135,15 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             operationalStateLabel: 'Docked',
           },
         ],
-
-        // Current operational state (just the ID number, not an object)
-        operationalState: api.matter.types.RvcOperationalState.OperationalState.Docked, // Start in Docked state
-
-        // Error state - indicates if device has an error
+        operationalState: api.matter.types.RvcOperationalState.OperationalState.Docked,
         operationalError: {
-          errorStateId: api.matter.types.OperationalState.ErrorState.NoError, // No error
-          errorStateLabel: '', // Empty when no error
+          errorStateId: api.matter.types.OperationalState.ErrorState.NoError,
+          errorStateLabel: '',
         },
       },
 
-      // ════════════════════════════════════════════════════════════════════════════
-      // RVC Clean Mode Cluster (0x0055) - Defines cleaning method
-      // ════════════════════════════════════════════════════════════════════════════
+      // RVC Clean Mode Cluster - Defines cleaning method (Vacuum, Mop, etc.)
       rvcCleanMode: {
-        // Supported clean modes with appropriate tags
-        // You can add more modes like Quiet, Turbo, Deep Clean, etc.
         supportedModes: [
           {
             label: 'Vacuum',
@@ -238,38 +164,21 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
             mode: 2,
             modeTags: [
               { value: api.matter.types.RvcCleanMode.ModeTag.Vacuum },
-              { value: api.matter.types.RvcCleanMode.ModeTag.Mop }, // Both tags for combined mode
+              { value: api.matter.types.RvcCleanMode.ModeTag.Mop },
             ],
           },
         ],
-        // Current clean mode - initial state
-        currentMode: 0, // Start with Vacuum mode
+        currentMode: 0, // Vacuum
       },
 
-      // ════════════════════════════════════════════════════════════════════════════
       // Service Area Cluster (Matter 1.4+) - Zone/Room-based cleaning
-      // ════════════════════════════════════════════════════════════════════════════
-      //
-      // The Service Area cluster enables room/zone-specific cleaning, which is a key
-      // feature introduced in Matter 1.4. This allows users to:
-      // - Select specific rooms to clean from their Home app (iOS 18.4+)
-      // - Track which room is currently being cleaned
-      // - Define multiple cleaning zones/maps
-      //
-      // IMPORTANT: This cluster is OPTIONAL but highly recommended for modern RVC devices.
-      // Controllers that don't support it will simply not show room selection options.
       serviceArea: {
-        // Define available floor plan maps
-        // Even if you only have one floor plan, you must define at least one map
         supportedMaps: [
           {
-            mapId: 0, // Map ID - use 0 for the default/only map
-            name: 'Main Floor', // Friendly name for this map
+            mapId: 0,
+            name: 'Main Floor',
           },
         ],
-
-        // Define the rooms/areas available for cleaning
-        // Each area has metadata like name, floor number, and area type tags
         supportedAreas: [
           {
             areaId: 0, // Unique ID for this area

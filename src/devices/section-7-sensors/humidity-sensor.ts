@@ -2,6 +2,11 @@
  * Humidity Sensor Device (Matter Spec § 7.7)
  *
  * A sensor that measures relative humidity.
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - RelativeHumidityMeasurement cluster for humidity sensors
  */
 
 import type { DeviceContext } from '../types.js'

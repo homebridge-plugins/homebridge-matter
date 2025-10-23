@@ -2,6 +2,13 @@
  * Thermostat Device (Matter Spec § 9.1)
  *
  * A device for controlling heating and cooling systems.
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - Thermostat cluster with heating/cooling setpoints
+ * - Using api.matter.types for system modes
+ * - Temperature in hundredths of degrees Celsius
  */
 
 import type { DeviceContext } from '../types.js'
@@ -24,55 +31,37 @@ export function registerThermostat(context: DeviceContext): any[] {
 
     clusters: {
       thermostat: {
-        // Current temperature (in hundredths of degrees Celsius)
-        localTemperature: 2100, // 21.00°C (2100 / 100 = 21.0)
-
-        // Heating setpoint (target temperature in heat mode)
-        occupiedHeatingSetpoint: 2000, // Target: 20.00°C
-        minHeatSetpointLimit: 700, // Minimum: 7°C
-        maxHeatSetpointLimit: 3000, // Maximum: 30°C
-
-        // Cooling setpoint (target temperature in cool mode)
-        occupiedCoolingSetpoint: 2400, // Target: 24.00°C
-        minCoolSetpointLimit: 1600, // Minimum: 16°C
-        maxCoolSetpointLimit: 3200, // Maximum: 32°C
-
-        // System mode using MatterTypes enum for type safety
-        systemMode: api.matter.types.Thermostat.SystemMode.Heat, // Currently in Heat mode
-
-        // Control sequence: defines what modes are available (mandatory)
+        localTemperature: 2100, // 21.00°C
+        occupiedHeatingSetpoint: 2000, // 20.00°C
+        minHeatSetpointLimit: 700,
+        maxHeatSetpointLimit: 3000,
+        occupiedCoolingSetpoint: 2400, // 24.00°C
+        minCoolSetpointLimit: 1600,
+        maxCoolSetpointLimit: 3200,
+        systemMode: api.matter.types.Thermostat.SystemMode.Heat,
         controlSequenceOfOperation: api.matter.types.Thermostat.ControlSequenceOfOperation.CoolingAndHeating,
       },
     },
 
     handlers: {
       thermostat: {
-        // Called when user changes the heating target temperature
         setOccupiedHeatingSetpoint: async (request: { targetSetpoint: number }) => {
           const tempC = (request.targetSetpoint / 100).toFixed(1)
-          log.info(`[Thermostat] ✓ Handler \`setOccupiedHeatingSetpoint\` called: ${request.targetSetpoint} (${tempC}°C)`)
-
-          // TODO: Add your actual thermostat control logic here
-          // Example: await myThermostatAPI.setHeatingTarget(parseFloat(tempC))
+          log.info(`[Thermostat] Setting heating target to ${tempC}°C`)
+          // TODO: await myThermostatAPI.setHeatingTarget(parseFloat(tempC))
         },
 
-        // Called when user changes the cooling target temperature
         setOccupiedCoolingSetpoint: async (request: { targetSetpoint: number }) => {
           const tempC = (request.targetSetpoint / 100).toFixed(1)
-          log.info(`[Thermostat] ✓ Handler \`setOccupiedCoolingSetpoint\` called: ${request.targetSetpoint} (${tempC}°C)`)
-
-          // TODO: Add your actual thermostat control logic here
-          // Example: await myThermostatAPI.setCoolingTarget(parseFloat(tempC))
+          log.info(`[Thermostat] Setting cooling target to ${tempC}°C`)
+          // TODO: await myThermostatAPI.setCoolingTarget(parseFloat(tempC))
         },
 
-        // Called when user changes the system mode (Off, Auto, Cool, Heat, etc.)
         setSystemMode: async (request: { systemMode: number }) => {
           const modes = ['Off', 'Auto', 'Reserved', 'Cool', 'Heat', 'Emergency Heating', 'Precooling', 'Fan Only']
           const modeName = modes[request.systemMode] || `Unknown (${request.systemMode})`
-          log.info(`[Thermostat] ✓ Handler \`setSystemMode\` called: ${request.systemMode} (${modeName})`)
-
-          // TODO: Add your actual thermostat mode control logic here
-          // Example: await myThermostatAPI.setMode(modeName.toLowerCase())
+          log.info(`[Thermostat] Setting mode to ${modeName}`)
+          // TODO: await myThermostatAPI.setMode(modeName.toLowerCase())
         },
       },
     },

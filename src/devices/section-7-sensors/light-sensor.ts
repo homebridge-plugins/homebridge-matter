@@ -2,6 +2,11 @@
  * Light Sensor Device (Matter Spec § 7.2)
  *
  * A sensor that measures illuminance (light level).
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - IlluminanceMeasurement cluster for light sensors
  */
 
 import type { DeviceContext } from '../types.js'

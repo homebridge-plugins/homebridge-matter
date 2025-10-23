@@ -2,6 +2,11 @@
  * On/Off Light Switch Device (Matter Spec § 6.1)
  *
  * A switch for controlling on/off lights.
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - Switch device implementation (input device, sends commands)
  */
 
 import type { DeviceContext } from '../types.js'

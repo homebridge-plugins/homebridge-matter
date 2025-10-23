@@ -2,6 +2,11 @@
  * Water Leak Detector Device (Matter Spec § 7.12)
  *
  * A sensor that detects the presence of water/leaks.
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - BooleanState cluster for leak detection
  */
 
 import type { DeviceContext } from '../types.js'

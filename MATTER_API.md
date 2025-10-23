@@ -13,7 +13,8 @@ This document serves as a comprehensive guide for integrating Matter devices int
 5. [Monitoring External Changes](#monitoring-external-changes)
 6. [Using Matter Types](#using-matter-types)
 7. [Best Practices](#best-practices)
-8. [Device Reference](#device-reference)
+8. [API Reference](#api-reference)
+9. [Device Reference](#device-reference)
 
 ---
 
@@ -137,6 +138,85 @@ handlers: {
 
 The command-based approach is more explicit about the user's intent and can provide additional context (like transition time for smooth dimming).
 
+#### Type-Safe Handler Arguments with MatterRequests
+
+For commands with parameters, import `MatterRequests` for TypeScript autocomplete and type checking:
+
+```typescript
+import type { MatterRequests } from 'homebridge'
+
+handlers: {
+  levelControl: {
+    moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
+      const { level, transitionTime } = request  // Fully typed!
+      await device.setBrightness(level)
+    },
+  },
+}
+```
+
+**Quick Examples:**
+- `MatterRequests.MoveToLevel` - Brightness control
+- `MatterRequests.MoveToHueAndSaturation` - Color control
+- `MatterRequests.LockDoor` - Door lock with optional PIN
+- `MatterRequests.SetpointRaiseLower` - Thermostat temperature
+
+**Why use this?**
+✅ Autocomplete shows available properties
+✅ Compile-time errors for typos
+✅ Hover to see parameter types
+
+**Note:** TypeScript types only - not available on `api.matter` at runtime.
+
+<details>
+<summary><strong>Click to see all MatterRequests types</strong></summary>
+
+#### Level Control
+```typescript
+MatterRequests.MoveToLevel // { level, transitionTime?, optionsMask?, optionsOverride? }
+MatterRequests.Move // { moveMode, rate?, optionsMask?, optionsOverride? }
+MatterRequests.Step // { stepMode, stepSize, transitionTime?, ... }
+MatterRequests.Stop // { optionsMask?, optionsOverride? }
+```
+
+#### Color Control
+```typescript
+MatterRequests.MoveToHue // { hue, direction, transitionTime?, ... }
+MatterRequests.MoveToSaturation // { saturation, transitionTime?, ... }
+MatterRequests.MoveToHueAndSaturation // { hue, saturation, transitionTime?, ... }
+MatterRequests.MoveToColorTemperature // { colorTemperatureMireds, transitionTime?, ... }
+MatterRequests.MoveHue // { moveMode, rate?, ... }
+MatterRequests.MoveSaturation // { moveMode, rate?, ... }
+MatterRequests.MoveColorTemperature // { moveMode, rate?, ... }
+MatterRequests.StepHue // { stepMode, stepSize, transitionTime?, ... }
+MatterRequests.StepSaturation // { stepMode, stepSize, transitionTime?, ... }
+MatterRequests.StepColorTemperature // { stepMode, stepSize, transitionTime?, ... }
+```
+
+#### Door Lock
+```typescript
+MatterRequests.LockDoor // { pinCode? }
+MatterRequests.UnlockDoor // { pinCode? }
+```
+
+#### Window Covering
+```typescript
+MatterRequests.GoToLiftPercentage // { liftPercent100thsValue }
+MatterRequests.GoToTiltPercentage // { tiltPercent100thsValue }
+```
+
+#### Thermostat
+```typescript
+MatterRequests.SetpointRaiseLower // { mode, amount }
+```
+
+#### Fan Control
+```typescript
+MatterRequests.FanStep // { direction, wrap?, lowestOff? }
+```
+
+</details>
+
 ### Endpoints vs Clusters (HAP: Accessories vs Services)
 
 Understanding the relationship between endpoints and clusters is fundamental to Matter architecture.
@@ -197,7 +277,7 @@ const accessory = {
 
   // These are CLUSTERS within the endpoint
   clusters: {
-    onOff: { onOff: false },           // OnOff cluster
+    onOff: { onOff: false }, // OnOff cluster
     levelControl: { currentLevel: 127 }, // LevelControl cluster
   },
 }
@@ -208,7 +288,9 @@ const accessory = {
 - The `clusters` object defines which clusters (capabilities) that endpoint has
 - The device type determines which clusters are required/optional for that endpoint
 
-### HomeKit vs Matter
+#### HAP vs Matter: Detailed Comparison
+
+For HAP developers, here's how common patterns translate:
 
 | Aspect                    | HAP                                                   | Matter                                                   |
 |---------------------------|-------------------------------------------------------|----------------------------------------------------------|
@@ -297,6 +379,8 @@ Your physical device is **not** a Matter device—it's a regular IoT device (HTT
 ---
 
 ## Implementing Matter Devices
+
+Now that you understand the core concepts and two-way flow architecture, let's implement a Matter device.
 
 ### Basic Structure
 
@@ -486,6 +570,8 @@ clusters: {
 
 ## Reading and Updating State
 
+After implementing your device, you'll need to read and update its state for both Flow A (handlers) and Flow B (external changes).
+
 ### Reading Current State
 
 There are two ways to read cluster state:
@@ -496,15 +582,15 @@ Access cluster attributes directly from the accessory object:
 
 ```typescript
 // Read power state
-const isOn = accessory.clusters.onOff.onOff  // boolean
+const isOn = accessory.clusters.onOff.onOff // boolean
 
 // Read brightness
-const level = accessory.clusters.levelControl.currentLevel  // 1-254
-const percent = Math.round((level / 254) * 100)  // Convert to percentage
+const level = accessory.clusters.levelControl.currentLevel // 1-254
+const percent = Math.round((level / 254) * 100) // Convert to percentage
 
 // Read color
-const hue = accessory.clusters.colorControl.currentHue  // 0-254
-const saturation = accessory.clusters.colorControl.currentSaturation  // 0-254
+const hue = accessory.clusters.colorControl.currentHue // 0-254
+const saturation = accessory.clusters.colorControl.currentSaturation // 0-254
 ```
 
 **When to use**: This is the recommended approach in most cases when you have a reference to the accessory object.
@@ -523,13 +609,13 @@ Use the API method when you don't have a reference to the accessory object:
 // Read state by UUID
 const state = api.matter.getAccessoryState(uuid, api.matter.clusterNames.OnOff)
 if (state) {
-  const isOn = state.onOff  // boolean
+  const isOn = state.onOff // boolean
 }
 
 // Read brightness
 const levelState = api.matter.getAccessoryState(uuid, api.matter.clusterNames.LevelControl)
 if (levelState) {
-  const level = levelState.currentLevel  // 1-254
+  const level = levelState.currentLevel // 1-254
 }
 ```
 
@@ -547,9 +633,9 @@ Use `updateAccessoryState()` to manually update cluster attributes:
 
 ```typescript
 api.matter.updateAccessoryState(
-  accessory.uuid,                      // UUID of the accessory
-  api.matter.clusterNames.OnOff,       // Cluster name (use constants!)
-  { onOff: true }                      // New attribute values
+  accessory.uuid, // UUID of the accessory
+  api.matter.clusterNames.OnOff, // Cluster name (use constants!)
+  { onOff: true } // New attribute values
 )
 ```
 
@@ -690,7 +776,9 @@ api.matter.updateAccessoryState(
 
 ## Monitoring External Changes
 
-You must monitor your physical device to detect external changes (Flow B). There are two approaches:
+To implement Flow B (physical device → Home app), you must monitor your physical device and call `updateAccessoryState()` when it changes externally.
+
+There are two approaches:
 
 ### Recommended: Event-Based Updates
 
@@ -823,7 +911,7 @@ setInterval(async () => {
   } catch (error) {
     log.error(`Error polling device: ${error}`)
   }
-}, 5000)  // Poll every 5 seconds
+}, 5000) // Poll every 5 seconds
 ```
 
 ---
@@ -884,7 +972,7 @@ api.matter.types.TemperatureMeasurement
 
 ---
 
-## Best Practices - WE ARE UP TO HERE!
+## Best Practices
 
 ### 1. Always Compare Before Updating
 
@@ -901,27 +989,39 @@ if (newState !== currentState) {
 
 Whenever possible, use event-based updates (MQTT, WebSocket, webhooks) instead of polling for better performance and user experience.
 
-### 3. Never Update in Handlers (Flow A)
+### 3. Don't Update the Same Attribute in Handlers
 
-Handlers automatically update Matter state. Only use `updateAccessoryState()` for external changes (Flow B).
+Handlers automatically update their own attribute. Only manually update OTHER attributes (side effects) or for external changes (Flow B).
 
 ```typescript
-// ❌ WRONG
+// ❌ WRONG - Redundant update
 handlers: {
   onOff: {
     on: async () => {
       await myDevice.turnOn()
-      api.matter.updateAccessoryState(...)  // Don't do this!
+      api.matter.updateAccessoryState(uuid, api.matter.clusterNames.OnOff, { onOff: true })
+      // Redundant! onOff is already updated automatically
     }
   }
 }
 
-// ✅ CORRECT
+// ✅ CORRECT - No manual update needed
 handlers: {
   onOff: {
     on: async () => {
       await myDevice.turnOn()
-      // State is automatically updated
+      // State automatically updated
+    }
+  }
+}
+
+// ✅ ALSO CORRECT - Update different attribute as side effect
+handlers: {
+  onOff: {
+    on: async () => {
+      await myDevice.turnOn()
+      // Light resets to 100% when turned on, so update brightness too
+      api.matter.updateAccessoryState(uuid, api.matter.clusterNames.LevelControl, { currentLevel: 254 })
     }
   }
 }
@@ -929,29 +1029,55 @@ handlers: {
 
 ### 4. Handle Errors Gracefully
 
-Always wrap device communication in try-catch blocks:
+Always throw errors from handlers so the Home app can be notified of failures:
 
 ```typescript
-try {
-  await myDevice.turnOn()
-} catch (error) {
-  log.error(`Failed to control device: ${error}`)
-  throw error  // Let Homebridge handle the error
+handlers: {
+  onOff: {
+    on: async () => {
+      try {
+        // Control your physical device
+        await myDevice.turnOn()
+        log.info('Successfully turned on device')
+      } catch (error) {
+        // Log the error for debugging
+        log.error(`Failed to turn on device: ${error}`)
+
+        // ✅ IMPORTANT: Re-throw the error
+        // This propagates the error to the Matter protocol, which:
+        // 1. Notifies the Home app that the command failed
+        // 2. Prevents state from updating incorrectly
+        // 3. Shows an error message to the user
+        throw error
+      }
+    },
+
+    off: async () => {
+      try {
+        await myDevice.turnOff()
+        log.info('Successfully turned off device')
+      } catch (error) {
+        log.error(`Failed to turn off device: ${error}`)
+        throw error  // Always re-throw!
+      }
+    },
+  },
 }
 ```
 
-### 5. Reconnect on Connection Loss
+**Why throw errors?**
 
-For event-based monitoring, implement automatic reconnection:
+Without throwing:
+- ❌ Home app thinks command succeeded
+- ❌ State updates incorrectly (shows "on" when device is actually off)
+- ❌ User has no feedback that something went wrong
 
-```typescript
-ws.on('close', () => {
-  log.warn('Connection lost, reconnecting...')
-  setTimeout(() => reconnect(), 5000)
-})
-```
+With throwing:
+- ✅ Home app displays error to user
+- ✅ State remains unchanged (accurate)
+- ✅ User knows to try again or investigate the issue
 
-### 6. Log Clearly
+### 5. Log Clearly
 
 Distinguish between the two flows in your logs:
 
@@ -960,7 +1086,7 @@ log.info('[Device] Home app → Physical device: Turning ON')
 log.info('[Device] Physical device → Home app: State changed to ON')
 ```
 
-### 7. Use Cluster Name Constants
+### 6. Use Cluster Name Constants
 
 Always use `api.matter.clusterNames.*` constants instead of strings:
 
@@ -972,139 +1098,479 @@ api.matter.updateAccessoryState(uuid, api.matter.clusterNames.OnOff, {...})
 api.matter.updateAccessoryState(uuid, 'onOff', {...})
 ```
 
-### 8. Store Connection Objects for Cleanup
+---
 
-Keep references to connections for proper cleanup when plugin stops:
+## API Reference
 
+Complete reference for all Matter API methods and properties available in Homebridge.
+
+### Platform API Methods
+
+#### `api.isMatterAvailable(): boolean`
+
+Check if Matter is available in the current version of Homebridge.
+
+**Returns:** `true` if Homebridge version is >= 2.0.0-alpha.0
+
+**Usage:**
 ```typescript
-let mqttClient: mqtt.MqttClient
-let wsConnection: WebSocket
-
-// Clean up on plugin shutdown
-context.api.on('shutdown', () => {
-  mqttClient?.end()
-  wsConnection?.close()
-})
+if (api.isMatterAvailable()) {
+  log.info('Matter is available in this Homebridge version')
+} else {
+  log.warn('Matter requires Homebridge >= 2.0.0-alpha.0')
+}
 ```
+
+**When to use:**
+- Plugin compatibility checks
+- Conditional feature loading
+- Version-specific functionality
 
 ---
 
-## Device Reference
+#### `api.isMatterEnabled(): boolean`
 
-This section documents all available Matter device types with their clusters, attributes, handlers, and usage examples.
+Check if Matter is enabled for this bridge instance.
 
-### On/Off Light
+**Returns:** `true` if Matter is enabled in the bridge configuration
 
-**Device Type**: `api.matter.deviceTypes.OnOffLight`
+**Configuration:**
+- For main bridge: Set `bridge.matter = true` in config.json
+- For child bridge: Set `_bridge.matter = true` in platform config
 
-**Description**: A lighting device capable of being switched on or off.
-
-**Matter Specification**: § 4.1
-
-#### Required Clusters
-
-##### OnOff Cluster
-
-Controls the power state of the light.
-
-**Attributes**:
-
-| Attribute | Type    | Range/Values    | Description                    |
-|-----------|---------|-----------------|--------------------------------|
-| `onOff`   | boolean | `true`, `false` | Power state (true=on, false=off) |
-
-**Handlers**:
-
+**Usage:**
 ```typescript
-handlers: {
-  onOff: {
-    /**
-     * Called when user turns light ON via Home app
-     */
-    on: async () => {
-      // Control your physical device
-      await myLightAPI.turnOn()
-      // State automatically updated by Homebridge
-    },
-
-    /**
-     * Called when user turns light OFF via Home app
-     */
-    off: async () => {
-      // Control your physical device
-      await myLightAPI.turnOff()
-      // State automatically updated by Homebridge
-    },
-  },
+if (api.isMatterEnabled()) {
+  // Register Matter accessories
+  api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+} else {
+  log.info('Matter is not enabled for this bridge')
 }
 ```
 
-#### Optional Clusters
+**When to use:**
+- Runtime checks before registering Matter accessories
+- Conditional accessory registration
+- User feedback about Matter status
 
-- **LevelControl**: Adds brightness control (see Dimmable Light)
-- **ScenesManagement**: Enables scene support
-- **Groups**: Enables grouping with other devices
-- **OccupancySensing**: Can respond to occupancy sensors
+---
 
-#### Complete Example
+### Matter API Properties
 
+All properties are accessed via `api.matter.*`
+
+#### `api.matter.uuid`
+
+UUID generator for creating unique accessory identifiers (alias of `api.hap.uuid`).
+
+**Type:** `HAP['uuid']`
+
+**Methods:**
+- `generate(data: string): string` - Generate deterministic UUID from string
+- `isValid(uuid: string): boolean` - Validate UUID format
+
+**Usage:**
+```typescript
+const uuid = api.matter.uuid.generate('my-light-123')
+// Output: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
+
+if (api.matter.uuid.isValid(uuid)) {
+  // UUID is valid
+}
+```
+
+**Important:**
+- UUIDs must be deterministic (same input = same output)
+- Use unique identifiers (device ID, MAC address, etc.)
+- UUIDs persist across restarts for state restoration
+
+---
+
+#### `api.matter.deviceTypes`
+
+Available Matter device types for creating accessories.
+
+**Type:** `typeof deviceTypes` (from Matter.js)
+
+**Common Device Types:**
+- Lighting: `OnOffLight`, `DimmableLight`, `ColorTemperatureLight`, `ExtendedColorLight`
+- Switches & Outlets: `OnOffSwitch`, `OnOffOutlet`, `DimmableOutlet`
+- Sensors: `ContactSensor`, `TemperatureSensor`, `HumiditySensor`, `OccupancySensor`, etc.
+- HVAC: `Thermostat`, `Fan`
+- Closure: `DoorLock`, `WindowCovering`
+- Robotic: `RoboticVacuumCleaner`
+
+**Usage:**
 ```typescript
 const accessory = {
-  uuid: api.matter.uuid.generate('onoff-light-001'),
-  displayName: 'On/Off Light',
-  deviceType: api.matter.deviceTypes.OnOffLight,
-  serialNumber: 'LIGHT-001',
-  manufacturer: 'My Company',
-  model: 'OnOffLight v1',
-
-  clusters: {
-    onOff: {
-      onOff: false,  // Initial state: off
-    },
-  },
-
-  handlers: {
-    onOff: {
-      on: async () => {
-        log.info('[Light] Turning ON')
-        await myLightAPI.turnOn()
-      },
-      off: async () => {
-        log.info('[Light] Turning OFF')
-        await myLightAPI.turnOff()
-      },
-    },
-  },
+  uuid: api.matter.uuid.generate('my-light'),
+  displayName: 'Living Room Light',
+  deviceType: api.matter.deviceTypes.DimmableLight,
+  // ...
 }
-
-// Monitor external changes (Flow B)
-mqttClient.on('message', (topic, message) => {
-  const { state } = JSON.parse(message.toString())
-  const deviceIsOn = state === 'ON'
-
-  if (deviceIsOn !== accessory.clusters.onOff.onOff) {
-    api.matter.updateAccessoryState(
-      accessory.uuid,
-      api.matter.clusterNames.OnOff,
-      { onOff: deviceIsOn }
-    )
-  }
-})
 ```
 
-#### Cluster Reference
+**See:** [Available Device Types](#available-device-types) for complete list
 
-Access cluster attributes programmatically:
+---
 
+#### `api.matter.clusters`
+
+Direct access to Matter.js cluster definitions for advanced use cases.
+
+**Type:** `typeof clusters` (from Matter.js)
+
+**Usage:**
 ```typescript
-// Reading state
-const isOn = accessory.clusters.onOff.onOff
-
-// All OnOff cluster attributes via api.matter
+// Access cluster attributes programmatically
 const onOffAttrs = api.matter.clusters.OnOffCluster.attributes
 console.log(Object.keys(onOffAttrs))
 // Output: ['onOff', 'clusterRevision', 'featureMap', ...]
+
+// Check if cluster supports specific features
+const levelControlFeatures = api.matter.clusters.LevelControlCluster.features
 ```
+
+**When to use:**
+- Advanced cluster introspection
+- Dynamic attribute discovery
+- Custom cluster implementations
+
+**Note:** Most plugins should use the higher-level APIs instead.
+
+---
+
+#### `api.matter.clusterNames`
+
+Cluster name constants for type safety and autocomplete with state methods.
+
+**Type:** `typeof clusterNames`
+
+**Available Names:**
+- `OnOff`, `LevelControl`, `ColorControl`
+- `DoorLock`, `WindowCovering`
+- `Thermostat`, `FanControl`
+- `TemperatureMeasurement`, `RelativeHumidityMeasurement`
+- And many more...
+
+**Usage:**
+```typescript
+// Type-safe cluster references
+api.matter.updateAccessoryState(
+  uuid,
+  api.matter.clusterNames.OnOff, // Autocomplete available!
+  { onOff: true }
+)
+
+const state = api.matter.getAccessoryState(
+  uuid,
+  api.matter.clusterNames.LevelControl
+)
+```
+
+**Benefits:**
+- Autocomplete in IDEs
+- Compile-time error checking
+- Prevents typos in cluster names
+
+---
+
+#### `api.matter.types`
+
+Type-safe enum values for cluster attributes (modes, states, etc.).
+
+**Type:** `typeof MatterTypes` (from Homebridge)
+
+**Common Types:**
+- `DoorLock.LockState` - Lock states (Locked, Unlocked, etc.)
+- `DoorLock.LockType` - Lock types (DeadBolt, Magnetic, etc.)
+- `FanControl.FanMode` - Fan modes (Off, Low, Medium, High, Auto, etc.)
+- `FanControl.FanModeSequence` - Supported mode sequences
+- `Thermostat.SystemMode` - HVAC modes (Off, Heat, Cool, Auto, etc.)
+- `ColorControl.ColorMode` - Color modes (HS, XY, ColorTemperature)
+- `RvcRunMode.ModeTag` - Vacuum run mode tags (Idle, Cleaning, Mapping)
+- `RvcCleanMode.ModeTag` - Vacuum clean mode tags (Vacuum, Mop)
+- `RvcOperationalState.OperationalState` - Vacuum states (Stopped, Running, Docked, etc.)
+
+**Usage:**
+```typescript
+// Door lock states
+clusters: {
+  doorLock: {
+    lockState: api.matter.types.DoorLock.LockState.Unlocked,
+    lockType: api.matter.types.DoorLock.LockType.DeadBolt
+  }
+}
+
+// Fan modes
+clusters: {
+  fanControl: {
+    fanMode: api.matter.types.FanControl.FanMode.Auto,
+    fanModeSequence: api.matter.types.FanControl.FanModeSequence.OffLowMedHigh
+  }
+}
+
+// Color modes
+clusters: {
+  colorControl: {
+    colorMode: api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds
+  }
+}
+```
+
+**Benefits:**
+- Type safety prevents invalid values
+- IDE autocomplete shows available options
+- Self-documenting code
+- Compile-time validation
+
+**See:** [Using Matter Types](#using-matter-types) for detailed examples
+
+---
+
+### Matter API Methods
+
+#### `api.matter.registerPlatformAccessories()`
+
+Register Matter accessories with the platform (standard registration method).
+
+**Signature:**
+```typescript
+registerPlatformAccessories(
+  pluginIdentifier: string,
+  platformName: string,
+  accessories: MatterAccessory[]
+): void
+```
+
+**Parameters:**
+- `pluginIdentifier` - Plugin identifier (e.g., `'homebridge-example'`)
+- `platformName` - Platform name (e.g., `'ExamplePlatform'`)
+- `accessories` - Array of Matter accessories to register
+
+**Usage:**
+```typescript
+const PLUGIN_NAME = 'homebridge-example'
+const PLATFORM_NAME = 'ExamplePlatform'
+
+const accessories = [
+  {
+    uuid: api.matter.uuid.generate('my-light'),
+    displayName: 'Living Room Light',
+    deviceType: api.matter.deviceTypes.OnOffLight,
+    // ...
+  }
+]
+
+api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+```
+
+**When to use:**
+- Standard accessory registration
+- Multiple accessories on shared bridge
+- Most common use case
+
+**See also:** `publishExternalAccessories()` for isolated accessories
+
+---
+
+#### `api.matter.unregisterPlatformAccessories()`
+
+Unregister Matter accessories by UUID.
+
+**Signature:**
+```typescript
+unregisterPlatformAccessories(
+  pluginIdentifier: string,
+  platformName: string,
+  accessories: MatterAccessory[]
+): void
+```
+
+**Parameters:**
+- `pluginIdentifier` - Plugin identifier
+- `platformName` - Platform name
+- `accessories` - Array of accessories to unregister (only `uuid` is required)
+
+**Usage:**
+```typescript
+// Unregister accessories
+const accessoriesToRemove = [
+  { uuid: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX' }
+]
+
+api.matter.unregisterPlatformAccessories(
+  PLUGIN_NAME,
+  PLATFORM_NAME,
+  accessoriesToRemove
+)
+```
+
+**When to use:**
+- Removing accessories from Homebridge
+- Cleanup during plugin shutdown
+- User-initiated accessory removal
+
+---
+
+#### `api.matter.publishExternalAccessories()`
+
+Publish accessories on dedicated Matter bridges (isolated from other accessories).
+
+**Signature:**
+```typescript
+publishExternalAccessories(
+  pluginIdentifier: string,
+  accessories: MatterAccessory[]
+): void
+```
+
+**Parameters:**
+- `pluginIdentifier` - Plugin identifier
+- `accessories` - Array of accessories to publish externally
+
+**Usage:**
+```typescript
+const accessories = [
+  {
+    uuid: api.matter.uuid.generate('robot-vacuum'),
+    displayName: 'Robot Vacuum',
+    deviceType: api.matter.deviceTypes.RoboticVacuumCleaner,
+    // ...
+  }
+]
+
+// Publish on dedicated bridge
+api.matter.publishExternalAccessories(PLUGIN_NAME, accessories)
+```
+
+**When to use:**
+- Robotic Vacuum Cleaners (required by Apple Home)
+- Cameras and video doorbells
+- Devices requiring isolation
+- Testing single accessories
+
+**Behavior:**
+- Each accessory gets its own Matter server instance
+- Separate port allocation (e.g., 5541, 5542, etc.)
+- Independent QR codes for commissioning
+- Complete isolation from other accessories
+
+**Similar to:** HAP's `api.publishExternalAccessories()`
+
+---
+
+#### `api.matter.updateAccessoryState()`
+
+Update accessory cluster state when device changes externally (Flow B).
+
+**Signature:**
+```typescript
+updateAccessoryState(
+  uuid: string,
+  cluster: string,
+  attributes: Record<string, any>
+): void
+```
+
+**Parameters:**
+- `uuid` - Accessory UUID
+- `cluster` - Cluster name (use `api.matter.clusterNames.*`)
+- `attributes` - Attributes to update (key-value pairs)
+
+**Usage:**
+```typescript
+// Device turned on via native app
+api.matter.updateAccessoryState(
+  uuid,
+  api.matter.clusterNames.OnOff,
+  { onOff: true }
+)
+
+// Brightness changed via physical button
+api.matter.updateAccessoryState(
+  uuid,
+  api.matter.clusterNames.LevelControl,
+  { currentLevel: 200 }
+)
+
+// Update multiple attributes at once
+api.matter.updateAccessoryState(
+  uuid,
+  api.matter.clusterNames.ColorControl,
+  {
+    colorMode: api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds,
+    colorTemperatureMireds: 250
+  }
+)
+```
+
+**IMPORTANT:**
+- ❌ **DO NOT** use inside handlers (state updates automatically)
+- ✅ **DO** use for external changes (webhooks, polling, events)
+
+**When to use:**
+- Native app controls
+- Physical button presses
+- Webhook notifications
+- Polling results
+- MQTT/WebSocket messages
+
+**See:** [Flow B: Physical Device → Home App](#flow-b-physical-device--home-app-manual)
+
+---
+
+#### `api.matter.getAccessoryState()`
+
+Get current cluster state from a Matter accessory.
+
+**Signature:**
+```typescript
+getAccessoryState(
+  uuid: string,
+  cluster: string
+): Record<string, any> | undefined
+```
+
+**Parameters:**
+- `uuid` - Accessory UUID
+- `cluster` - Cluster name (use `api.matter.clusterNames.*`)
+
+**Returns:**
+- Object with current attribute values, or `undefined` if not found
+
+**Usage:**
+```typescript
+// Read OnOff state
+const state = api.matter.getAccessoryState(uuid, api.matter.clusterNames.OnOff)
+if (state?.onOff) {
+  log.info('Light is currently on')
+}
+
+// Read level control state
+const levelState = api.matter.getAccessoryState(
+  uuid,
+  api.matter.clusterNames.LevelControl
+)
+log.info(`Current brightness: ${levelState?.currentLevel}`)
+
+// Check color mode
+const colorState = api.matter.getAccessoryState(
+  uuid,
+  api.matter.clusterNames.ColorControl
+)
+if (colorState?.colorMode === api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds) {
+  log.info(`Color temp: ${colorState.colorTemperatureMireds} mireds`)
+}
+```
+
+**When to use:**
+- Reading state after plugin restart
+- Verifying current state before changes
+- Debugging and logging
+- Conditional logic based on state
+
+**Note:** State is persisted across restarts automatically.
 
 ---
 
@@ -1194,3 +1660,544 @@ const matterTemp = Math.round(celsius * 100)
 // From Matter
 const celsius = matterTemp / 100
 ```
+
+---
+
+## Device Reference
+
+This section documents all available Matter device types with their clusters, attributes, handlers, and usage examples.
+
+### On/Off Light
+
+| Property                 | Value                                                  |
+|--------------------------|--------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.OnOffLight`                    |
+| **Description**          | A lighting device capable of being switched on or off. |
+| **Matter Specification** | § 4.1                                                  |
+
+#### Required Clusters
+
+###### `OnOff` Cluster
+
+Controls the power state of the light.
+
+**Attributes**:
+
+```typescript
+// All OnOff cluster attributes via api.matter
+const onOffAttrs = api.matter.clusters.OnOffCluster.attributes
+console.log(Object.keys(onOffAttrs))
+// Output: ['onOff', 'clusterRevision', 'featureMap', ...]
+```
+
+| Attribute | Type    | Range/Values    | Description                      |
+|-----------|---------|-----------------|----------------------------------|
+| `onOff`   | boolean | `true`, `false` | Power state (true=on, false=off) |
+
+**Reading State**:
+
+```typescript
+const isOn = accessory.clusters.onOff.onOff
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+handlers: {
+  onOff: {
+    /**
+     * Called when user turns light ON via Home app
+     */
+    on: async () => {
+      // Control your physical device
+      await myLightAPI.turnOn()
+      // State automatically updated by Homebridge
+    },
+
+    /**
+     * Called when user turns light OFF via Home app
+     */
+    off: async () => {
+      // Control your physical device
+      await myLightAPI.turnOff()
+      // State automatically updated by Homebridge
+    },
+  },
+}
+```
+
+</details>
+
+### Dimmable Light
+
+| Property                 | Value                                                  |
+|--------------------------|--------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.DimmableLight`                 |
+| **Description**          | A lighting device with on/off and brightness control.  |
+| **Matter Specification** | § 4.2                                                  |
+
+#### Required Clusters
+
+###### `OnOff` Cluster
+
+Controls the power state of the light.
+
+**Attributes**:
+
+| Attribute | Type    | Range/Values    | Description                      |
+|-----------|---------|-----------------|----------------------------------|
+| `onOff`   | boolean | `true`, `false` | Power state (true=on, false=off) |
+
+**Reading State**:
+
+```typescript
+const isOn = accessory.clusters.onOff.onOff
+```
+
+###### `LevelControl` Cluster
+
+Controls the brightness level of the light.
+
+**Attributes**:
+
+```typescript
+// All LevelControl cluster attributes via api.matter
+const levelAttrs = api.matter.clusters.LevelControlCluster.attributes
+console.log(Object.keys(levelAttrs))
+// Output: ['currentLevel', 'minLevel', 'maxLevel', 'onLevel', 'options', ...]
+```
+
+| Attribute      | Type   | Range/Values | Description                                      |
+|----------------|--------|--------------|--------------------------------------------------|
+| `currentLevel` | number | 1-254        | Current brightness (1 = 0.4%, 254 = 100%)        |
+| `minLevel`     | number | 1-254        | Minimum brightness level                         |
+| `maxLevel`     | number | 1-254        | Maximum brightness level                         |
+| `onLevel`      | number | 0-254        | Brightness when turned on (0 = restore previous) |
+
+**Reading State**:
+
+```typescript
+const level = accessory.clusters.levelControl.currentLevel
+const brightnessPercent = Math.round((level / 254) * 100)
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+handlers: {
+  onOff: {
+    on: async () => {
+      log.info('[Dimmable Light] Turning ON')
+      await myLightAPI.turnOn()
+    },
+
+    off: async () => {
+      log.info('[Dimmable Light] Turning OFF')
+      await myLightAPI.turnOff()
+    },
+  },
+
+  levelControl: {
+    /**
+     * Called when user adjusts brightness via Home app
+     * Also called when turning on with specific brightness
+     */
+    moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
+      const { level, transitionTime } = request
+      const brightnessPercent = Math.round((level / 254) * 100)
+
+      log.info(`[Dimmable Light] Setting brightness to ${brightnessPercent}%`)
+      await myLightAPI.setBrightness(brightnessPercent, transitionTime)
+    },
+  },
+}
+```
+
+</details>
+
+---
+
+### Color Temperature Light
+
+| Property                 | Value                                                                     |
+|--------------------------|---------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.ColorTemperatureLight`                            |
+| **Description**          | A lighting device with on/off, brightness, and color temperature control. |
+| **Matter Specification** | § 4.3                                                                     |
+
+#### Required Clusters
+
+###### `OnOff` Cluster
+
+Controls the power state of the light.
+
+**Attributes**:
+
+| Attribute | Type    | Range/Values    | Description                      |
+|-----------|---------|-----------------|----------------------------------|
+| `onOff`   | boolean | `true`, `false` | Power state (true=on, false=off) |
+
+###### `LevelControl` Cluster
+
+Controls the brightness level of the light.
+
+**Attributes**:
+
+| Attribute      | Type   | Range/Values | Description                                      |
+|----------------|--------|--------------|--------------------------------------------------|
+| `currentLevel` | number | 1-254        | Current brightness (1 = 0.4%, 254 = 100%)        |
+| `minLevel`     | number | 1-254        | Minimum brightness level                         |
+| `maxLevel`     | number | 1-254        | Maximum brightness level                         |
+
+###### `ColorControl` Cluster
+
+Controls the color temperature of the light.
+
+**Attributes**:
+
+```typescript
+// All ColorControl cluster attributes via api.matter
+const colorAttrs = api.matter.clusters.ColorControlCluster.attributes
+console.log(Object.keys(colorAttrs))
+```
+
+| Attribute                       | Type   | Range/Values | Description                                           |
+|---------------------------------|--------|--------------|-------------------------------------------------------|
+| `colorMode`                     | number | 0-2          | Current color mode (2 = Color Temperature)            |
+| `colorTemperatureMireds`        | number | 147-454      | Color temp in mireds (reciprocal megakelvin)          |
+| `colorTempPhysicalMinMireds`    | number | 147-500      | Coolest temperature supported (e.g., 147 = ~6800K)    |
+| `colorTempPhysicalMaxMireds`    | number | 147-500      | Warmest temperature supported (e.g., 454 = ~2200K)    |
+
+**Reading State**:
+
+```typescript
+const mireds = accessory.clusters.colorControl.colorTemperatureMireds
+const kelvin = Math.round(1000000 / mireds)
+```
+
+**Value Conversions**:
+
+```typescript
+// Kelvin to Mireds
+const mireds = Math.round(1000000 / kelvin)
+
+// Mireds to Kelvin
+const kelvin = Math.round(1000000 / mireds)
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+handlers: {
+  onOff: {
+    on: async () => {
+      log.info('[CCT Light] Turning ON')
+      await myLightAPI.turnOn()
+    },
+
+    off: async () => {
+      log.info('[CCT Light] Turning OFF')
+      await myLightAPI.turnOff()
+    },
+  },
+
+  levelControl: {
+    moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
+      const { level } = request
+      const brightnessPercent = Math.round((level / 254) * 100)
+
+      log.info(`[CCT Light] Setting brightness to ${brightnessPercent}%`)
+      await myLightAPI.setBrightness(brightnessPercent)
+    },
+  },
+
+  colorControl: {
+    /**
+     * Called when user adjusts color temperature via Home app
+     */
+    moveToColorTemperatureLogic: async (request: { targetMireds: number, transitionTime: number }) => {
+      const { targetMireds, transitionTime } = request
+      const kelvin = Math.round(1000000 / targetMireds)
+
+      log.info(`[CCT Light] Setting color temp to ${kelvin}K (${targetMireds} mireds)`)
+      await myLightAPI.setColorTemperature(kelvin, transitionTime)
+    },
+  },
+}
+```
+
+</details>
+
+---
+
+### Color Light
+
+| Property                 | Value                                                                          |
+|--------------------------|--------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.ExtendedColorLight`                                    |
+| **Description**          | A lighting device with on/off, brightness, and color (Hue/Saturation) control. |
+| **Matter Specification** | § 4.4                                                                          |
+
+#### Required Clusters
+
+###### `OnOff` Cluster
+
+Controls the power state of the light.
+
+**Attributes**:
+
+| Attribute | Type    | Range/Values    | Description                      |
+|-----------|---------|-----------------|----------------------------------|
+| `onOff`   | boolean | `true`, `false` | Power state (true=on, false=off) |
+
+###### `LevelControl` Cluster
+
+Controls the brightness level of the light.
+
+**Attributes**:
+
+| Attribute      | Type   | Range/Values | Description                                      |
+|----------------|--------|--------------|--------------------------------------------------|
+| `currentLevel` | number | 1-254        | Current brightness (1 = 0.4%, 254 = 100%)        |
+| `minLevel`     | number | 1-254        | Minimum brightness level                         |
+| `maxLevel`     | number | 1-254        | Maximum brightness level                         |
+
+###### `ColorControl` Cluster
+
+Controls the color (Hue/Saturation or XY) of the light.
+
+**Attributes**:
+
+| Attribute          | Type   | Range/Values | Description                                           |
+|--------------------|--------|--------------|-------------------------------------------------------|
+| `colorMode`        | number | 0-2          | Current color mode (0 = HS, 1 = XY)                   |
+| `currentHue`       | number | 0-254        | Current hue (maps to 0-360 degrees)                   |
+| `currentSaturation`| number | 0-254        | Current saturation (maps to 0-100%)                   |
+| `currentX`         | number | 0-65535      | CIE 1931 x coordinate                                 |
+| `currentY`         | number | 0-65535      | CIE 1931 y coordinate                                 |
+
+**Reading State**:
+
+```typescript
+const hue = accessory.clusters.colorControl.currentHue
+const saturation = accessory.clusters.colorControl.currentSaturation
+
+// Convert to degrees/percentage
+const hueDegrees = Math.round((hue / 254) * 360)
+const saturationPercent = Math.round((saturation / 254) * 100)
+```
+
+**Value Conversions**:
+
+```typescript
+// Hue: Degrees (0-360) to Matter (0-254)
+const matterHue = Math.round((degrees / 360) * 254)
+const degrees = Math.round((matterHue / 254) * 360)
+
+// Saturation: Percent (0-100) to Matter (0-254)
+const matterSat = Math.round((percent / 100) * 254)
+const percent = Math.round((matterSat / 254) * 100)
+
+// XY: Float (0.0-1.0) to Matter (0-65535)
+const matterX = Math.round(floatX * 65535)
+const floatX = matterX / 65535
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+handlers: {
+  onOff: {
+    on: async () => {
+      log.info('[Color Light] Turning ON')
+      await myLightAPI.turnOn()
+    },
+
+    off: async () => {
+      log.info('[Color Light] Turning OFF')
+      await myLightAPI.turnOff()
+    },
+  },
+
+  levelControl: {
+    moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
+      const { level } = request
+      const brightnessPercent = Math.round((level / 254) * 100)
+
+      log.info(`[Color Light] Setting brightness to ${brightnessPercent}%`)
+      await myLightAPI.setBrightness(brightnessPercent)
+    },
+  },
+
+  colorControl: {
+    /**
+     * Called when user adjusts color via XY coordinates in Home app
+     */
+    moveToColorLogic: async (request: { targetX: number, targetY: number, transitionTime: number }) => {
+      const { targetX, targetY, transitionTime } = request
+      const xFloat = (targetX / 65535).toFixed(4)
+      const yFloat = (targetY / 65535).toFixed(4)
+
+      log.info(`[Color Light] Setting XY color to (${xFloat}, ${yFloat})`)
+      await myLightAPI.setColorXY(xFloat, yFloat, transitionTime)
+    },
+
+    /**
+     * Called when user adjusts color via Hue/Saturation in Home app
+     */
+    moveToHueAndSaturationLogic: async (request: { targetHue: number, targetSaturation: number, transitionTime: number }) => {
+      const { targetHue, targetSaturation, transitionTime } = request
+      const hueDegrees = Math.round((targetHue / 254) * 360)
+      const saturationPercent = Math.round((targetSaturation / 254) * 100)
+
+      log.info(`[Color Light] Setting color to ${hueDegrees}°, ${saturationPercent}%`)
+      await myLightAPI.setColorHS(hueDegrees, saturationPercent, transitionTime)
+    },
+  },
+}
+```
+
+</details>
+
+---
+
+### Extended Color Light
+
+| Property                 | Value                                                                                             |
+|--------------------------|---------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.ExtendedColorLight`                                                       |
+| **Description**          | A lighting device with on/off, brightness, color (Hue/Saturation), and color temperature control. |
+| **Matter Specification** | § 4.4                                                                                             |
+
+#### Required Clusters
+
+###### `OnOff` Cluster
+
+Controls the power state of the light.
+
+**Attributes**:
+
+| Attribute | Type    | Range/Values    | Description                      |
+|-----------|---------|-----------------|----------------------------------|
+| `onOff`   | boolean | `true`, `false` | Power state (true=on, false=off) |
+
+###### `LevelControl` Cluster
+
+Controls the brightness level of the light.
+
+**Attributes**:
+
+| Attribute      | Type   | Range/Values | Description                                      |
+|----------------|--------|--------------|--------------------------------------------------|
+| `currentLevel` | number | 1-254        | Current brightness (1 = 0.4%, 254 = 100%)        |
+| `minLevel`     | number | 1-254        | Minimum brightness level                         |
+| `maxLevel`     | number | 1-254        | Maximum brightness level                         |
+
+###### `ColorControl` Cluster
+
+Controls both color (Hue/Saturation or XY) and color temperature of the light.
+
+When updating state for Extended Color Light (Flow B), always update the `colorMode` attribute along with the color/temperature values to indicate which mode is active.
+
+**Attributes**:
+
+| Attribute                       | Type   | Range/Values | Description                                           |
+|---------------------------------|--------|--------------|-------------------------------------------------------|
+| `colorMode`                     | number | 0-2          | Current color mode (0 = HS, 1 = XY, 2 = ColorTemp)    |
+| `currentHue`                    | number | 0-254        | Current hue (maps to 0-360 degrees)                   |
+| `currentSaturation`             | number | 0-254        | Current saturation (maps to 0-100%)                   |
+| `currentX`                      | number | 0-65535      | CIE 1931 x coordinate                                 |
+| `currentY`                      | number | 0-65535      | CIE 1931 y coordinate                                 |
+| `colorTemperatureMireds`        | number | 147-454      | Color temp in mireds (when in ColorTemp mode)         |
+| `colorTempPhysicalMinMireds`    | number | 147-500      | Coolest temperature supported                         |
+| `colorTempPhysicalMaxMireds`    | number | 147-500      | Warmest temperature supported                         |
+
+**Reading State**:
+
+```typescript
+// Check current mode
+const mode = accessory.clusters.colorControl.colorMode
+const ColorMode = api.matter.types.ColorControl.ColorMode
+
+if (mode === ColorMode.CurrentHueAndCurrentSaturation || mode === ColorMode.CurrentXAndCurrentY) {
+  // Light is in color mode
+  const hue = accessory.clusters.colorControl.currentHue
+  const sat = accessory.clusters.colorControl.currentSaturation
+} else if (mode === ColorMode.ColorTemperatureMireds) {
+  // Light is in white/CCT mode
+  const mireds = accessory.clusters.colorControl.colorTemperatureMireds
+  const kelvin = Math.round(1000000 / mireds)
+}
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+handlers: {
+  onOff: {
+    on: async () => {
+      log.info('[Extended Color Light] Turning ON')
+      await myLightAPI.turnOn()
+    },
+
+    off: async () => {
+      log.info('[Extended Color Light] Turning OFF')
+      await myLightAPI.turnOff()
+    },
+  },
+
+  levelControl: {
+    moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
+      const { level } = request
+      const brightnessPercent = Math.round((level / 254) * 100)
+
+      log.info(`[Extended Color Light] Setting brightness to ${brightnessPercent}%`)
+      await myLightAPI.setBrightness(brightnessPercent)
+    },
+  },
+
+  colorControl: {
+    /**
+     * Called when user adjusts color via XY coordinates in Home app
+     */
+    moveToColorLogic: async (request: { targetX: number, targetY: number, transitionTime: number }) => {
+      const { targetX, targetY, transitionTime } = request
+      const xFloat = (targetX / 65535).toFixed(4)
+      const yFloat = (targetY / 65535).toFixed(4)
+
+      log.info(`[Extended Color Light] Setting XY color to (${xFloat}, ${yFloat})`)
+      await myLightAPI.setColorXY(xFloat, yFloat, transitionTime)
+    },
+
+    /**
+     * Called when user adjusts color via Hue/Saturation in Home app
+     */
+    moveToHueAndSaturationLogic: async (request: { targetHue: number, targetSaturation: number, transitionTime: number }) => {
+      const { targetHue, targetSaturation, transitionTime } = request
+      const hueDegrees = Math.round((targetHue / 254) * 360)
+      const saturationPercent = Math.round((targetSaturation / 254) * 100)
+
+      log.info(`[Extended Color Light] Setting color to ${hueDegrees}°, ${saturationPercent}%`)
+      await myLightAPI.setColorHS(hueDegrees, saturationPercent, transitionTime)
+    },
+
+    /**
+     * Called when user adjusts color temperature via Home app
+     */
+    moveToColorTemperatureLogic: async (request: { targetMireds: number, transitionTime: number }) => {
+      const { targetMireds, transitionTime } = request
+      const kelvin = Math.round(1000000 / targetMireds)
+
+      log.info(`[Extended Color Light] Setting color temp to ${kelvin}K (${targetMireds} mireds)`)
+      await myLightAPI.setColorTemperature(kelvin, transitionTime)
+    },
+  },
+}
+```
+
+</details>

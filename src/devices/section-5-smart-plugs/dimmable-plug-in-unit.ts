@@ -2,6 +2,12 @@
  * Dimmable Plug-in Unit Device (Matter Spec § 5.2)
  *
  * A plug-in unit with on/off and level control.
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - Multiple clusters (OnOff + LevelControl) for outlets
+ * - Type-safe handlers with MatterRequests
  */
 
 import type { MatterRequests } from 'homebridge'
@@ -38,16 +44,23 @@ export function registerDimmablePlugInUnit(context: DeviceContext): any[] {
     handlers: {
       onOff: {
         on: async () => {
-          log.info('[Dimmable Outlet] ✓ Handler `on` called (user controlled via Home app)')
+          log.info('[Dimmable Outlet] Turning ON')
+          // TODO: await myOutletAPI.turnOn()
         },
+
         off: async () => {
-          log.info('[Dimmable Outlet] ✓ Handler `off` called (user controlled via Home app)')
+          log.info('[Dimmable Outlet] Turning OFF')
+          // TODO: await myOutletAPI.turnOff()
         },
       },
+
       levelControl: {
         moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
           const { level } = request
-          log.info(`[Dimmable Outlet] ✓ Handler \`moveToLevel\` called with ${level} (${Math.round(level / 254 * 100)}%)`)
+          const brightnessPercent = Math.round((level / 254) * 100)
+          log.info(`[Dimmable Outlet] Setting level to ${brightnessPercent}%`)
+
+          // TODO: await myOutletAPI.setLevel(brightnessPercent)
         },
       },
     },

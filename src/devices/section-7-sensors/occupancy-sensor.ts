@@ -3,6 +3,12 @@
  *
  * A sensor that detects occupancy/motion using various sensing methods.
  * This implementation uses Passive Infrared (PIR) detection.
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - OccupancySensing cluster for motion/occupancy detection
+ * - Device feature configuration (PIR sensing method)
  */
 
 import type { DeviceContext } from '../types.js'

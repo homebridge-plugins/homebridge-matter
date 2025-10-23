@@ -2,6 +2,11 @@
  * Temperature Sensor Device (Matter Spec § 7.4)
  *
  * A sensor that measures ambient temperature.
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - TemperatureMeasurement cluster for temperature sensors
  */
 
 import type { DeviceContext } from '../types.js'

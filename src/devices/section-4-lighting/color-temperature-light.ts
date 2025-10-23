@@ -1,7 +1,14 @@
 /**
  * Color Temperature Light Device (Matter Spec § 4.3)
  *
- * A lighting device with color temperature control.
+ * A lighting device with on/off, brightness, and color temperature control.
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - Multiple clusters (OnOff + LevelControl + ColorControl)
+ * - Color temperature conversion (mireds ↔ Kelvin)
+ * - Type-safe handlers with MatterRequests
  */
 
 import type { MatterRequests } from 'homebridge'
@@ -26,55 +33,54 @@ export function registerColorTemperatureLight(context: DeviceContext): any[] {
 
     clusters: {
       onOff: {
-        onOff: false, // Initial state: off
+        onOff: false,
       },
       levelControl: {
-        currentLevel: 127, // Current brightness: 50% (range 1-254)
-        minLevel: 1, // Minimum brightness
-        maxLevel: 254, // Maximum brightness
+        currentLevel: 127, // 50% brightness (range 1-254)
+        minLevel: 1,
+        maxLevel: 254,
       },
       colorControl: {
-        colorMode: api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds, // Color temperature mode
-        colorTemperatureMireds: 250, // Current color temp: ~4000K (neutral white)
-        colorTempPhysicalMinMireds: 147, // Coolest temp: 6800K (blue-ish white)
-        colorTempPhysicalMaxMireds: 454, // Warmest temp: 2200K (orange-ish warm)
-        coupleColorTempToLevelMinMireds: 147, // Optional: couples brightness to color temp
+        colorMode: api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds,
+        colorTemperatureMireds: 250, // ~4000K (neutral white)
+        colorTempPhysicalMinMireds: 147, // 6800K (coolest)
+        colorTempPhysicalMaxMireds: 454, // 2200K (warmest)
+        coupleColorTempToLevelMinMireds: 147,
       },
     },
 
     handlers: {
       onOff: {
         on: async () => {
-          log.info('[Colour Temp Light] ✓ Handler `on` called (user controlled via Home app)')
-
-          // TODO: Add your actual light control logic here
-          // Example: await myLightAPI.turnOn()
+          log.info('[Colour Temp Light] Turning ON')
+          // TODO: await myLightAPI.turnOn()
         },
-        off: async () => {
-          log.info('[Colour Temp Light] ✓ Handler `off` called (user controlled via Home app)')
 
-          // TODO: Add your actual light control logic here
-          // Example: await myLightAPI.turnOff()
+        off: async () => {
+          log.info('[Colour Temp Light] Turning OFF')
+          // TODO: await myLightAPI.turnOff()
         },
       },
+
       levelControl: {
         moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) => {
           const { level } = request
-          log.info(`[Colour Temp Light] ✓ Handler \`moveToLevel\` called with ${level} (${Math.round(level / 254 * 100)}%)`)
+          const brightnessPercent = Math.round((level / 254) * 100)
+          log.info(`[Colour Temp Light] Setting brightness to ${brightnessPercent}% (level: ${level})`)
 
-          // TODO: Add your actual brightness control logic here
-          // Example: await myLightAPI.setBrightness(Math.round(level / 254 * 100))
+          // TODO: await myLightAPI.setBrightness(brightnessPercent)
         },
       },
+
       colorControl: {
         moveToColorTemperatureLogic: async (request: { targetMireds: number, transitionTime: number }) => {
           const { targetMireds, transitionTime } = request
-          const kelvin = Math.round(1000000 / targetMireds)
-          log.info(`[Colour Temp Light] ✓ Handler \`moveToColorTemperatureLogic\` called with ${targetMireds} mireds (~${kelvin}K), transition: ${transitionTime}s`)
 
-          // TODO: Add your actual color temperature control logic here
-          // Note: Convert mireds to Kelvin: kelvin = 1000000 / mireds
-          // Example: await myLightAPI.setColorTemperature(kelvin)
+          // Convert mireds to Kelvin: kelvin = 1000000 / mireds
+          const kelvin = Math.round(1000000 / targetMireds)
+          log.info(`[Colour Temp Light] Setting color temp to ${kelvin}K (${targetMireds} mireds)`)
+
+          // TODO: await myLightAPI.setColorTemperature(kelvin, transitionTime)
         },
       },
     },

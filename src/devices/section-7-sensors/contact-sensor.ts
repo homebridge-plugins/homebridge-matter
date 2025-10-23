@@ -2,6 +2,11 @@
  * Contact Sensor Device (Matter Spec § 7.1)
  *
  * A sensor that detects open/close state (e.g., door, window).
+ *
+ * For comprehensive documentation, see: ../../../MATTER_API.md
+ *
+ * This example demonstrates:
+ * - BooleanState cluster for binary sensors
  */
 
 import type { DeviceContext } from '../types.js'

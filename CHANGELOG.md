@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.1.4 (Unreleased)
+
+### Changes
+
+- consolidate device code comments in docs
+
 ## v0.1.3 (2025-10-22)
 
 ### Changes
