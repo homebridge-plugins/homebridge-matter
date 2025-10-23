@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changes
 
 - remove dimmable-outlet device from the plugin
+- add outlet and switch definitions to api doc
 
 ## v0.1.4 (2025-10-23)
 

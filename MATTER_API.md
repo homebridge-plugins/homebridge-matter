@@ -1970,13 +1970,13 @@ Controls the color (Hue/Saturation or XY) of the light.
 
 **Attributes**:
 
-| Attribute          | Type   | Range/Values | Description                                           |
-|--------------------|--------|--------------|-------------------------------------------------------|
-| `colorMode`        | number | 0-2          | Current color mode (0 = HS, 1 = XY)                   |
-| `currentHue`       | number | 0-254        | Current hue (maps to 0-360 degrees)                   |
-| `currentSaturation`| number | 0-254        | Current saturation (maps to 0-100%)                   |
-| `currentX`         | number | 0-65535      | CIE 1931 x coordinate                                 |
-| `currentY`         | number | 0-65535      | CIE 1931 y coordinate                                 |
+| Attribute           | Type   | Range/Values | Description                         |
+|---------------------|--------|--------------|-------------------------------------|
+| `colorMode`         | number | 0-2          | Current color mode (0 = HS, 1 = XY) |
+| `currentHue`        | number | 0-254        | Current hue (maps to 0-360 degrees) |
+| `currentSaturation` | number | 0-254        | Current saturation (maps to 0-100%) |
+| `currentX`          | number | 0-65535      | CIE 1931 x coordinate               |
+| `currentY`          | number | 0-65535      | CIE 1931 y coordinate               |
 
 **Reading State**:
 
@@ -2194,6 +2194,120 @@ handlers: {
 
       log.info(`[Extended Color Light] Setting color temp to ${kelvin}K (${targetMireds} mireds)`)
       await myLightAPI.setColorTemperature(kelvin, transitionTime)
+    },
+  },
+}
+```
+
+</details>
+
+---
+
+### On/Off Outlet
+
+| Property                 | Value                                                                     |
+|--------------------------|---------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.OnOffOutlet`                                      |
+| **Description**          | A plug-in unit (smart plug) capable of being switched on or off.          |
+| **Matter Specification** | § 5.1                                                                     |
+
+#### Required Clusters
+
+###### `OnOff` Cluster
+
+Controls the power state of the outlet.
+
+**Attributes**:
+
+| Attribute | Type    | Range/Values    | Description                      |
+|-----------|---------|-----------------|----------------------------------|
+| `onOff`   | boolean | `true`, `false` | Power state (true=on, false=off) |
+
+**Reading State**:
+
+```typescript
+const isOn = accessory.clusters.onOff.onOff
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+handlers: {
+  onOff: {
+    /**
+     * Called when user turns outlet ON via Home app
+     */
+    on: async () => {
+      // Control your physical device
+      await myOutletAPI.turnOn()
+      // State automatically updated by Homebridge
+    },
+
+    /**
+     * Called when user turns outlet OFF via Home app
+     */
+    off: async () => {
+      // Control your physical device
+      await myOutletAPI.turnOff()
+      // State automatically updated by Homebridge
+    },
+  },
+}
+```
+
+</details>
+
+---
+
+### On/Off Switch
+
+| Property                 | Value                                                                     |
+|--------------------------|---------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.OnOffSwitch`                                      |
+| **Description**          | A switch capable of being switched on or off.                             |
+| **Matter Specification** | § 6.1                                                                     |
+
+#### Required Clusters
+
+###### `OnOff` Cluster
+
+Controls the power state of the switch.
+
+**Attributes**:
+
+| Attribute | Type    | Range/Values    | Description                      |
+|-----------|---------|-----------------|----------------------------------|
+| `onOff`   | boolean | `true`, `false` | Power state (true=on, false=off) |
+
+**Reading State**:
+
+```typescript
+const isOn = accessory.clusters.onOff.onOff
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+handlers: {
+  onOff: {
+    /**
+     * Called when user turns switch ON via Home app
+     */
+    on: async () => {
+      // Control your physical device
+      await mySwitchAPI.turnOn()
+      // State automatically updated by Homebridge
+    },
+
+    /**
+     * Called when user turns switch OFF via Home app
+     */
+    off: async () => {
+      // Control your physical device
+      await mySwitchAPI.turnOff()
+      // State automatically updated by Homebridge
     },
   },
 }
