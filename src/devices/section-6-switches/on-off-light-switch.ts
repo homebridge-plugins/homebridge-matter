@@ -12,7 +12,7 @@
 import type { DeviceContext } from '../types.js'
 
 export function registerOnOffLightSwitch(context: DeviceContext): any[] {
-  const { api, config } = context
+  const { api, log, config } = context
   const accessories: any[] = []
 
   if (!config.enableOnOffSwitch) {
@@ -28,13 +28,23 @@ export function registerOnOffLightSwitch(context: DeviceContext): any[] {
     model: 'OnOffSwitch v1',
 
     clusters: {
-      // Switches are input devices - they send commands rather than expose state
-      // The switch cluster configuration depends on the specific implementation
+      onOff: {
+        onOff: false,
+      },
     },
 
     handlers: {
-      // Switch handlers depend on the specific switch implementation
-      // Typically, switches trigger events rather than respond to commands
+      onOff: {
+        on: async () => {
+          log.info('[On/Off Switch] Turning ON')
+          // TODO: await mySwitchAPI.turnOn()
+        },
+
+        off: async () => {
+          log.info('[On/Off Switch] Turning OFF')
+          // TODO: await mySwitchAPI.turnOff()
+        },
+      },
     },
   })
 

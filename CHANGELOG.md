@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changes
 
 - consolidate device code comments in docs
+- fix switch device implementation example
 
 ## v0.1.3 (2025-10-22)
 
