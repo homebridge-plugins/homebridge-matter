@@ -36,9 +36,8 @@ This plugin provides example implementations of Matter device types in Homebridg
 - Colour Light (HS)
 - Extended Colour Light (HS+CCT)
 
-**Section 5: Smart Plugs/Actuators** (Matter Spec § 5) - 2 devices
+**Section 5: Smart Plugs/Actuators** (Matter Spec § 5) - 1 device
 - On/Off Outlet
-- Dimmable Outlet
 
 **Section 6: Switches & Controllers** (Matter Spec § 6) - 1 device
 - On/Off Light Switch

@@ -52,12 +52,6 @@
         "default": false,
         "description": "Enable the on/off outlet (smart plug) example accessory (Matter Spec § 5.1)."
       },
-      "enableDimmableOutlet": {
-        "title": "Enable Dimmable Outlet",
-        "type": "boolean",
-        "default": false,
-        "description": "Enable the dimmable outlet example accessory (Matter Spec § 5.2)."
-      },
       "enableOnOffSwitch": {
         "title": "Enable On/Off Light Switch",
         "type": "boolean",
@@ -137,10 +131,10 @@
         "description": "Enable the fan example accessory (Matter Spec § 9.2)."
       },
       "enableRobotVacuum": {
-        "title": "Enable Robotic Vacuum Cleaner (Apple Home Compatible)",
+        "title": "Enable Robotic Vacuum Cleaner",
         "type": "boolean",
         "default": false,
-        "description": "✅ Enable the robotic vacuum cleaner example accessory (Matter Spec § 12.1). This device is automatically published on its own dedicated Matter bridge for Apple Home compatibility. You'll receive separate commissioning codes (QR code + manual code) for the robot vacuum."
+        "description": "Enable the robotic vacuum cleaner example accessory (Matter Spec § 12.1). This device is automatically published on its own dedicated Matter bridge for Apple Home compatibility. You'll receive separate commissioning codes (QR code + manual code) for the robot vacuum in the Homebridge logs when Homebridge starts."
       }
     }
   },
@@ -167,12 +161,11 @@
     {
       "type": "fieldset",
       "title": "Section 5: Smart Plugs/Actuators",
-      "description": "Matter Specification § 5 - Devices that control power and fluid flow (2 devices implemented)",
+      "description": "Matter Specification § 5 - Devices that control power and fluid flow (1 device implemented)",
       "expandable": true,
       "expanded": false,
       "items": [
-        "enableOnOffOutlet",
-        "enableDimmableOutlet"
+        "enableOnOffOutlet"
       ]
     },
     {

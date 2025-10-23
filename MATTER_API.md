@@ -474,7 +474,6 @@ api.matter.deviceTypes.ExtendedColorLight
 ```typescript
 api.matter.deviceTypes.OnOffSwitch
 api.matter.deviceTypes.OnOffOutlet
-api.matter.deviceTypes.DimmableOutlet
 ```
 
 #### Sensors
@@ -1194,7 +1193,7 @@ Available Matter device types for creating accessories.
 
 **Common Device Types:**
 - Lighting: `OnOffLight`, `DimmableLight`, `ColorTemperatureLight`, `ExtendedColorLight`
-- Switches & Outlets: `OnOffSwitch`, `OnOffOutlet`, `DimmableOutlet`
+- Switches & Outlets: `OnOffSwitch`, `OnOffOutlet`
 - Sensors: `ContactSensor`, `TemperatureSensor`, `HumiditySensor`, `OccupancySensor`, etc.
 - HVAC: `Thermostat`, `Fan`
 - Closure: `DoorLock`, `WindowCovering`

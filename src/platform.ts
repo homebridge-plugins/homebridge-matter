@@ -9,7 +9,6 @@ import {
   registerColorTemperatureLight,
   registerContactSensor,
   registerDimmableLight,
-  registerDimmablePlugInUnit,
   registerDoorLock,
   registerExtendedColorLight,
   registerFan,
@@ -143,7 +142,6 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       { enabled: this.config.enableColourLight, uuid: this.api.matter.uuid.generate('matter-colour-light'), name: 'Colour Light (HS)' },
       { enabled: this.config.enableExtendedColourLight, uuid: this.api.matter.uuid.generate('matter-extended-colour-light'), name: 'Extended Colour Light' },
       { enabled: this.config.enableOnOffOutlet, uuid: this.api.matter.uuid.generate('matter-onoff-outlet'), name: 'On/Off Outlet' },
-      { enabled: this.config.enableDimmableOutlet, uuid: this.api.matter.uuid.generate('matter-dimmable-outlet'), name: 'Dimmable Outlet' },
       { enabled: this.config.enableOnOffSwitch, uuid: this.api.matter.uuid.generate('matter-onoff-switch'), name: 'On/Off Switch' },
       { enabled: this.config.enableTemperatureSensor, uuid: this.api.matter.uuid.generate('matter-temperature-sensor'), name: 'Temperature Sensor' },
       { enabled: this.config.enableHumiditySensor, uuid: this.api.matter.uuid.generate('matter-humidity-sensor'), name: 'Humidity Sensor' },
@@ -223,7 +221,6 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     const context = { api: this.api, log: this.log, config: this.config }
     const accessories = [
       ...registerOnOffPlugInUnit(context),
-      ...registerDimmablePlugInUnit(context),
     ]
 
     if (accessories.length > 0) {
