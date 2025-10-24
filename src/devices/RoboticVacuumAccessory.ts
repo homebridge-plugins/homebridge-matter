@@ -36,10 +36,10 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
         },
         rvcOperationalState: {
           operationalStateList: [
-            { operationalStateID: 0, operationalStateLabel: 'Stopped' },
-            { operationalStateID: 1, operationalStateLabel: 'Running' },
-            { operationalStateID: 2, operationalStateLabel: 'Paused' },
-            { operationalStateID: 3, operationalStateLabel: 'Error' },
+            { operationalStateId: 0, operationalStateLabel: 'Stopped' },
+            { operationalStateId: 1, operationalStateLabel: 'Running' },
+            { operationalStateId: 2, operationalStateLabel: 'Paused' },
+            { operationalStateId: 3, operationalStateLabel: 'Error' },
           ],
           operationalState: 0,
         },

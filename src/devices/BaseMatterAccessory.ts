@@ -8,8 +8,7 @@
  * the required configuration.
  */
 
-import type { EndpointType } from '@matter/main'
-import type { API, Logger, MatterAccessory } from 'homebridge'
+import type { API, EndpointType, Logger, MatterAccessory } from 'homebridge'
 
 export interface BaseMatterAccessoryConfig {
   uuid: string
