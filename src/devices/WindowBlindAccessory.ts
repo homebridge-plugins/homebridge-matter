@@ -59,32 +59,36 @@ export class WindowBlindAccessory extends BaseMatterAccessory {
 
   private async handleGoToLift(request: MatterRequests.GoToLiftPercentage): Promise<void> {
     this.logInfo(`GoToLiftPercentage request: ${JSON.stringify(request)}`)
-    const percent = (request.liftPercent100thsValue / 100).toFixed(0)
-    this.logInfo(`moving to ${percent}% open.`)
-    // TODO: await myBlindAPI.setPosition(percent)
+    // Matter uses 0=open, 10000=closed, so invert to get open percentage
+    const closedPercent = request.liftPercent100thsValue / 100
+    const openPercent = (100 - closedPercent).toFixed(0)
+    this.logInfo(`moved to ${openPercent}% open.`)
+    // TODO: await myBlindAPI.setPosition(openPercent)
   }
 
   private async handleUpOrOpen(): Promise<void> {
-    this.logInfo('opening blind.')
+    this.logInfo('opened blind.')
     // TODO: await myBlindAPI.open()
   }
 
   private async handleDownOrClose(): Promise<void> {
-    this.logInfo('closing blind.')
+    this.logInfo('closed blind.')
     // TODO: await myBlindAPI.close()
   }
 
   private async handleStop(): Promise<void> {
-    this.logInfo('stopping blind.')
+    this.logInfo('stopped blind.')
     // TODO: await myBlindAPI.stop()
   }
 
-  public updateLiftPosition(percent: number): void {
-    const value = Math.round(percent * 100)
-    this.updateState('windowCovering', {
+  public updateLiftPosition(openPercent: number): void {
+    // Convert open percentage to Matter's closed percentage (0=open, 10000=closed)
+    const closedPercent = 100 - openPercent
+    const value = Math.round(closedPercent * 100)
+    this.updateState(this.api.matter.clusterNames.WindowCovering, {
       currentPositionLiftPercent100ths: value,
       targetPositionLiftPercent100ths: value,
     })
-    this.logInfo(`lift position: ${percent}%.`)
+    this.logInfo(`lift position: ${openPercent}% open.`)
   }
 }

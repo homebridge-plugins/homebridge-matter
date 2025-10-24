@@ -1,26 +1,27 @@
 /**
- * Motion Sensor Accessory Class
+ * Occupancy Sensor Accessory Class
  */
 
 import type { API, Logger } from 'homebridge'
 
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
-export class MotionSensorAccessory extends BaseMatterAccessory {
+export class OccupancySensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'SENSOR-003'
+    // Note: Matter.js API calls this "MotionSensor" but it's actually an Occupancy Sensor
     const OccupancySensingServer = api.matter.deviceTypes.MotionSensor.requirements.OccupancySensingServer
-    const MotionSensorWithPIR = api.matter.deviceTypes.MotionSensor.with(
+    const OccupancySensorWithPIR = api.matter.deviceTypes.MotionSensor.with(
       OccupancySensingServer.with('PassiveInfrared'),
     )
 
     super(api, log, {
       uuid: api.matter.uuid.generate(serialNumber),
-      displayName: 'Motion Sensor',
-      deviceType: MotionSensorWithPIR,
+      displayName: 'Occupancy Sensor',
+      deviceType: OccupancySensorWithPIR,
       serialNumber,
       manufacturer: 'Homebridge Matter',
-      model: 'HB-MATTER-SENSOR-MOTION',
+      model: 'HB-MATTER-SENSOR-OCCUPANCY',
       firmwareRevision: '2.0.0',
       hardwareRevision: '1.0.0',
 
@@ -42,10 +43,10 @@ export class MotionSensorAccessory extends BaseMatterAccessory {
     this.logInfo('initialized.')
   }
 
-  public updateMotionDetected(detected: boolean): void {
+  public updateOccupancyDetected(detected: boolean): void {
     this.updateState('occupancySensing', {
       occupancy: { occupied: detected },
     })
-    this.logInfo(`motion: ${detected ? 'detected' : 'clear'}.`)
+    this.logInfo(`occupancy: ${detected ? 'detected' : 'clear'}.`)
   }
 }

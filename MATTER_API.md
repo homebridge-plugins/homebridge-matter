@@ -2314,3 +2314,1556 @@ handlers: {
 ```
 
 </details>
+
+---
+
+### Contact Sensor
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.ContactSensor`                                                                                                        |
+| **Description**          | A contact sensor that detects open/closed state (e.g., door sensor, window sensor).                                                           |
+| **Matter Specification** | § 7.1                                                                                                                                         |
+
+#### Required Clusters
+
+###### `BooleanState` Cluster
+
+Represents the contact sensor state using a boolean value.
+
+**IMPORTANT - Inverted Semantics**: The BooleanState cluster for contact sensors uses **inverted logic**:
+- `true` = Contact **closed** / Normal state (door/window is closed)
+- `false` = Contact **open** / Triggered state (door/window is open)
+
+This is opposite from intuitive expectation, so you must invert values when updating state.
+
+**Attributes**:
+
+| Attribute    | Type    | Range/Values    | Description                                              |
+|--------------|---------|-----------------|----------------------------------------------------------|
+| `stateValue` | boolean | `true`, `false` | Contact state (true=closed/normal, false=open/triggered) |
+
+**Reading State**:
+
+```typescript
+const stateValue = accessory.clusters.booleanState.stateValue
+// true = closed/normal, false = open/triggered
+const isOpen = !stateValue // Invert to get intuitive open/closed
+```
+
+**Updating State** (Flow B):
+
+```typescript
+// When your physical sensor reports state change
+function updateContactState(isOpen: boolean) {
+  // IMPORTANT: Invert the value!
+  // Matter BooleanState: false = open/triggered, true = closed/normal
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.BooleanState,
+    { stateValue: !isOpen } // Invert!
+  )
+
+  log.info(`Contact state: ${isOpen ? 'OPEN' : 'CLOSED'}`)
+}
+
+// Example: Door opened
+updateContactState(true) // Sends stateValue: false to Matter
+
+// Example: Door closed
+updateContactState(false) // Sends stateValue: true to Matter
+```
+
+**Initial State**:
+
+```typescript
+clusters: {
+  booleanState: {
+    stateValue: true,  // true = closed/normal (safe default)
+  },
+}
+```
+
+**Handler**: Contact sensors are read-only (no handlers needed).
+
+---
+
+### Occupancy Sensor
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.MotionSensor` (with OccupancySensing cluster)                                                                         |
+| **Description**          | A sensor that detects occupancy/motion using PIR, ultrasonic, or physical contact methods.                                                    |
+| **Matter Specification** | § 7.3                                                                                                                                         |
+
+**Note**: Matter.js API calls this device type "MotionSensor" but it's actually an **Occupancy Sensor** - this is how it appears in Apple Home and other Matter controllers.
+
+#### Required Clusters
+
+###### `OccupancySensing` Cluster
+
+Detects occupancy using various sensing methods.
+
+**Attributes**:
+
+| Attribute                   | Type    | Range/Values    | Description                                     |
+|-----------------------------|---------|-----------------|-------------------------------------------------|
+| `occupancy.occupied`        | boolean | `true`, `false` | Occupancy detected (true=occupied, false=clear) |
+| `occupancySensorType`       | number  | 0-2             | Sensor type (0=PIR, 1=Ultrasonic, 2=Physical)   |
+| `occupancySensorTypeBitmap` | object  | See below       | Bitmap of supported sensor types                |
+
+**Occupancy Sensor Type Bitmap**:
+
+```typescript
+{
+  pir: true,              // Passive infrared
+  ultrasonic: false,      // Ultrasonic
+  physicalContact: false, // Physical contact
+}
+```
+
+**Reading State**:
+
+```typescript
+const isOccupied = accessory.clusters.occupancySensing.occupancy.occupied
+```
+
+**Updating State** (Flow B):
+
+```typescript
+// When your physical sensor detects motion/occupancy
+mqttClient.on('message', (topic, message) => {
+  const detected = message.toString() === 'motion'
+
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.OccupancySensing,
+    { occupancy: { occupied: detected } }
+  )
+
+  log.info(`Occupancy: ${detected ? 'detected' : 'clear'}`)
+})
+```
+
+**Initial State with PIR Sensor**:
+
+```typescript
+// Configure OccupancySensor with PIR feature
+const OccupancySensingServer = api.matter.deviceTypes.MotionSensor.requirements.OccupancySensingServer
+const OccupancySensorWithPIR = api.matter.deviceTypes.MotionSensor.with(
+  OccupancySensingServer.with('PassiveInfrared'),
+)
+
+{
+  deviceType: OccupancySensorWithPIR,
+  clusters: {
+    occupancySensing: {
+      occupancy: {
+        occupied: false,  // No occupancy detected initially
+      },
+      occupancySensorType: 0,  // PIR
+      occupancySensorTypeBitmap: {
+        pir: true,
+        ultrasonic: false,
+        physicalContact: false,
+      },
+    },
+  },
+}
+```
+
+**Handler**: Occupancy sensors are read-only (no handlers needed).
+
+---
+
+### Window Covering
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.WindowCovering`                                                                                                       |
+| **Description**          | A motorized window covering with lift position control (e.g., blinds, shades, curtains).                                                      |
+| **Matter Specification** | § 8.3                                                                                                                                         |
+
+#### Required Clusters
+
+###### `WindowCovering` Cluster
+
+Controls lift position (and optionally tilt) of window coverings.
+
+**IMPORTANT - Inverted Position Semantics**: The WindowCovering cluster uses **inverted percentage** values:
+- `0` = Fully **open** (100% open)
+- `10000` = Fully **closed** (0% open)
+
+This is opposite from intuitive expectation. You must convert between "open percentage" and Matter's "closed percentage" in both directions.
+
+**Attributes**:
+
+| Attribute                           | Type   | Range/Values | Description                                                      |
+|-------------------------------------|--------|--------------|------------------------------------------------------------------|
+| `currentPositionLiftPercent100ths`  | number | 0-10000      | Current lift position (0=open, 10000=closed, in hundredths)      |
+| `targetPositionLiftPercent100ths`   | number | 0-10000      | Target lift position (0=open, 10000=closed, in hundredths)       |
+| `currentPositionTiltPercent100ths`  | number | 0-10000      | Current tilt angle (0=horizontal/open, 10000=vertical/closed) ¹  |
+| `targetPositionTiltPercent100ths`   | number | 0-10000      | Target tilt angle (0=horizontal/open, 10000=vertical/closed) ¹   |
+
+¹ Tilt attributes only present on Venetian blinds with tilt control
+
+**Reading State**:
+
+```typescript
+// Read lift position (convert to open percentage)
+const closedPercent100ths = accessory.clusters.windowCovering.currentPositionLiftPercent100ths
+const closedPercent = closedPercent100ths / 100
+const openPercent = 100 - closedPercent // Invert!
+
+log.info(`Blind is ${openPercent}% open`)
+
+// Read tilt position (convert to degrees for Venetian blinds)
+const tiltPercent100ths = accessory.clusters.windowCovering.currentPositionTiltPercent100ths
+const degrees = Math.round((tiltPercent100ths / 10000) * 90)
+log.info(`Tilt angle: ${degrees}°`) // 0° = horizontal, 90° = vertical
+```
+
+**Value Conversions**:
+
+```typescript
+// Open percentage (0-100) to Matter value (0-10000)
+function openPercentToMatter(openPercent: number): number {
+  const closedPercent = 100 - openPercent // Invert!
+  return Math.round(closedPercent * 100)
+}
+
+// Matter value (0-10000) to open percentage (0-100)
+function matterToOpenPercent(value: number): number {
+  const closedPercent = value / 100
+  return 100 - closedPercent // Invert!
+}
+
+// Tilt degrees (0-90) to Matter value (0-10000)
+function degreesToMatter(degrees: number): number {
+  return Math.round((degrees / 90) * 10000)
+}
+
+// Matter value (0-10000) to tilt degrees (0-90)
+function matterToDegrees(value: number): number {
+  return Math.round((value / 10000) * 90)
+}
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+import type { MatterRequests } from 'homebridge'
+
+handlers: {
+  windowCovering: {
+    /**
+     * Called when user adjusts lift position via Home app
+     */
+    goToLiftPercentage: async (request: MatterRequests.GoToLiftPercentage) => {
+      const { liftPercent100thsValue } = request
+
+      // Matter uses 0=open, 10000=closed, so invert to get open percentage
+      const closedPercent = liftPercent100thsValue / 100
+      const openPercent = 100 - closedPercent  // Invert!
+
+      log.info(`Moving to ${openPercent}% open`)
+      await myBlindAPI.setPosition(openPercent)
+      // State automatically updated by Homebridge
+    },
+
+    /**
+     * Called when user presses UP button in Home app
+     */
+    upOrOpen: async () => {
+      log.info('Opening blind')
+      await myBlindAPI.open()
+      // Update state after physical device confirms
+      api.matter.updateAccessoryState(
+        uuid,
+        api.matter.clusterNames.WindowCovering,
+        {
+          currentPositionLiftPercent100ths: 0,  // 0 = fully open
+          targetPositionLiftPercent100ths: 0,
+        }
+      )
+    },
+
+    /**
+     * Called when user presses DOWN button in Home app
+     */
+    downOrClose: async () => {
+      log.info('Closing blind')
+      await myBlindAPI.close()
+      // Update state after physical device confirms
+      api.matter.updateAccessoryState(
+        uuid,
+        api.matter.clusterNames.WindowCovering,
+        {
+          currentPositionLiftPercent100ths: 10000,  // 10000 = fully closed
+          targetPositionLiftPercent100ths: 10000,
+        }
+      )
+    },
+
+    /**
+     * Called when user presses STOP button in Home app
+     */
+    stopMotion: async () => {
+      log.info('Stopping blind movement')
+      await myBlindAPI.stop()
+    },
+  },
+}
+```
+
+</details>
+
+**Updating State** (Flow B):
+
+```typescript
+// When your physical blind moves to a new position
+function updateBlindPosition(openPercent: number) {
+  // Convert open percentage to Matter's closed percentage (0=open, 10000=closed)
+  const closedPercent = 100 - openPercent // Invert!
+  const value = Math.round(closedPercent * 100)
+
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.WindowCovering,
+    {
+      currentPositionLiftPercent100ths: value,
+      targetPositionLiftPercent100ths: value,
+    }
+  )
+
+  log.info(`Lift position: ${openPercent}% open`)
+}
+
+// Example: Blind is 40% open
+updateBlindPosition(40) // Sends value: 6000 to Matter (60% closed)
+```
+
+**For Venetian Blinds with Tilt**:
+
+Add tilt control handler and update method:
+
+```typescript
+// Handler for tilt control
+handlers: {
+  windowCovering: {
+    // ... lift handlers above ...
+
+    /**
+     * Called when user adjusts tilt angle via Home app
+     * Tilt is shown as 0-90° in Home app (0=horizontal, 90=vertical)
+     */
+    goToTiltPercentage: async (request: MatterRequests.GoToTiltPercentage) => {
+      const { tiltPercent100thsValue } = request
+
+      // Matter tilt: 0=horizontal/open (0°), 10000=vertical/closed (90°)
+      const degrees = Math.round((tiltPercent100thsValue / 10000) * 90)
+
+      log.info(`Tilting to ${degrees}°`)
+      await myBlindAPI.setTiltAngle(degrees)
+      // State automatically updated by Homebridge
+    },
+  },
+}
+
+// Update tilt position (Flow B)
+function updateTiltPosition(degrees: number) {
+  // Convert degrees (0-90) to Matter's tilt percentage (0=horizontal, 10000=vertical)
+  const value = Math.round((degrees / 90) * 10000)
+
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.WindowCovering,
+    {
+      currentPositionTiltPercent100ths: value,
+      targetPositionTiltPercent100ths: value,
+    }
+  )
+
+  log.info(`Tilt position: ${degrees}°`)
+}
+```
+
+---
+
+### Thermostat
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.Thermostat`                                                                                                           |
+| **Description**          | A thermostat with heating and/or cooling control, temperature setpoints, and system mode management.                                          |
+| **Matter Specification** | § 9.1                                                                                                                                         |
+
+#### Required Clusters
+
+###### `Thermostat` Cluster
+
+Controls HVAC system mode, setpoints, and reports current temperature.
+
+**Attributes**:
+
+| Attribute                    | Type   | Range/Values | Description                                               |
+|------------------------------|--------|--------------|-----------------------------------------------------------|
+| `localTemperature`           | number | -27315-32767 | Current temperature (hundredths of °C) ¹                  |
+| `occupiedHeatingSetpoint`    | number | 700-3000     | Target heating temperature (hundredths of °C)             |
+| `occupiedCoolingSetpoint`    | number | 1600-3200    | Target cooling temperature (hundredths of °C)             |
+| `systemMode`                 | number | 0-7          | Current system mode (0=Off, 1=Auto, 3=Cool, 4=Heat, etc.) |
+| `controlSequenceOfOperation` | number | 0-5          | Supported modes (2=Heating only, 4=Cooling and Heating)   |
+| `minHeatSetpointLimit`       | number | 700-3000     | Minimum heating setpoint                                  |
+| `maxHeatSetpointLimit`       | number | 700-3000     | Maximum heating setpoint                                  |
+| `minCoolSetpointLimit`       | number | 1600-3200    | Minimum cooling setpoint                                  |
+| `maxCoolSetpointLimit`       | number | 1600-3200    | Maximum cooling setpoint                                  |
+
+¹ Temperature values are in **hundredths of degrees Celsius**: `2500` = `25.00°C`
+
+**System Mode Values**:
+
+| Value | Mode              | Description                                    |
+|-------|-------------------|------------------------------------------------|
+| 0     | Off               | System is off                                  |
+| 1     | Auto              | Automatic heating/cooling based on temperature |
+| 2     | Reserved          | Reserved (not used)                            |
+| 3     | Cool              | Cooling mode                                   |
+| 4     | Heat              | Heating mode                                   |
+| 5     | Emergency Heating | Emergency heat mode                            |
+| 6     | Precooling        | Precooling mode                                |
+| 7     | Fan Only          | Fan only (no heating/cooling)                  |
+
+**Control Sequence of Operation Values**:
+
+| Value | Description                     |
+|-------|---------------------------------|
+| 0     | Cooling only                    |
+| 1     | Cooling with reheat             |
+| 2     | Heating only                    |
+| 3     | Heating with reheat             |
+| 4     | Cooling and heating             |
+| 5     | Cooling and heating with reheat |
+
+**Reading State**:
+
+```typescript
+// Read current temperature
+const tempHundredths = accessory.clusters.thermostat.localTemperature
+const celsius = tempHundredths / 100
+log.info(`Current temperature: ${celsius}°C`)
+
+// Read heating setpoint
+const heatSetpoint = accessory.clusters.thermostat.occupiedHeatingSetpoint / 100
+log.info(`Heating setpoint: ${heatSetpoint}°C`)
+
+// Read cooling setpoint (if supported)
+const coolSetpoint = accessory.clusters.thermostat.occupiedCoolingSetpoint / 100
+log.info(`Cooling setpoint: ${coolSetpoint}°C`)
+
+// Read system mode
+const mode = accessory.clusters.thermostat.systemMode
+const modeNames = ['Off', 'Auto', 'Reserved', 'Cool', 'Heat', 'Emergency Heating', 'Precooling', 'Fan Only']
+log.info(`System mode: ${modeNames[mode]}`)
+```
+
+**Initial State** (Heating and Cooling):
+
+```typescript
+clusters: {
+  thermostat: {
+    localTemperature: 2100,              // 21.00°C
+    occupiedHeatingSetpoint: 2000,       // 20.00°C
+    occupiedCoolingSetpoint: 2400,       // 24.00°C
+    minHeatSetpointLimit: 700,           // 7.00°C
+    maxHeatSetpointLimit: 3000,          // 30.00°C
+    minCoolSetpointLimit: 1600,          // 16.00°C
+    maxCoolSetpointLimit: 3200,          // 32.00°C
+    controlSequenceOfOperation: 4,       // Cooling and Heating
+    systemMode: 0,                       // Off
+  },
+}
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+import type { MatterRequests } from 'homebridge'
+
+handlers: {
+  thermostat: {
+    /**
+     * Called when user changes system mode in Home app
+     */
+    systemModeChange: async (request: { systemMode: number, oldSystemMode: number }) => {
+      const { systemMode, oldSystemMode } = request
+
+      // Matter Thermostat SystemMode enum: 0=Off, 1=Auto, 3=Cool, 4=Heat, 5=EmergencyHeat, 6=Precooling, 7=FanOnly
+      const modeNames = ['Off', 'Auto', 'Reserved', 'Cool', 'Heat', 'Emergency Heating', 'Precooling', 'Fan Only']
+      const modeName = modeNames[systemMode] || `Unknown (${systemMode})`
+
+      log.info(`System mode changed to: ${modeName}`)
+      await myThermostatAPI.setSystemMode(systemMode)
+      // State automatically updated by Homebridge
+    },
+
+    /**
+     * Called when user adjusts heating setpoint in Home app
+     */
+    heatingSetpointChange: async (request: { heatingSetpoint: number, oldHeatingSetpoint: number }) => {
+      const celsius = request.heatingSetpoint / 100
+
+      log.info(`Heating setpoint changed to: ${celsius}°C`)
+      await myThermostatAPI.setHeatingSetpoint(celsius)
+      // State automatically updated by Homebridge
+    },
+
+    /**
+     * Called when user adjusts cooling setpoint in Home app
+     */
+    coolingSetpointChange: async (request: { coolingSetpoint: number, oldCoolingSetpoint: number }) => {
+      const celsius = request.coolingSetpoint / 100
+
+      log.info(`Cooling setpoint changed to: ${celsius}°C`)
+      await myThermostatAPI.setCoolingSetpoint(celsius)
+      // State automatically updated by Homebridge
+    },
+  },
+}
+```
+
+</details>
+
+**Updating State** (Flow B):
+
+```typescript
+// Update current temperature
+function updateTemperature(celsius: number) {
+  const value = Math.round(celsius * 100)
+
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.Thermostat,
+    { localTemperature: value }
+  )
+
+  log.info(`Temperature: ${celsius}°C`)
+}
+
+// Update heating setpoint
+function updateHeatingSetpoint(celsius: number) {
+  const value = Math.round(celsius * 100)
+
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.Thermostat,
+    { occupiedHeatingSetpoint: value }
+  )
+
+  log.info(`Heating setpoint: ${celsius}°C`)
+}
+
+// Update cooling setpoint
+function updateCoolingSetpoint(celsius: number) {
+  const value = Math.round(celsius * 100)
+
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.Thermostat,
+    { occupiedCoolingSetpoint: value }
+  )
+
+  log.info(`Cooling setpoint: ${celsius}°C`)
+}
+
+// Update system mode
+function updateSystemMode(mode: number) {
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.Thermostat,
+    { systemMode: mode }
+  )
+
+  const modeNames = ['Off', 'Auto', 'Reserved', 'Cool', 'Heat', 'Emergency Heating', 'Precooling', 'Fan Only']
+  log.info(`System mode: ${modeNames[mode]}`)
+}
+```
+
+---
+
+### Fan
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.Fan`                                                                                                                  |
+| **Description**          | A fan with variable speed control and multiple fan modes.                                                                                     |
+| **Matter Specification** | § 9.2                                                                                                                                         |
+
+#### Required Clusters
+
+###### `FanControl` Cluster
+
+Controls fan mode and speed.
+
+**Attributes**:
+
+| Attribute          | Type   | Range/Values | Description                                                   |
+|--------------------|--------|--------------|---------------------------------------------------------------|
+| `fanMode`          | number | 0-6          | Current fan mode (0=Off, 1=Low, 2=Medium, 3=High, 4=On, etc.) |
+| `fanModeSequence`  | number | 0-4          | Supported fan mode sequence                                   |
+| `percentSetting`   | number | 0-100        | Target fan speed percentage (0=off, 1-100=on with speed)      |
+| `percentCurrent`   | number | 0-100        | Current fan speed percentage                                  |
+
+**Fan Mode Values**:
+
+| Value | Mode   | Description        |
+|-------|--------|--------------------|
+| 0     | Off    | Fan is off         |
+| 1     | Low    | Low speed          |
+| 2     | Medium | Medium speed       |
+| 3     | High   | High speed         |
+| 4     | On     | On (no speed info) |
+| 5     | Auto   | Automatic mode     |
+| 6     | Smart  | Smart mode         |
+
+**Fan Mode Sequence Values**:
+
+| Value | Description           | Available Modes           |
+|-------|-----------------------|---------------------------|
+| 0     | Off/Low/Med/High      | Off, Low, Med, High       |
+| 1     | Off/Low/High          | Off, Low, High            |
+| 2     | Off/Low/Med/High/Auto | Off, Low, Med, High, Auto |
+| 3     | Off/Low/High/Auto     | Off, Low, High, Auto      |
+| 4     | Off/On/Auto           | Off, On, Auto             |
+
+**Reading State**:
+
+```typescript
+const mode = accessory.clusters.fanControl.fanMode
+const speed = accessory.clusters.fanControl.percentSetting
+
+const modeNames = ['Off', 'Low', 'Medium', 'High', 'On', 'Auto', 'Smart']
+log.info(`Fan mode: ${modeNames[mode]}, Speed: ${speed}%`)
+```
+
+**Detecting On/Off vs Speed Changes**:
+
+The `percentSetting` attribute is used for both on/off control and speed adjustment. To distinguish between the two:
+
+```typescript
+// In percentSettingChange handler
+fanControl: {
+  percentSettingChange: async (request: { percentSetting: number | null, oldPercentSetting: number | null }) => {
+    const percent = request.percentSetting ?? 0
+    const isOff = percent === 0
+    const wasOff = (request.oldPercentSetting ?? 0) === 0
+
+    // Check if on/off state changed
+    if (isOff !== wasOff) {
+      log.info(`Fan turned ${isOff ? 'off' : 'on'}`)
+      await myFanAPI.setPower(!isOff)
+    }
+
+    // Update speed (only if not turning off)
+    if (!isOff) {
+      log.info(`Fan speed changed to: ${percent}%`)
+      await myFanAPI.setSpeed(percent)
+    }
+  },
+}
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+import type { MatterRequests } from 'homebridge'
+
+handlers: {
+  fanControl: {
+    /**
+     * Called when user uses step control (increase/decrease button)
+     */
+    step: async (request: MatterRequests.FanStep) => {
+      const { direction, wrap, lowestOff } = request
+      const dirStr = direction === 0 ? 'increase' : 'decrease'
+
+      log.info(`Fan step ${dirStr} (wrap: ${wrap}, lowestOff: ${lowestOff})`)
+      await myFanAPI.step(direction, wrap, lowestOff)
+      // State automatically updated by Homebridge
+    },
+
+    /**
+     * Called when user changes fan mode via Home app
+     */
+    fanModeChange: async (request: { fanMode: number, oldFanMode: number }) => {
+      const modeNames = ['Off', 'Low', 'Medium', 'High', 'On', 'Auto', 'Smart']
+      const modeName = modeNames[request.fanMode] || `Unknown (${request.fanMode})`
+
+      log.info(`Fan mode changed to: ${modeName}`)
+      await myFanAPI.setMode(request.fanMode)
+      // State automatically updated by Homebridge
+    },
+
+    /**
+     * Called when user adjusts fan speed via Home app
+     * Also handles on/off transitions
+     */
+    percentSettingChange: async (request: { percentSetting: number | null, oldPercentSetting: number | null }) => {
+      const percent = request.percentSetting ?? 0
+      const isOff = percent === 0
+      const wasOff = (request.oldPercentSetting ?? 0) === 0
+
+      // Detect on/off state change
+      if (isOff !== wasOff) {
+        log.info(`Fan turned ${isOff ? 'off' : 'on'}`)
+        await myFanAPI.setPower(!isOff)
+      }
+
+      // Update speed (only when not off)
+      if (!isOff) {
+        log.info(`Fan speed changed to: ${percent}%`)
+        await myFanAPI.setSpeed(percent)
+      }
+      // State automatically updated by Homebridge
+    },
+  },
+}
+```
+
+</details>
+
+**Updating State** (Flow B):
+
+```typescript
+// Update fan mode
+function updateFanMode(mode: number) {
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.FanControl,
+    { fanMode: mode }
+  )
+
+  const modeNames = ['Off', 'Low', 'Medium', 'High', 'On', 'Auto', 'Smart']
+  log.info(`Fan mode: ${modeNames[mode]}`)
+}
+
+// Update fan speed
+function updateFanSpeed(percent: number) {
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.FanControl,
+    {
+      percentSetting: percent,
+      percentCurrent: percent,
+    }
+  )
+
+  log.info(`Fan speed: ${percent}%`)
+}
+```
+
+---
+
+### Light Sensor
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.LightSensor`                                                                                                          |
+| **Description**          | A sensor that measures ambient light levels.                                                                                                  |
+| **Matter Specification** | § 7.2                                                                                                                                         |
+
+#### Required Clusters
+
+###### `IlluminanceMeasurement` Cluster
+
+Measures illuminance (light level) in lux.
+
+**Attributes**:
+
+| Attribute          | Type   | Range/Values | Description                               |
+|--------------------|--------|--------------|-------------------------------------------|
+| `measuredValue`    | number | 0-65534      | Current light level (logarithmic scale) ¹ |
+| `minMeasuredValue` | number | 1-65533      | Minimum measurable light level            |
+| `maxMeasuredValue` | number | 2-65534      | Maximum measurable light level            |
+
+¹ The `measuredValue` uses a logarithmic scale: `value = 10000 × log₁₀(lux)`
+
+**Value Conversion**:
+
+```typescript
+// Lux to Matter value
+const matterValue = Math.round(10000 * Math.log10(lux))
+
+// Matter value to Lux
+const lux = 10 ** (matterValue / 10000)
+```
+
+**Reading State**:
+
+```typescript
+const matterValue = accessory.clusters.illuminanceMeasurement.measuredValue
+const lux = 10 ** (matterValue / 10000)
+log.info(`Light level: ${lux.toFixed(1)} lux`)
+```
+
+**Updating State** (Flow B):
+
+```typescript
+// When your physical sensor reports new light level
+function updateIlluminance(lux: number) {
+  const value = Math.round(10000 * Math.log10(lux))
+
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.IlluminanceMeasurement,
+    { measuredValue: value }
+  )
+
+  log.info(`Illuminance: ${lux} lux`)
+}
+
+// Example: 500 lux
+updateIlluminance(500) // Sends value: ~27000
+```
+
+**Initial State**:
+
+```typescript
+clusters: {
+  illuminanceMeasurement: {
+    measuredValue: 5000,   // ~3.16 lux
+    minMeasuredValue: 1,   // Minimum
+    maxMeasuredValue: 65534, // Maximum
+  },
+}
+```
+
+**Handler**: Light sensors are read-only (no handlers needed).
+
+---
+
+### Temperature Sensor
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.TemperatureSensor`                                                                                                    |
+| **Description**          | A sensor that measures ambient temperature.                                                                                                   |
+| **Matter Specification** | § 7.4                                                                                                                                         |
+
+#### Required Clusters
+
+###### `TemperatureMeasurement` Cluster
+
+Measures temperature in degrees Celsius.
+
+**Attributes**:
+
+| Attribute          | Type   | Range/Values | Description                              |
+|--------------------|--------|--------------|------------------------------------------|
+| `measuredValue`    | number | -27315-32767 | Current temperature (hundredths of °C) ¹ |
+| `minMeasuredValue` | number | -27315-32767 | Minimum measurable temperature           |
+| `maxMeasuredValue` | number | -27315-32767 | Maximum measurable temperature           |
+
+¹ Temperature values are in **hundredths of degrees Celsius**: `2100` = `21.00°C`
+
+**Reading State**:
+
+```typescript
+const tempHundredths = accessory.clusters.temperatureMeasurement.measuredValue
+const celsius = tempHundredths / 100
+log.info(`Temperature: ${celsius}°C`)
+```
+
+**Updating State** (Flow B):
+
+```typescript
+// When your physical sensor reports new temperature
+function updateTemperature(celsius: number) {
+  const value = Math.round(celsius * 100)
+
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.TemperatureMeasurement,
+    { measuredValue: value }
+  )
+
+  log.info(`Temperature: ${celsius}°C`)
+}
+
+// Example: 21.5°C
+updateTemperature(21.5) // Sends value: 2150
+```
+
+**Initial State**:
+
+```typescript
+clusters: {
+  temperatureMeasurement: {
+    measuredValue: 2100,     // 21.00°C
+    minMeasuredValue: -5000, // -50.00°C
+    maxMeasuredValue: 10000, // 100.00°C
+  },
+}
+```
+
+**Handler**: Temperature sensors are read-only (no handlers needed).
+
+---
+
+### Humidity Sensor
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.HumiditySensor`                                                                                                       |
+| **Description**          | A sensor that measures relative humidity.                                                                                                     |
+| **Matter Specification** | § 7.7                                                                                                                                         |
+
+#### Required Clusters
+
+###### `RelativeHumidityMeasurement` Cluster
+
+Measures relative humidity as a percentage.
+
+**Attributes**:
+
+| Attribute          | Type   | Range/Values | Description                                  |
+|--------------------|--------|--------------|----------------------------------------------|
+| `measuredValue`    | number | 0-10000      | Current humidity (hundredths of a percent) ¹ |
+| `minMeasuredValue` | number | 0-9999       | Minimum measurable humidity                  |
+| `maxMeasuredValue` | number | 1-10000      | Maximum measurable humidity                  |
+
+¹ Humidity values are in **hundredths of a percent**: `5500` = `55.00%`
+
+**Reading State**:
+
+```typescript
+const humidityHundredths = accessory.clusters.relativeHumidityMeasurement.measuredValue
+const percent = humidityHundredths / 100
+log.info(`Humidity: ${percent}%`)
+```
+
+**Updating State** (Flow B):
+
+```typescript
+// When your physical sensor reports new humidity
+function updateHumidity(percent: number) {
+  const value = Math.round(percent * 100)
+
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.RelativeHumidityMeasurement,
+    { measuredValue: value }
+  )
+
+  log.info(`Humidity: ${percent}%`)
+}
+
+// Example: 65.5%
+updateHumidity(65.5) // Sends value: 6550
+```
+
+**Initial State**:
+
+```typescript
+clusters: {
+  relativeHumidityMeasurement: {
+    measuredValue: 5500,  // 55%
+    minMeasuredValue: 0,  // 0%
+    maxMeasuredValue: 10000, // 100%
+  },
+}
+```
+
+**Handler**: Humidity sensors are read-only (no handlers needed).
+
+---
+
+### Smoke/CO Alarm
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.SmokeSensor` (with SmokeAlarm and CoAlarm features)                                                                   |
+| **Description**          | A combined smoke and carbon monoxide alarm sensor.                                                                                            |
+| **Matter Specification** | § 7.9                                                                                                                                         |
+
+#### Required Clusters
+
+###### `SmokeCoAlarm` Cluster
+
+Detects smoke and carbon monoxide with three alarm states.
+
+**Attributes**:
+
+| Attribute                 | Type    | Range/Values | Description                                           |
+|---------------------------|---------|--------------|-------------------------------------------------------|
+| `smokeState`              | number  | 0-2          | Smoke alarm state (0=Normal, 1=Warning, 2=Critical)   |
+| `coState`                 | number  | 0-2          | CO alarm state (0=Normal, 1=Warning, 2=Critical)      |
+| `batteryAlert`            | number  | 0-2          | Battery level alert                                   |
+| `deviceMuted`             | number  | 0-2          | Device mute status                                    |
+| `testInProgress`          | boolean | true/false   | Whether self-test is running                          |
+| `hardwareFaultAlert`      | boolean | true/false   | Hardware fault detected                               |
+| `endOfServiceAlert`       | number  | 0-2          | End of service life alert                             |
+| `interconnectSmokeAlarm`  | number  | 0-2          | Interconnected smoke alarm status                     |
+| `interconnectCoAlarm`     | number  | 0-2          | Interconnected CO alarm status                        |
+| `contaminationState`      | number  | 0-2          | Sensor contamination state                            |
+| `smokeSensitivityLevel`   | number  | 0-2          | Smoke sensitivity level                               |
+| `expressedState`          | number  | 0-10         | Overall alarm state                                   |
+
+**Alarm State Values**:
+
+| Value | State    | Description             |
+|-------|----------|-------------------------|
+| 0     | Normal   | No alarm detected       |
+| 1     | Warning  | Warning level detected  |
+| 2     | Critical | Critical level detected |
+
+**Reading State**:
+
+```typescript
+const smokeState = accessory.clusters.smokeCoAlarm.smokeState
+const coState = accessory.clusters.smokeCoAlarm.coState
+
+const stateNames = ['Normal', 'Warning', 'Critical']
+log.info(`Smoke: ${stateNames[smokeState]}, CO: ${stateNames[coState]}`)
+```
+
+**Updating State** (Flow B):
+
+```typescript
+// Update smoke alarm state
+function updateSmokeState(state: 0 | 1 | 2) {
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.SmokeCoAlarm,
+    { smokeState: state }
+  )
+
+  const stateStr = ['Normal', 'Warning', 'Critical'][state]
+  log.info(`Smoke state: ${stateStr}`)
+}
+
+// Update CO alarm state
+function updateCOState(state: 0 | 1 | 2) {
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.SmokeCoAlarm,
+    { coState: state }
+  )
+
+  const stateStr = ['Normal', 'Warning', 'Critical'][state]
+  log.info(`CO state: ${stateStr}`)
+}
+
+// Example: Smoke detected
+updateSmokeState(2) // Critical
+```
+
+**Initial State with Both Features**:
+
+```typescript
+// Configure Smoke/CO Alarm with both features
+const SmokeCoAlarmServer = api.matter.deviceTypes.SmokeSensor.requirements.SmokeCoAlarmServer
+const SmokeSensorWithBoth = api.matter.deviceTypes.SmokeSensor.with(
+  SmokeCoAlarmServer.with('SmokeAlarm', 'CoAlarm'),
+)
+
+{
+  deviceType: SmokeSensorWithBoth,
+  clusters: {
+    smokeCoAlarm: {
+      smokeState: 0,              // Normal
+      coState: 0,                 // Normal
+      batteryAlert: 0,            // Normal
+      deviceMuted: 0,             // Not muted
+      testInProgress: false,      // No test running
+      hardwareFaultAlert: false,  // No fault
+      endOfServiceAlert: 0,       // Normal
+      interconnectSmokeAlarm: 0,  // Normal
+      interconnectCoAlarm: 0,     // Normal
+      contaminationState: 0,      // Normal
+      smokeSensitivityLevel: 1,   // Standard sensitivity
+      expressedState: 0,          // Normal
+    },
+  },
+}
+```
+
+**Handler**: Smoke/CO alarms are read-only (no handlers needed).
+
+---
+
+### Water Leak Detector
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.LeakSensor`                                                                                                           |
+| **Description**          | A sensor that detects water leaks.                                                                                                            |
+| **Matter Specification** | § 7.12                                                                                                                                        |
+
+#### Required Clusters
+
+###### `BooleanState` Cluster
+
+Represents water leak detection state using a boolean value.
+
+**NOTE**: Unlike contact sensors, leak detectors use **standard (non-inverted) semantics**:
+- `false` = No leak detected / Dry (normal state)
+- `true` = Leak detected / Wet (triggered state)
+
+**Attributes**:
+
+| Attribute    | Type    | Range/Values    | Description                                  |
+|--------------|---------|-----------------|----------------------------------------------|
+| `stateValue` | boolean | `true`, `false` | Leak state (true=leak, false=dry)            |
+
+**Reading State**:
+
+```typescript
+const leakDetected = accessory.clusters.booleanState.stateValue
+log.info(`Leak: ${leakDetected ? 'DETECTED' : 'None'}`)
+```
+
+**Updating State** (Flow B):
+
+```typescript
+// When your physical sensor reports leak state
+function updateLeakState(leakDetected: boolean) {
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.BooleanState,
+    { stateValue: leakDetected }
+  )
+
+  log.info(`Leak: ${leakDetected ? 'detected' : 'none'}`)
+}
+
+// Example: Leak detected
+updateLeakState(true) // Sends stateValue: true
+
+// Example: Leak cleared
+updateLeakState(false) // Sends stateValue: false
+```
+
+**Initial State**:
+
+```typescript
+clusters: {
+  booleanState: {
+    stateValue: false,  // false = dry/normal (safe default)
+  },
+}
+```
+
+**Handler**: Leak sensors are read-only (no handlers needed).
+
+---
+
+### Door Lock
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.DoorLock`                                                                                                             |
+| **Description**          | A smart lock that can be locked and unlocked, optionally with PIN code support.                                                               |
+| **Matter Specification** | § 8.1                                                                                                                                         |
+
+#### Required Clusters
+
+###### `DoorLock` Cluster
+
+Controls door lock/unlock operations.
+
+**Attributes**:
+
+| Attribute         | Type    | Range/Values | Description                                                 |
+|-------------------|---------|--------------|-------------------------------------------------------------|
+| `lockState`       | number  | 0-2          | Current lock state (0=NotFullyLocked, 1=Locked, 2=Unlocked) |
+| `lockType`        | number  | 0-11         | Type of lock mechanism                                      |
+| `actuatorEnabled` | boolean | true/false   | Whether lock actuator is enabled                            |
+| `operatingMode`   | number  | 0-4          | Current operating mode                                      |
+
+**Lock State Values**:
+
+| Value | State           | Description                    |
+|-------|-----------------|--------------------------------|
+| 0     | NotFullyLocked  | Lock is not fully engaged      |
+| 1     | Locked          | Lock is fully engaged          |
+| 2     | Unlocked        | Lock is disengaged             |
+
+**Lock Type Values** (common types):
+
+| Value | Type       | Description          |
+|-------|------------|----------------------|
+| 0     | DeadBolt   | Standard deadbolt    |
+| 1     | Magnetic   | Magnetic lock        |
+| 2     | Other      | Other type           |
+
+Access all lock types via `api.matter.types.DoorLock.LockType`:
+
+```typescript
+api.matter.types.DoorLock.LockType.DeadBolt
+api.matter.types.DoorLock.LockType.Magnetic
+api.matter.types.DoorLock.LockType.Mortise
+// etc.
+```
+
+**Reading State**:
+
+```typescript
+const lockState = accessory.clusters.doorLock.lockState
+const stateNames = ['NotFullyLocked', 'Locked', 'Unlocked']
+log.info(`Lock state: ${stateNames[lockState]}`)
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+import type { MatterRequests } from 'homebridge'
+
+handlers: {
+  doorLock: {
+    /**
+     * Called when user locks the door via Home app
+     */
+    lockDoor: async (request?: MatterRequests.LockDoor) => {
+      const pinCode = request?.pinCode  // Optional PIN code
+
+      if (pinCode) {
+        log.info(`Locking door with PIN: ${Buffer.from(pinCode).toString()}`)
+      } else {
+        log.info('Locking door')
+      }
+
+      await myLockAPI.lock()
+      // State automatically updated by Homebridge
+    },
+
+    /**
+     * Called when user unlocks the door via Home app
+     */
+    unlockDoor: async (request?: MatterRequests.UnlockDoor) => {
+      const pinCode = request?.pinCode  // Optional PIN code
+
+      if (pinCode) {
+        log.info(`Unlocking door with PIN: ${Buffer.from(pinCode).toString()}`)
+      } else {
+        log.info('Unlocking door')
+      }
+
+      await myLockAPI.unlock()
+      // State automatically updated by Homebridge
+    },
+  },
+}
+```
+
+</details>
+
+**Updating State** (Flow B):
+
+```typescript
+// Update lock state
+function updateLockState(state: 0 | 1 | 2) {
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.DoorLock,
+    { lockState: state }
+  )
+
+  const stateStr = ['NotFullyLocked', 'Locked', 'Unlocked'][state]
+  log.info(`Lock state: ${stateStr}`)
+}
+
+// Example: Lock engaged
+updateLockState(1) // Locked
+
+// Example: Lock disengaged
+updateLockState(2) // Unlocked
+```
+
+**Initial State**:
+
+```typescript
+clusters: {
+  doorLock: {
+    lockState: api.matter.types.DoorLock.LockState.Unlocked,  // 2
+    lockType: api.matter.types.DoorLock.LockType.DeadBolt,    // 0
+    actuatorEnabled: true,
+    operatingMode: api.matter.types.DoorLock.OperatingMode.Normal, // 0
+  },
+}
+```
+
+---
+
+### Robotic Vacuum Cleaner
+
+| Property                 | Value                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Device Type**          | `api.matter.deviceTypes.RoboticVacuumCleaner`                                                                                                 |
+| **Description**          | A robotic vacuum cleaner with run modes, operational states, and cleaning modes.                                                              |
+| **Matter Specification** | § 12.1                                                                                                                                        |
+
+**IMPORTANT**: Robotic vacuum cleaners **must** be published on a dedicated Matter bridge using `api.matter.publishExternalAccessories()` for Apple Home compatibility.
+
+#### Required Clusters
+
+###### `RvcRunMode` Cluster
+
+Controls the vacuum's run mode (Idle, Cleaning, etc.).
+
+**Attributes**:
+
+| Attribute        | Type   | Description                              |
+|------------------|--------|------------------------------------------|
+| `supportedModes` | array  | List of supported run modes              |
+| `currentMode`    | number | Current run mode                         |
+
+**Common Run Mode Tags**:
+
+| Tag Value | Name     | Description                    |
+|-----------|----------|--------------------------------|
+| 16384     | Idle     | Vacuum is idle/docked          |
+| 16385     | Cleaning | Vacuum is cleaning             |
+| 16386     | Mapping  | Vacuum is mapping the space    |
+
+###### `RvcCleanMode` Cluster
+
+Controls the vacuum's cleaning mode (Vacuum, Mop, etc.).
+
+**Attributes**:
+
+| Attribute        | Type   | Description                              |
+|------------------|--------|------------------------------------------|
+| `supportedModes` | array  | List of supported clean modes            |
+| `currentMode`    | number | Current clean mode                       |
+
+**Common Clean Mode Tags**:
+
+| Tag Value | Name   | Description                    |
+|-----------|--------|--------------------------------|
+| 16384     | Vacuum | Vacuum only mode               |
+| 16385     | Mop    | Mop only mode                  |
+| 16386     | Both   | Vacuum and mop simultaneously  |
+
+###### `RvcOperationalState` Cluster
+
+Reports the vacuum's operational state and provides control commands.
+
+**Attributes**:
+
+| Attribute              | Type   | Description                          |
+|------------------------|--------|--------------------------------------|
+| `operationalStateList` | array  | List of supported operational states |
+| `operationalState`     | number | Current operational state ID         |
+
+**Common Operational State IDs**:
+
+| State ID | State   | Description                    |
+|----------|---------|--------------------------------|
+| 0        | Stopped | Vacuum is stopped              |
+| 1        | Running | Vacuum is actively cleaning    |
+| 2        | Paused  | Vacuum is paused               |
+| 3        | Error   | Vacuum encountered an error    |
+
+**Reading State**:
+
+```typescript
+const runMode = accessory.clusters.rvcRunMode.currentMode
+const cleanMode = accessory.clusters.rvcCleanMode.currentMode
+const opState = accessory.clusters.rvcOperationalState.operationalState
+
+const runModes = ['Idle', 'Cleaning']
+const cleanModes = ['Vacuum', 'Mop']
+const opStates = ['Stopped', 'Running', 'Paused', 'Error']
+
+log.info(`Run: ${runModes[runMode]}, Clean: ${cleanModes[cleanMode]}, State: ${opStates[opState]}`)
+```
+
+<details>
+<summary><strong>Handlers</strong></summary>
+
+```typescript
+import type { MatterRequests } from 'homebridge'
+
+handlers: {
+  rvcRunMode: {
+    /**
+     * Called when user changes run mode via Home app
+     */
+    changeToMode: async (request: MatterRequests.ChangeToMode) => {
+      const { newMode } = request
+      const modeStr = ['Idle', 'Cleaning'][newMode] || 'Unknown'
+
+      log.info(`Changing run mode to: ${modeStr}`)
+      await myVacuumAPI.setRunMode(newMode)
+      // State automatically updated by Homebridge
+    },
+  },
+
+  rvcCleanMode: {
+    /**
+     * Called when user changes clean mode via Home app
+     */
+    changeToMode: async (request: MatterRequests.ChangeToMode) => {
+      const { newMode } = request
+      const modeStr = ['Vacuum', 'Mop'][newMode] || 'Unknown'
+
+      log.info(`Changing clean mode to: ${modeStr}`)
+      await myVacuumAPI.setCleanMode(newMode)
+      // State automatically updated by Homebridge
+    },
+  },
+
+  rvcOperationalState: {
+    /**
+     * Called when user starts the vacuum
+     */
+    start: async () => {
+      log.info('Starting vacuum')
+      await myVacuumAPI.start()
+      // Update state to Running (1)
+      api.matter.updateAccessoryState(
+        uuid,
+        api.matter.clusterNames.RvcOperationalState,
+        { operationalState: 1 }
+      )
+    },
+
+    /**
+     * Called when user pauses the vacuum
+     */
+    pause: async () => {
+      log.info('Pausing vacuum')
+      await myVacuumAPI.pause()
+      // Update state to Paused (2)
+      api.matter.updateAccessoryState(
+        uuid,
+        api.matter.clusterNames.RvcOperationalState,
+        { operationalState: 2 }
+      )
+    },
+
+    /**
+     * Called when user stops the vacuum
+     */
+    stop: async () => {
+      log.info('Stopping vacuum')
+      await myVacuumAPI.stop()
+      // Update state to Stopped (0)
+      api.matter.updateAccessoryState(
+        uuid,
+        api.matter.clusterNames.RvcOperationalState,
+        { operationalState: 0 }
+      )
+    },
+
+    /**
+     * Called when user resumes the vacuum
+     */
+    resume: async () => {
+      log.info('Resuming vacuum')
+      await myVacuumAPI.resume()
+      // Update state to Running (1)
+      api.matter.updateAccessoryState(
+        uuid,
+        api.matter.clusterNames.RvcOperationalState,
+        { operationalState: 1 }
+      )
+    },
+  },
+}
+```
+
+</details>
+
+**Updating State** (Flow B):
+
+```typescript
+// Update operational state
+function updateOperationalState(state: number) {
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.RvcOperationalState,
+    { operationalState: state }
+  )
+
+  const states = ['Stopped', 'Running', 'Paused', 'Error']
+  log.info(`Operational state: ${states[state]}`)
+}
+
+// Update run mode
+function updateRunMode(mode: number) {
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.RvcRunMode,
+    { currentMode: mode }
+  )
+
+  const modes = ['Idle', 'Cleaning']
+  log.info(`Run mode: ${modes[mode]}`)
+}
+
+// Update clean mode
+function updateCleanMode(mode: number) {
+  api.matter.updateAccessoryState(
+    uuid,
+    api.matter.clusterNames.RvcCleanMode,
+    { currentMode: mode }
+  )
+
+  const modes = ['Vacuum', 'Mop']
+  log.info(`Clean mode: ${modes[mode]}`)
+}
+```
+
+**Initial State**:
+
+```typescript
+clusters: {
+  rvcRunMode: {
+    supportedModes: [
+      { label: 'Idle', mode: 0, modeTags: [{ value: 16384 }] },
+      { label: 'Cleaning', mode: 1, modeTags: [{ value: 16385 }] },
+    ],
+    currentMode: 0,  // Idle
+  },
+  rvcCleanMode: {
+    supportedModes: [
+      { label: 'Vacuum', mode: 0, modeTags: [{ value: 16384 }] },
+      { label: 'Mop', mode: 1, modeTags: [{ value: 16385 }] },
+    ],
+    currentMode: 0,  // Vacuum
+  },
+  rvcOperationalState: {
+    operationalStateList: [
+      { operationalStateId: 0, operationalStateLabel: 'Stopped' },
+      { operationalStateId: 1, operationalStateLabel: 'Running' },
+      { operationalStateId: 2, operationalStateLabel: 'Paused' },
+      { operationalStateId: 3, operationalStateLabel: 'Error' },
+    ],
+    operationalState: 0,  // Stopped
+  },
+}
+```
+
+**Publishing** (Required for Apple Home):
+
+```typescript
+// IMPORTANT: Robotic vacuums must be published externally
+const accessories = [
+  {
+    uuid: api.matter.uuid.generate('robot-vacuum'),
+    displayName: 'Robot Vacuum',
+    deviceType: api.matter.deviceTypes.RoboticVacuumCleaner,
+    // ... configuration
+  }
+]
+
+// Use publishExternalAccessories instead of registerPlatformAccessories
+api.matter.publishExternalAccessories(PLUGIN_NAME, accessories)
+
+// This creates a dedicated Matter bridge with its own QR code
+```

@@ -21,7 +21,7 @@ export class ContactSensorAccessory extends BaseMatterAccessory {
 
       clusters: {
         booleanState: {
-          stateValue: false, // false = closed, true = open
+          stateValue: true, // Matter: true = closed/normal, false = open/triggered
         },
       },
     })
@@ -30,7 +30,8 @@ export class ContactSensorAccessory extends BaseMatterAccessory {
   }
 
   public updateContactState(isOpen: boolean): void {
-    this.updateState(this.api.matter.clusterNames.BooleanState, { stateValue: isOpen })
+    // Matter BooleanState: false = open/triggered, true = closed/normal (inverted!)
+    this.updateState(this.api.matter.clusterNames.BooleanState, { stateValue: !isOpen })
     this.logInfo(`contact state: ${isOpen ? 'OPEN' : 'CLOSED'}.`)
   }
 }

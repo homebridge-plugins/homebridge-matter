@@ -16,7 +16,7 @@ import {
   HumiditySensorAccessory,
   LeakSensorAccessory,
   LightSensorAccessory,
-  MotionSensorAccessory,
+  OccupancySensorAccessory,
   OnOffLightAccessory,
   OnOffOutletAccessory,
   OnOffSwitchAccessory,
@@ -133,7 +133,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       { enabled: this.config.enableTemperatureSensor, uuid: this.api.matter.uuid.generate('matter-temperature-sensor'), name: 'Temperature Sensor' },
       { enabled: this.config.enableHumiditySensor, uuid: this.api.matter.uuid.generate('matter-humidity-sensor'), name: 'Humidity Sensor' },
       { enabled: this.config.enableLightSensor, uuid: this.api.matter.uuid.generate('matter-light-sensor'), name: 'Light Sensor' },
-      { enabled: this.config.enableMotionSensor, uuid: this.api.matter.uuid.generate('matter-motion-sensor'), name: 'Motion Sensor' },
+      { enabled: this.config.enableOccupancySensor, uuid: this.api.matter.uuid.generate('matter-occupancy-sensor'), name: 'Occupancy Sensor' },
       { enabled: this.config.enableContactSensor, uuid: this.api.matter.uuid.generate('matter-contact-sensor'), name: 'Contact Sensor' },
       { enabled: this.config.enableLeakSensor, uuid: this.api.matter.uuid.generate('matter-leak-sensor'), name: 'Leak Sensor' },
       { enabled: this.config.enableSmokeSensor, uuid: this.api.matter.uuid.generate('matter-smoke-sensor'), name: 'Smoke Sensor' },
@@ -278,9 +278,9 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       accessories.push(device.toAccessory())
     }
 
-    // Motion Sensor (Occupancy)
-    if (this.config.enableMotionSensor !== false) {
-      const device = new MotionSensorAccessory(this.api, this.log)
+    // Occupancy Sensor
+    if (this.config.enableOccupancySensor !== false) {
+      const device = new OccupancySensorAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 

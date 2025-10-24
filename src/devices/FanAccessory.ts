@@ -31,6 +31,9 @@ export class FanAccessory extends BaseMatterAccessory {
       handlers: {
         fanControl: {
           step: async (request: MatterRequests.FanStep) => this.handleStep(request),
+          fanModeChange: async (request: { fanMode: number, oldFanMode: number }) => this.handleFanModeChange(request),
+          percentSettingChange: async (request: { percentSetting: number | null, oldPercentSetting: number | null }) =>
+            this.handlePercentSettingChange(request),
         },
       },
     })
@@ -46,12 +49,36 @@ export class FanAccessory extends BaseMatterAccessory {
     // TODO: await myFanAPI.step(direction, wrap, lowestOff)
   }
 
+  private async handleFanModeChange(request: { fanMode: number, oldFanMode: number }): Promise<void> {
+    this.logInfo(`FanMode change: ${JSON.stringify(request)}`)
+    const modeNames = ['Off', 'Low', 'Medium', 'High', 'On', 'Auto', 'Smart']
+    const modeName = modeNames[request.fanMode] || `Unknown (${request.fanMode})`
+    this.logInfo(`fan mode changed to: ${modeName}.`)
+    // TODO: await myFanAPI.setMode(request.fanMode)
+  }
+
+  private async handlePercentSettingChange(request: { percentSetting: number | null, oldPercentSetting: number | null }): Promise<void> {
+    this.logInfo(`PercentSetting change: ${JSON.stringify(request)}`)
+    const percent = request.percentSetting ?? 0
+    const isOff = percent === 0
+    const wasOff = (request.oldPercentSetting ?? 0) === 0
+
+    if (isOff !== wasOff) {
+      this.logInfo(`fan turned ${isOff ? 'off' : 'on'}.`)
+    }
+
+    if (!isOff) {
+      this.logInfo(`fan speed changed to: ${percent}%.`)
+    }
+    // TODO: await myFanAPI.setSpeed(percent)
+  }
+
   public updateFanMode(mode: number): void {
-    this.updateState('fanControl', { fanMode: mode })
+    this.updateState(this.api.matter.clusterNames.FanControl, { fanMode: mode })
   }
 
   public updateFanSpeed(percent: number): void {
-    this.updateState('fanControl', {
+    this.updateState(this.api.matter.clusterNames.FanControl, {
       percentSetting: percent,
       percentCurrent: percent,
     })
