@@ -9,11 +9,13 @@
  * - Basic OnOff cluster implementation for outlets
  */
 
+import type { MatterAccessory } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 export function registerOnOffPlugInUnit(context: DeviceContext): any[] {
   const { api, log, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableOnOffOutlet) {
     return accessories

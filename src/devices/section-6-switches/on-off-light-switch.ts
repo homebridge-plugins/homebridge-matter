@@ -9,11 +9,13 @@
  * - Switch device implementation (input device, sends commands)
  */
 
+import type { MatterAccessory } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 export function registerOnOffLightSwitch(context: DeviceContext): any[] {
   const { api, log, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableOnOffSwitch) {
     return accessories

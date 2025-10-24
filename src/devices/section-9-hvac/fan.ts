@@ -11,11 +11,13 @@
  * - Speed percentage and mode-based control
  */
 
+import type { MatterAccessory, MatterRequests } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 export function registerFan(context: DeviceContext): any[] {
   const { api, log, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableFan) {
     return accessories
@@ -54,7 +56,7 @@ export function registerFan(context: DeviceContext): any[] {
           // TODO: await myFanAPI.setMode(modeName.toLowerCase())
         },
 
-        step: async (request: { direction: number, wrap: boolean, lowestOff: boolean }) => {
+        step: async (request: MatterRequests.FanStep) => {
           const dir = request.direction === 0 ? 'Up' : 'Down'
           log.info(`[Fan] Step ${dir}`)
           // TODO: await myFanAPI.step(request.direction, request.wrap, request.lowestOff)

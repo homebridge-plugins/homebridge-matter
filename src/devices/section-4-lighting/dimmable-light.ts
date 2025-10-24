@@ -11,13 +11,13 @@
  * - Brightness value conversion (Matter 1-254 ↔ Percent 0-100%)
  */
 
-import type { MatterRequests } from 'homebridge'
+import type { MatterAccessory, MatterRequests } from 'homebridge'
 
 import type { DeviceContext } from '../types.js'
 
 export function registerDimmableLight(context: DeviceContext): any[] {
   const { api, log, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableDimmableLight) {
     return accessories

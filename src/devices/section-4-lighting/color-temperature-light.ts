@@ -11,13 +11,13 @@
  * - Type-safe handlers with MatterRequests
  */
 
-import type { MatterRequests } from 'homebridge'
+import type { MatterAccessory, MatterRequests } from 'homebridge'
 
 import type { DeviceContext } from '../types.js'
 
 export function registerColorTemperatureLight(context: DeviceContext): any[] {
   const { api, log, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableColourTemperatureLight) {
     return accessories
@@ -73,12 +73,12 @@ export function registerColorTemperatureLight(context: DeviceContext): any[] {
       },
 
       colorControl: {
-        moveToColorTemperatureLogic: async (request: { targetMireds: number, transitionTime: number }) => {
-          const { targetMireds, transitionTime } = request
+        moveToColorTemperatureLogic: async (request: MatterRequests.MoveToColorTemperature) => {
+          const { colorTemperatureMireds, transitionTime } = request
 
           // Convert mireds to Kelvin: kelvin = 1000000 / mireds
-          const kelvin = Math.round(1000000 / targetMireds)
-          log.info(`[Colour Temp Light] Setting color temp to ${kelvin}K (${targetMireds} mireds)`)
+          const kelvin = Math.round(1000000 / colorTemperatureMireds)
+          log.info(`[Colour Temp Light] Setting color temp to ${kelvin}K (${colorTemperatureMireds} mireds)`)
 
           // TODO: await myLightAPI.setColorTemperature(kelvin, transitionTime)
         },

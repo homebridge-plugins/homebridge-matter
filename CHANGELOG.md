@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.1.6 (Unreleased)
+
+### Changes
+
+- improve matter types across the plugin
+
 ## v0.1.5 (2025-10-23)
 
 ### Changes

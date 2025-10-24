@@ -11,11 +11,13 @@
  * - Device feature configuration (PIR sensing method)
  */
 
+import type { MatterAccessory } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 export function registerOccupancySensor(context: DeviceContext): any[] {
   const { api, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableMotionSensor) {
     return accessories

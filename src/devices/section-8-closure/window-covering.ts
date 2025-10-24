@@ -13,11 +13,13 @@
  * - Position tracking in hundredths of percent
  */
 
+import type { MatterAccessory, MatterRequests } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 export function registerWindowCovering(context: DeviceContext): any[] {
   const { api, log, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   // Variant 1: Window Blind (lift only)
   if (config.enableWindowBlind) {
@@ -60,8 +62,8 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
       handlers: {
         windowCovering: {
-          goToLiftPercentage: async (request: { targetPercent: number }) => {
-            const percent = (request.targetPercent / 100).toFixed(0)
+          goToLiftPercentage: async (request: MatterRequests.GoToLiftPercentage) => {
+            const percent = (request.liftPercent100thsValue / 100).toFixed(0)
             log.info(`[Window Blind] Moving to ${percent}% open`)
             // TODO: await myBlindAPI.setPosition(percent)
           },
@@ -130,14 +132,14 @@ export function registerWindowCovering(context: DeviceContext): any[] {
 
       handlers: {
         windowCovering: {
-          goToLiftPercentage: async (request: { targetPercent: number }) => {
-            const percent = (request.targetPercent / 100).toFixed(0)
+          goToLiftPercentage: async (request: MatterRequests.GoToLiftPercentage) => {
+            const percent = (request.liftPercent100thsValue / 100).toFixed(0)
             log.info(`[Venetian Blind] Moving to ${percent}% open`)
             // TODO: await myBlindAPI.setLiftPosition(percent)
           },
 
-          goToTiltPercentage: async (request: { targetPercent: number }) => {
-            const percent = (request.targetPercent / 100).toFixed(0)
+          goToTiltPercentage: async (request: MatterRequests.GoToTiltPercentage) => {
+            const percent = (request.tiltPercent100thsValue / 100).toFixed(0)
             log.info(`[Venetian Blind] Tilting to ${percent}%`)
             // TODO: await myBlindAPI.setTiltAngle(percent)
           },

@@ -14,13 +14,13 @@
  * - Most complex lighting scenario with mode switching
  */
 
-import type { MatterRequests } from 'homebridge'
+import type { MatterAccessory, MatterRequests } from 'homebridge'
 
 import type { DeviceContext } from '../types.js'
 
 export function registerExtendedColorLight(context: DeviceContext): any[] {
   const { api, log, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   // Variant 1: Color Light (HS only - no CCT)
   if (config.enableColourLight) {
@@ -74,19 +74,19 @@ export function registerExtendedColorLight(context: DeviceContext): any[] {
         },
 
         colorControl: {
-          moveToColorLogic: async (request: { targetX: number, targetY: number, transitionTime: number }) => {
-            const { targetX, targetY, transitionTime } = request
-            const xFloat = (targetX / 65535).toFixed(4)
-            const yFloat = (targetY / 65535).toFixed(4)
+          moveToColorLogic: async (request: MatterRequests.MoveToColor) => {
+            const { colorX, colorY, transitionTime } = request
+            const xFloat = (colorX / 65535).toFixed(4)
+            const yFloat = (colorY / 65535).toFixed(4)
             log.info(`[Colour Light HS] Setting XY color to (${xFloat}, ${yFloat})`)
 
             // TODO: await myLightAPI.setXY(xFloat, yFloat, transitionTime)
           },
 
-          moveToHueAndSaturationLogic: async (request: { targetHue: number, targetSaturation: number, transitionTime: number }) => {
-            const { targetHue, targetSaturation, transitionTime } = request
-            const hueDegrees = Math.round((targetHue / 254) * 360)
-            const saturationPercent = Math.round((targetSaturation / 254) * 100)
+          moveToHueAndSaturationLogic: async (request: MatterRequests.MoveToHueAndSaturation) => {
+            const { hue, saturation, transitionTime } = request
+            const hueDegrees = Math.round((hue / 254) * 360)
+            const saturationPercent = Math.round((saturation / 254) * 100)
             log.info(`[Colour Light HS] Setting color to ${hueDegrees}°, ${saturationPercent}%`)
 
             // TODO: await myLightAPI.setColor(hueDegrees, saturationPercent, transitionTime)
@@ -154,27 +154,27 @@ export function registerExtendedColorLight(context: DeviceContext): any[] {
         },
 
         colorControl: {
-          moveToColorLogic: async (request: { targetX: number, targetY: number, transitionTime: number }) => {
-            const { targetX, targetY, transitionTime } = request
-            const xFloat = (targetX / 65535).toFixed(4)
-            const yFloat = (targetY / 65535).toFixed(4)
+          moveToColorLogic: async (request: MatterRequests.MoveToColor) => {
+            const { colorX, colorY, transitionTime } = request
+            const xFloat = (colorX / 65535).toFixed(4)
+            const yFloat = (colorY / 65535).toFixed(4)
             log.info(`[Extended Colour Light] Setting XY color to (${xFloat}, ${yFloat})`)
 
             // TODO: await myLightAPI.setXY(xFloat, yFloat, transitionTime)
           },
 
-          moveToHueAndSaturationLogic: async (request: { targetHue: number, targetSaturation: number, transitionTime: number }) => {
-            const { targetHue, targetSaturation, transitionTime } = request
-            const hueDegrees = Math.round((targetHue / 254) * 360)
-            const saturationPercent = Math.round((targetSaturation / 254) * 100)
+          moveToHueAndSaturationLogic: async (request: MatterRequests.MoveToHueAndSaturation) => {
+            const { hue, saturation, transitionTime } = request
+            const hueDegrees = Math.round((hue / 254) * 360)
+            const saturationPercent = Math.round((saturation / 254) * 100)
             log.info(`[Extended Colour Light] Setting color to ${hueDegrees}°, ${saturationPercent}%`)
 
             // TODO: await myLightAPI.setColor(hueDegrees, saturationPercent, transitionTime)
           },
 
-          moveToColorTemperatureLogic: async (request: { targetMireds: number, transitionTime: number }) => {
-            const { targetMireds, transitionTime } = request
-            const kelvin = Math.round(1000000 / targetMireds)
+          moveToColorTemperatureLogic: async (request: MatterRequests.MoveToColorTemperature) => {
+            const { colorTemperatureMireds, transitionTime } = request
+            const kelvin = Math.round(1000000 / colorTemperatureMireds)
             log.info(`[Extended Colour Light] Setting color temp to ${kelvin}K`)
 
             // TODO: await myLightAPI.setColorTemperature(kelvin, transitionTime)

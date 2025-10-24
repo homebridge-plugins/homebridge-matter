@@ -9,11 +9,13 @@
  * - RelativeHumidityMeasurement cluster for humidity sensors
  */
 
+import type { MatterAccessory } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 export function registerHumiditySensor(context: DeviceContext): any[] {
   const { api, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableHumiditySensor) {
     return accessories

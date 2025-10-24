@@ -9,11 +9,13 @@
  * - BooleanState cluster for binary sensors
  */
 
+import type { MatterAccessory } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 export function registerContactSensor(context: DeviceContext): any[] {
   const { api, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableContactSensor) {
     return accessories

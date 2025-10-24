@@ -18,6 +18,8 @@
  * platform.ts because RVC devices require dedicated Matter bridges for Apple Home compatibility.
  */
 
+import type { MatterAccessory, MatterRequests } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 /**
@@ -49,7 +51,7 @@ function addVacuumTimer(uuid: string, timer: NodeJS.Timeout): void {
 
 export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
   const { api, log, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableRobotVacuum) {
     return accessories
@@ -474,7 +476,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
          * - Changing to Auto-Cleaning: Cleans for 10 seconds, then docks
          * - Changing to Mapping: Maps for 10 seconds, then returns to Stopped
          */
-        changeToMode: async (request: { newMode: number }) => {
+        changeToMode: async (request: MatterRequests.ChangeToMode) => {
           const modes = ['Idle', 'Quick-Cleaning', 'Auto-Cleaning', 'Mapping']
           const modeName = modes[request.newMode] || `Unknown (${request.newMode})`
           log.info(`[Robot Vacuum] ✓ Handler \`changeToMode\` (run mode) called: ${request.newMode} (${modeName})`)
@@ -626,7 +628,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
          *
          * You can add additional modes like Quiet, Turbo, Deep Clean, etc.
          */
-        changeToMode: async (request: { newMode: number }) => {
+        changeToMode: async (request: MatterRequests.ChangeToMode) => {
           const modes = ['Vacuum', 'Mop', 'Vacuum & Mop']
           const modeName = modes[request.newMode] || `Unknown (${request.newMode})`
           log.info(`[Robot Vacuum] ✓ Handler \`changeToMode\` (clean mode) called: ${request.newMode} (${modeName})`)
@@ -690,7 +692,7 @@ export function registerRoboticVacuumCleaner(context: DeviceContext): any[] {
          * 2. Clean Living Room for 5 seconds
          * 3. Return to dock
          */
-        selectAreas: async (request: { newAreas: number[] }) => {
+        selectAreas: async (request: MatterRequests.SelectAreas) => {
           const areaNames = ['Kitchen', 'Living Room', 'Bedroom', 'Bathroom']
           const areas = request.newAreas || []
           const selectedNames = areas.map(id => areaNames[id] || `Area ${id}`)

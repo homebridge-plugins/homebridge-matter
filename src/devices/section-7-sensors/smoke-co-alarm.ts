@@ -10,11 +10,13 @@
  * - Device feature configuration (SmokeAlarm and CoAlarm features)
  */
 
+import type { MatterAccessory } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 export function registerSmokeCoAlarm(context: DeviceContext): any[] {
   const { api, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableSmokeSensor) {
     return accessories

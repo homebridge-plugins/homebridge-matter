@@ -10,11 +10,13 @@
  * - Using api.matter.types for type-safe enum values
  */
 
+import type { MatterAccessory } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 export function registerDoorLock(context: DeviceContext): any[] {
   const { api, log, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableDoorLock) {
     return accessories

@@ -9,11 +9,13 @@
  * - IlluminanceMeasurement cluster for light sensors
  */
 
+import type { MatterAccessory } from 'homebridge'
+
 import type { DeviceContext } from '../types.js'
 
 export function registerLightSensor(context: DeviceContext): any[] {
   const { api, config } = context
-  const accessories: any[] = []
+  const accessories: MatterAccessory[] = []
 
   if (!config.enableLightSensor) {
     return accessories
