@@ -1,29 +1,28 @@
 /**
- * Matter Device Implementations
+ * Base Device Classes
  *
- * Organized by official Matter Specification v1.4.1 categories
+ * Export all base classes and device implementations
  */
 
-// Section 4: Lighting Devices
-export * from './section-4-lighting/index.js'
-
-// Section 5: Smart Plugs/Actuators
-export * from './section-5-smart-plugs/index.js'
-
-// Section 6: Switches & Controllers
-export * from './section-6-switches/index.js'
-
-// Section 7: Sensors
-export * from './section-7-sensors/index.js'
-
-// Section 8: Closure Devices
-export * from './section-8-closure/index.js'
-
-// Section 9: HVAC
-export * from './section-9-hvac/index.js'
-
-// Section 12: Robotic Devices
-export * from './section-12-robotic/index.js'
-
-// Common types
-export * from './types.js'
+export { BaseMatterAccessory } from './BaseMatterAccessory.js'
+export type { BaseMatterAccessoryConfig } from './BaseMatterAccessory.js'
+export { ColorLightAccessory } from './ColorLightAccessory.js'
+export { ColorTemperatureLightAccessory } from './ColorTemperatureLightAccessory.js'
+export { ContactSensorAccessory } from './ContactSensorAccessory.js'
+export { DimmableLightAccessory } from './DimmableLightAccessory.js'
+export { DoorLockAccessory } from './DoorLockAccessory.js'
+export { ExtendedColorLightAccessory } from './ExtendedColorLightAccessory.js'
+export { FanAccessory } from './FanAccessory.js'
+export { HumiditySensorAccessory } from './HumiditySensorAccessory.js'
+export { LeakSensorAccessory } from './LeakSensorAccessory.js'
+export { LightSensorAccessory } from './LightSensorAccessory.js'
+export { MotionSensorAccessory } from './MotionSensorAccessory.js'
+export { OnOffLightAccessory } from './OnOffLightAccessory.js'
+export { OnOffOutletAccessory } from './OnOffOutletAccessory.js'
+export { OnOffSwitchAccessory } from './OnOffSwitchAccessory.js'
+export { RoboticVacuumAccessory } from './RoboticVacuumAccessory.js'
+export { SmokeCOAlarmAccessory } from './SmokeCOAlarmAccessory.js'
+export { TemperatureSensorAccessory } from './TemperatureSensorAccessory.js'
+export { ThermostatAccessory } from './ThermostatAccessory.js'
+export { VenetianBlindAccessory } from './VenetianBlindAccessory.js'
+export { WindowBlindAccessory } from './WindowBlindAccessory.js'

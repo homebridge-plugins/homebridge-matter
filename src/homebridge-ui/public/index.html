@@ -131,6 +131,14 @@
           <td id="model"></td>
         </tr>
         <tr>
+          <th scope="row">Firmware Revision</th>
+          <td id="firmwareRevision"></td>
+        </tr>
+        <tr>
+          <th scope="row">Hardware Revision</th>
+          <td id="hardwareRevision"></td>
+        </tr>
+        <tr>
           <th scope="row">Device ID</th>
           <td id="deviceId"></td>
         </tr>
@@ -250,6 +258,8 @@
           document.getElementById('serialNumber').innerHTML = thisAcc.serialNumber || 'N/A'
           document.getElementById('manufacturer').innerHTML = thisAcc.manufacturer || 'N/A'
           document.getElementById('model').innerHTML = thisAcc.model || 'N/A'
+          document.getElementById('firmwareRevision').innerHTML = thisAcc.context?.firmwareRevision || 'N/A'
+          document.getElementById('hardwareRevision').innerHTML = thisAcc.context?.hardwareRevision || 'N/A'
           document.getElementById('deviceId').innerHTML = thisAcc.$deviceId || 'N/A'
           document.getElementById('protocol').innerHTML = thisAcc.$protocol || 'N/A'
 

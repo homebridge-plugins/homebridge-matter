@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.2.0 (Unreleased)
+
+### Changes
+
+- refactor codebase for class-based devices
+
 ## v0.1.6 (2025-10-24)
 
 ### Changes

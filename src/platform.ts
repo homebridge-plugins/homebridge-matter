@@ -6,24 +6,26 @@ import type {
 } from 'homebridge'
 
 import {
-  registerColorTemperatureLight,
-  registerContactSensor,
-  registerDimmableLight,
-  registerDoorLock,
-  registerExtendedColorLight,
-  registerFan,
-  registerHumiditySensor,
-  registerLightSensor,
-  registerOccupancySensor,
-  registerOnOffLight,
-  registerOnOffLightSwitch,
-  registerOnOffPlugInUnit,
-  registerRoboticVacuumCleaner,
-  registerSmokeCoAlarm,
-  registerTemperatureSensor,
-  registerThermostat,
-  registerWaterLeakDetector,
-  registerWindowCovering,
+  ColorLightAccessory,
+  ColorTemperatureLightAccessory,
+  ContactSensorAccessory,
+  DimmableLightAccessory,
+  DoorLockAccessory,
+  ExtendedColorLightAccessory,
+  FanAccessory,
+  HumiditySensorAccessory,
+  LeakSensorAccessory,
+  LightSensorAccessory,
+  MotionSensorAccessory,
+  OnOffLightAccessory,
+  OnOffOutletAccessory,
+  OnOffSwitchAccessory,
+  RoboticVacuumAccessory,
+  SmokeCOAlarmAccessory,
+  TemperatureSensorAccessory,
+  ThermostatAccessory,
+  VenetianBlindAccessory,
+  WindowBlindAccessory,
 } from './devices/index.js'
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js'
 
@@ -85,21 +87,6 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    *
    * This is where you can access the `accessory.context` object to retrieve
    * any custom data you stored when the accessory was originally registered.
-   *
-   * Example:
-   * ```typescript
-   * configureMatterAccessory(accessory: any) {
-   *   this.log.debug('Restoring:', accessory.displayName)
-   *
-   *   // Access your stored context data
-   *   if (accessory.context?.deviceId) {
-   *     this.log.debug('Device ID:', accessory.context.deviceId)
-   *     // Reconnect to your device using the stored ID
-   *   }
-   *
-   *   this.matterAccessories.set(accessory.uuid, accessory)
-   * }
-   * ```
    */
   configureMatterAccessory(accessory: any) {
     this.log.debug('Loading cached Matter accessory:', accessory.displayName)
@@ -172,40 +159,49 @@ export class MatterPlatform implements DynamicPlatformPlugin {
 
   /**
    * Section 4: Lighting Devices (Matter Spec § 4)
-   *
-   * This method demonstrates the standard pattern for registering Matter devices:
-   * 1. Create a context object containing api, log, and config
-   * 2. Call device registration functions to collect accessories
-   * 3. Register accessories with Homebridge using api.matter.registerPlatformAccessories()
-   *
-   * Each device registration function returns an array of accessories (empty if disabled).
-   * The spread operator (...) flattens all arrays into a single accessories array.
    */
   private registerSection4Lighting() {
     this.log.info('═'.repeat(80))
     this.log.info('Section 4: Lighting Devices (Matter Spec § 4)')
     this.log.info('═'.repeat(80))
 
-    // Step 1: Create context object to pass to device registration functions
-    const context = { api: this.api, log: this.log, config: this.config }
+    const accessories = []
 
-    // Step 2: Call device registration functions to collect accessories
-    // Each function checks config and returns [] if disabled, or [accessory] if enabled
-    const accessories = [
-      ...registerOnOffLight(context),
-      ...registerDimmableLight(context),
-      ...registerColorTemperatureLight(context),
-      ...registerExtendedColorLight(context),
-    ]
+    // On/Off Light
+    if (this.config.enableOnOffLight !== false) {
+      const device = new OnOffLightAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
 
-    // Step 3: Register all collected accessories with Homebridge
+    // Dimmable Light
+    if (this.config.enableDimmableLight !== false) {
+      const device = new DimmableLightAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Color Temperature Light
+    if (this.config.enableColourTemperatureLight !== false) {
+      const device = new ColorTemperatureLightAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Color Light (HS only)
+    if (this.config.enableColourLight !== false) {
+      const device = new ColorLightAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Extended Color Light (HS+CCT)
+    if (this.config.enableExtendedColourLight !== false) {
+      const device = new ExtendedColorLightAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
     if (accessories.length > 0) {
       this.log.info(`✓ Registered ${accessories.length} lighting device(s)`)
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-
-      // This is the key API call that registers Matter accessories with Homebridge
       this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
@@ -218,10 +214,13 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     this.log.info('Section 5: Smart Plugs/Actuators (Matter Spec § 5)')
     this.log.info('═'.repeat(80))
 
-    const context = { api: this.api, log: this.log, config: this.config }
-    const accessories = [
-      ...registerOnOffPlugInUnit(context),
-    ]
+    const accessories = []
+
+    // On/Off Outlet
+    if (this.config.enableOnOffOutlet !== false) {
+      const device = new OnOffOutletAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
 
     if (accessories.length > 0) {
       this.log.info(`✓ Registered ${accessories.length} smart plug/actuator device(s)`)
@@ -240,10 +239,13 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     this.log.info('Section 6: Switches & Controllers (Matter Spec § 6)')
     this.log.info('═'.repeat(80))
 
-    const context = { api: this.api, log: this.log, config: this.config }
-    const accessories = [
-      ...registerOnOffLightSwitch(context),
-    ]
+    const accessories = []
+
+    // On/Off Switch
+    if (this.config.enableOnOffSwitch !== false) {
+      const device = new OnOffSwitchAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
 
     if (accessories.length > 0) {
       this.log.info(`✓ Registered ${accessories.length} switch/controller device(s)`)
@@ -262,16 +264,49 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     this.log.info('Section 7: Sensors (Matter Spec § 7)')
     this.log.info('═'.repeat(80))
 
-    const context = { api: this.api, log: this.log, config: this.config }
-    const accessories = [
-      ...registerContactSensor(context),
-      ...registerLightSensor(context),
-      ...registerOccupancySensor(context),
-      ...registerTemperatureSensor(context),
-      ...registerHumiditySensor(context),
-      ...registerSmokeCoAlarm(context),
-      ...registerWaterLeakDetector(context),
-    ]
+    const accessories = []
+
+    // Contact Sensor
+    if (this.config.enableContactSensor !== false) {
+      const device = new ContactSensorAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Light Sensor
+    if (this.config.enableLightSensor !== false) {
+      const device = new LightSensorAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Motion Sensor (Occupancy)
+    if (this.config.enableMotionSensor !== false) {
+      const device = new MotionSensorAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Temperature Sensor
+    if (this.config.enableTemperatureSensor !== false) {
+      const device = new TemperatureSensorAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Humidity Sensor
+    if (this.config.enableHumiditySensor !== false) {
+      const device = new HumiditySensorAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Smoke/CO Alarm
+    if (this.config.enableSmokeSensor !== false) {
+      const device = new SmokeCOAlarmAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Leak Sensor
+    if (this.config.enableLeakSensor !== false) {
+      const device = new LeakSensorAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
 
     if (accessories.length > 0) {
       this.log.info(`✓ Registered ${accessories.length} sensor device(s)`)
@@ -290,11 +325,25 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     this.log.info('Section 8: Closure Devices (Matter Spec § 8)')
     this.log.info('═'.repeat(80))
 
-    const context = { api: this.api, log: this.log, config: this.config }
-    const accessories = [
-      ...registerDoorLock(context),
-      ...registerWindowCovering(context),
-    ]
+    const accessories = []
+
+    // Door Lock
+    if (this.config.enableDoorLock !== false) {
+      const device = new DoorLockAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Window Blind
+    if (this.config.enableWindowBlind !== false) {
+      const device = new WindowBlindAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Venetian Blind
+    if (this.config.enableVenetianBlind !== false) {
+      const device = new VenetianBlindAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
 
     if (accessories.length > 0) {
       this.log.info(`✓ Registered ${accessories.length} closure device(s)`)
@@ -313,11 +362,19 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     this.log.info('Section 9: HVAC (Matter Spec § 9)')
     this.log.info('═'.repeat(80))
 
-    const context = { api: this.api, log: this.log, config: this.config }
-    const accessories = [
-      ...registerThermostat(context),
-      ...registerFan(context),
-    ]
+    const accessories = []
+
+    // Thermostat
+    if (this.config.enableThermostat !== false) {
+      const device = new ThermostatAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Fan
+    if (this.config.enableFan !== false) {
+      const device = new FanAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
 
     if (accessories.length > 0) {
       this.log.info(`✓ Registered ${accessories.length} HVAC device(s)`)
@@ -349,10 +406,13 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     this.log.info('Section 12: Robotic Devices (Matter Spec § 12)')
     this.log.info('═'.repeat(80))
 
-    const context = { api: this.api, log: this.log, config: this.config }
-    const accessories = [
-      ...registerRoboticVacuumCleaner(context),
-    ]
+    const accessories = []
+
+    // Robot Vacuum
+    if (this.config.enableRobotVacuum !== false) {
+      const device = new RoboticVacuumAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
 
     if (accessories.length > 0) {
       this.log.info(`✓ Publishing ${accessories.length} robotic device(s) as external accessories`)
