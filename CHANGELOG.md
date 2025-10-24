@@ -8,6 +8,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 
 - refactor codebase for class-based devices
 - add logging for all `MatterRequest` events
+- fix commands for lock devices
 
 ## v0.1.6 (2025-10-24)
 

@@ -2,7 +2,7 @@
  * Door Lock Accessory Class
  */
 
-import type { API, Logger, MatterRequests } from 'homebridge'
+import type { API, Logger } from 'homebridge'
 
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
@@ -30,8 +30,8 @@ export class DoorLockAccessory extends BaseMatterAccessory {
 
       handlers: {
         doorLock: {
-          lockDoor: async (request: MatterRequests.LockDoor) => this.handleLock(request),
-          unlockDoor: async (request: MatterRequests.UnlockDoor) => this.handleUnlock(request),
+          lockDoor: async () => this.handleLock(),
+          unlockDoor: async () => this.handleUnlock(),
         },
       },
     })
@@ -39,18 +39,12 @@ export class DoorLockAccessory extends BaseMatterAccessory {
     this.logInfo('initialized.')
   }
 
-  private async handleLock(request: MatterRequests.LockDoor): Promise<void> {
-    this.logInfo(`LockDoor request: ${JSON.stringify(request)}`)
-    const { pinCode } = request
-    this.logInfo(`locking door ${pinCode ? '(with pin)' : ''}.`)
-    // TODO: await myLockAPI.lock(pinCode)
+  private async handleLock(): Promise<void> {
+    this.logInfo('locked.')
   }
 
-  private async handleUnlock(request: MatterRequests.UnlockDoor): Promise<void> {
-    this.logInfo(`UnlockDoor request: ${JSON.stringify(request)}`)
-    const { pinCode } = request
-    this.logInfo(`unlocking door ${pinCode ? '(with pin)' : ''}.`)
-    // TODO: await myLockAPI.unlock(pinCode)
+  private async handleUnlock(): Promise<void> {
+    this.logInfo('unlocked.')
   }
 
   public updateLockState(state: 0 | 1 | 2): void {
