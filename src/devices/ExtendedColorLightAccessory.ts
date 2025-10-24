@@ -74,6 +74,7 @@ export class ExtendedColorLightAccessory extends BaseMatterAccessory {
   }
 
   private async handleSetLevel(request: MatterRequests.MoveToLevel): Promise<void> {
+    this.logInfo(`MoveToLevel request: ${JSON.stringify(request)}`)
     const { level } = request
     const brightnessPercent = Math.round((level / 254) * 100)
     this.logInfo(`setting brightness to ${brightnessPercent}%.`)
@@ -81,6 +82,7 @@ export class ExtendedColorLightAccessory extends BaseMatterAccessory {
   }
 
   private async handleSetColor(request: MatterRequests.MoveToColor): Promise<void> {
+    this.logInfo(`MoveToColor request: ${JSON.stringify(request)}`)
     const { colorX, colorY, transitionTime } = request
     const xFloat = (colorX / 65535).toFixed(4)
     const yFloat = (colorY / 65535).toFixed(4)
@@ -89,6 +91,7 @@ export class ExtendedColorLightAccessory extends BaseMatterAccessory {
   }
 
   private async handleSetHueSaturation(request: MatterRequests.MoveToHueAndSaturation): Promise<void> {
+    this.logInfo(`MoveToHueAndSaturation request: ${JSON.stringify(request)}`)
     const { hue, saturation, transitionTime } = request
     const hueDegrees = Math.round((hue / 254) * 360)
     const saturationPercent = Math.round((saturation / 254) * 100)
@@ -97,6 +100,7 @@ export class ExtendedColorLightAccessory extends BaseMatterAccessory {
   }
 
   private async handleSetColorTemperature(request: MatterRequests.MoveToColorTemperature): Promise<void> {
+    this.logInfo(`MoveToColorTemperature request: ${JSON.stringify(request)}`)
     const { colorTemperatureMireds, transitionTime } = request
     const kelvin = Math.round(1000000 / colorTemperatureMireds)
     this.logInfo(`setting color temp to ${kelvin}k.`)

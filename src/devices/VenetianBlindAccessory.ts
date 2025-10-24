@@ -62,12 +62,14 @@ export class VenetianBlindAccessory extends BaseMatterAccessory {
   }
 
   private async handleGoToLift(request: MatterRequests.GoToLiftPercentage): Promise<void> {
+    this.logInfo(`GoToLiftPercentage request: ${JSON.stringify(request)}`)
     const percent = (request.liftPercent100thsValue / 100).toFixed(0)
     this.logInfo(`moving to ${percent}% open.`)
     // TODO: await myBlindAPI.setPosition(percent)
   }
 
   private async handleGoToTilt(request: MatterRequests.GoToTiltPercentage): Promise<void> {
+    this.logInfo(`GoToTiltPercentage request: ${JSON.stringify(request)}`)
     const percent = (request.tiltPercent100thsValue / 100).toFixed(0)
     this.logInfo(`tilting to ${percent}%.`)
     // TODO: await myBlindAPI.setTiltAngle(percent)

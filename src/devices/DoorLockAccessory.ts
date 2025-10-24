@@ -40,12 +40,14 @@ export class DoorLockAccessory extends BaseMatterAccessory {
   }
 
   private async handleLock(request: MatterRequests.LockDoor): Promise<void> {
+    this.logInfo(`LockDoor request: ${JSON.stringify(request)}`)
     const { pinCode } = request
     this.logInfo(`locking door ${pinCode ? '(with pin)' : ''}.`)
     // TODO: await myLockAPI.lock(pinCode)
   }
 
   private async handleUnlock(request: MatterRequests.UnlockDoor): Promise<void> {
+    this.logInfo(`UnlockDoor request: ${JSON.stringify(request)}`)
     const { pinCode } = request
     this.logInfo(`unlocking door ${pinCode ? '(with pin)' : ''}.`)
     // TODO: await myLockAPI.unlock(pinCode)

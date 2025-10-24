@@ -39,6 +39,7 @@ export class FanAccessory extends BaseMatterAccessory {
   }
 
   private async handleStep(request: MatterRequests.FanStep): Promise<void> {
+    this.logInfo(`FanStep request: ${JSON.stringify(request)}`)
     const { direction, wrap, lowestOff } = request
     const dirStr = direction === 0 ? 'increase' : 'decrease'
     this.logInfo(`step ${dirStr} (wrap: ${wrap}, lowestoff: ${lowestOff}).`)

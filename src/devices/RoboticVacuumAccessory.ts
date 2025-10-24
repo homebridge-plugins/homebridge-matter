@@ -65,6 +65,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   }
 
   private async handleChangeRunMode(request: MatterRequests.ChangeToMode): Promise<void> {
+    this.logInfo(`ChangeToMode (run) request: ${JSON.stringify(request)}`)
     const { newMode } = request
     const modeStr = ['Idle', 'Cleaning'][newMode] || 'Unknown'
     this.logInfo((`changing run mode to: ${modeStr}.`))
@@ -72,6 +73,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   }
 
   private async handleChangeCleanMode(request: MatterRequests.ChangeToMode): Promise<void> {
+    this.logInfo(`ChangeToMode (clean) request: ${JSON.stringify(request)}`)
     const { newMode } = request
     const modeStr = ['Vacuum', 'Mop'][newMode] || 'Unknown'
     this.logInfo((`changing clean mode to: ${modeStr}.`))

@@ -104,6 +104,7 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
    * Handle brightness level changes
    */
   private async handleSetLevel(request: MatterRequests.MoveToLevel): Promise<void> {
+    this.logInfo(`MoveToLevel request: ${JSON.stringify(request)}`)
     const { level, transitionTime } = request
 
     // Convert Matter level (1-254) to percentage (0-100%)

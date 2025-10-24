@@ -42,6 +42,7 @@ export class ThermostatAccessory extends BaseMatterAccessory {
   }
 
   private async handleSetpointRaiseLower(request: MatterRequests.SetpointRaiseLower): Promise<void> {
+    this.logInfo(`SetpointRaiseLower request: ${JSON.stringify(request)}`)
     const { mode, amount } = request
     const tempChange = amount / 10 // Convert from tenths to degrees
     this.logInfo((`adjusting setpoint by ${tempChange}°c (mode: ${mode}).`))

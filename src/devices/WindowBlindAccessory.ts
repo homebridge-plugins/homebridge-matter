@@ -58,6 +58,7 @@ export class WindowBlindAccessory extends BaseMatterAccessory {
   }
 
   private async handleGoToLift(request: MatterRequests.GoToLiftPercentage): Promise<void> {
+    this.logInfo(`GoToLiftPercentage request: ${JSON.stringify(request)}`)
     const percent = (request.liftPercent100thsValue / 100).toFixed(0)
     this.logInfo(`moving to ${percent}% open.`)
     // TODO: await myBlindAPI.setPosition(percent)
