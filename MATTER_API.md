@@ -321,23 +321,7 @@ When a user controls the device via Home app:
 6. All controllers (iPhone, iPad, etc.) are notified
 ```
 
-**✅ Key Point**: After your handler completes, Homebridge **automatically** updates the Matter state. **DO NOT** call `api.matter.updateAccessoryState()` in handlers!
-
-```typescript
-handlers: {
-  onOff: {
-    on: async () => {
-      // Control physical device
-      await myDeviceAPI.turnOn()
-
-      // ❌ WRONG: Do NOT manually update state here!
-      // api.matter.updateAccessoryState(...)
-
-      // ✅ Homebridge automatically updates state after this handler
-    },
-  },
-}
-```
+**✅ Key Point**: After your handler completes, Homebridge **automatically** updates the Matter state for most handlers. See [Updating State](#updating-state) for details on when manual updates are needed.
 
 ### Flow B: Physical Device → Home App (MANUAL)
 
@@ -642,13 +626,56 @@ api.matter.updateAccessoryState(
 
 1. **External changes (Flow B)** - When your physical device changes state externally (most common use case)
 2. **Side effects in handlers** - When a handler needs to update OTHER attributes as a side effect
+3. **Command/action handlers** - When handlers don't have a direct attribute mapping (see below)
 
-**IMPORTANT - What NOT to do**:
-- ❌ **Never update the same attribute that the handler is already updating**
+**Understanding Automatic vs Manual Updates**:
 
-  For example, in an `on()` handler, don't manually update `onOff` - it's automatically updated by Homebridge.
+Homebridge automatically updates state for **attribute-controlling handlers** but requires manual updates for **command/action handlers**:
 
-**Valid example - Side effect updates**:
+- **✅ Automatic (DO NOT manually update)**:
+  - Handlers that directly control an attribute: `on()`, `off()`, `moveToLevel()`, etc.
+  - Homebridge knows exactly what attribute to update based on the handler name
+  - Example: `on()` automatically sets `onOff` to `true`
+
+- **⚠️ Manual Required (MUST manually update)**:
+  - Command/action handlers with no direct attribute mapping: `pause()`, `resume()`, `start()`, `stop()`, etc.
+  - These handlers affect state in ways Homebridge can't automatically infer
+  - Example: `pause()` must manually set `operationalState` to `2` (Paused)
+
+**Examples**:
+
+```typescript
+// ✅ Automatic update - DO NOT manually update
+handlers: {
+  onOff: {
+    on: async () => {
+      await myDeviceAPI.turnOn()
+      // ✅ onOff automatically set to true by Homebridge
+
+      // ❌ WRONG: Don't do this!
+      // api.matter.updateAccessoryState(uuid, api.matter.clusterNames.OnOff, { onOff: true })
+    },
+  },
+}
+
+// ✅ Manual update REQUIRED for command handlers
+handlers: {
+  rvcOperationalState: {
+    pause: async () => {
+      await myVacuumAPI.pause()
+
+      // ✅ MUST manually update - Homebridge can't infer this!
+      api.matter.updateAccessoryState(
+        uuid,
+        api.matter.clusterNames.RvcOperationalState,
+        { operationalState: 2 } // 2 = Paused
+      )
+    },
+  },
+}
+```
+
+**Side effect updates**:
 
 If your physical light always resets to 100% brightness when turned on:
 
@@ -988,12 +1015,14 @@ if (newState !== currentState) {
 
 Whenever possible, use event-based updates (MQTT, WebSocket, webhooks) instead of polling for better performance and user experience.
 
-### 3. Don't Update the Same Attribute in Handlers
+### 3. Don't Update the Same Attribute in Handlers (for direct attribute handlers)
 
-Handlers automatically update their own attribute. Only manually update OTHER attributes (side effects) or for external changes (Flow B).
+**Attribute-controlling handlers** (like `on()`, `off()`, `moveToLevel()`) automatically update their own attribute. Only manually update OTHER attributes (side effects) or for external changes (Flow B).
+
+**Command/action handlers** (like `pause()`, `resume()`, `start()`) don't have automatic updates and MUST manually update state.
 
 ```typescript
-// ❌ WRONG - Redundant update
+// ❌ WRONG - Redundant update for attribute-controlling handler
 handlers: {
   onOff: {
     on: async () => {
@@ -1004,7 +1033,7 @@ handlers: {
   }
 }
 
-// ✅ CORRECT - No manual update needed
+// ✅ CORRECT - No manual update needed for attribute-controlling handler
 handlers: {
   onOff: {
     on: async () => {
@@ -1014,7 +1043,18 @@ handlers: {
   }
 }
 
-// ✅ ALSO CORRECT - Update different attribute as side effect
+// ✅ CORRECT - Manual update REQUIRED for command/action handler
+handlers: {
+  rvcOperationalState: {
+    pause: async () => {
+      await myVacuum.pause()
+      // MUST manually update - no automatic inference possible
+      api.matter.updateAccessoryState(uuid, api.matter.clusterNames.RvcOperationalState, { operationalState: 2 })
+    }
+  }
+}
+
+// ✅ CORRECT - Update different attribute as side effect
 handlers: {
   onOff: {
     on: async () => {
@@ -3642,11 +3682,11 @@ Controls the vacuum's cleaning mode (Vacuum, Mop, etc.).
 
 **Common Clean Mode Tags**:
 
-| Tag Value | Name   | Description                    |
-|-----------|--------|--------------------------------|
-| 16384     | Vacuum | Vacuum only mode               |
-| 16385     | Mop    | Mop only mode                  |
-| 16386     | Both   | Vacuum and mop simultaneously  |
+| Tag Value | Name      | Description                    |
+|-----------|-----------|--------------------------------|
+| 16384     | DeepClean | Deep cleaning mode             |
+| 16385     | Vacuum    | Vacuum only mode               |
+| 16386     | Mop       | Mop only mode                  |
 
 ###### `RvcOperationalState` Cluster
 
@@ -3832,8 +3872,8 @@ clusters: {
   },
   rvcCleanMode: {
     supportedModes: [
-      { label: 'Vacuum', mode: 0, modeTags: [{ value: 16384 }] },
-      { label: 'Mop', mode: 1, modeTags: [{ value: 16385 }] },
+      { label: 'Vacuum', mode: 0, modeTags: [{ value: 16385 }] },
+      { label: 'Mop', mode: 1, modeTags: [{ value: 16386 }] },
     ],
     currentMode: 0,  // Vacuum
   },

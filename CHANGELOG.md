@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changes
 
 - do not include api doc in `npm` package
+- improve range of settings for vacuum
 
 ## v0.2.0 (2025-10-25)
 
