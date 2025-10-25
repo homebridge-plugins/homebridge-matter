@@ -28,8 +28,8 @@ export class ThermostatAccessory extends BaseMatterAccessory {
           maxHeatSetpointLimit: 3000,
           minCoolSetpointLimit: 1600,
           maxCoolSetpointLimit: 3200,
-          controlSequenceOfOperation: 4, // Cooling and Heating
-          systemMode: 0, // Off
+          controlSequenceOfOperation: 4, // cooling and heating
+          systemMode: 0, // off
         },
       },
 
@@ -53,8 +53,8 @@ export class ThermostatAccessory extends BaseMatterAccessory {
   private async handleSetpointRaiseLower(request: MatterRequests.SetpointRaiseLower): Promise<void> {
     this.logInfo(`SetpointRaiseLower request: ${JSON.stringify(request)}`)
     const { mode, amount } = request
-    const tempChange = amount / 10 // Convert from tenths to degrees
-    this.logInfo((`adjusting setpoint by ${tempChange}°c (mode: ${mode}).`))
+    const tempChange = amount / 10 // convert from tenths to degrees
+    this.logInfo(`adjusting setpoint by ${tempChange}°C (mode: ${mode}).`)
     // TODO: await myThermostatAPI.adjustSetpoint(mode, tempChange)
   }
 
@@ -69,14 +69,14 @@ export class ThermostatAccessory extends BaseMatterAccessory {
 
   private async handleOccupiedHeatingSetpointChange(request: { occupiedHeatingSetpoint: number, oldOccupiedHeatingSetpoint: number }): Promise<void> {
     this.logInfo(`OccupiedHeatingSetpoint change: ${JSON.stringify(request)}`)
-    const celsius = request.occupiedHeatingSetpoint / 100 // Convert from hundredths to degrees
+    const celsius = request.occupiedHeatingSetpoint / 100 // convert from hundredths to degrees
     this.logInfo(`heating setpoint changed to: ${celsius}°C.`)
     // TODO: await myThermostatAPI.setHeatingSetpoint(celsius)
   }
 
   private async handleOccupiedCoolingSetpointChange(request: { occupiedCoolingSetpoint: number, oldOccupiedCoolingSetpoint: number }): Promise<void> {
     this.logInfo(`OccupiedCoolingSetpoint change: ${JSON.stringify(request)}`)
-    const celsius = request.occupiedCoolingSetpoint / 100 // Convert from hundredths to degrees
+    const celsius = request.occupiedCoolingSetpoint / 100 // convert from hundredths to degrees
     this.logInfo(`cooling setpoint changed to: ${celsius}°C.`)
     // TODO: await myThermostatAPI.setCoolingSetpoint(celsius)
   }
@@ -84,19 +84,19 @@ export class ThermostatAccessory extends BaseMatterAccessory {
   public updateCurrentTemperature(celsius: number): void {
     const value = Math.round(celsius * 100)
     this.updateState('thermostat', { localTemperature: value })
-    this.logInfo((`current temperature: ${celsius}°c.`))
+    this.logInfo(`current temperature: ${celsius}°C.`)
   }
 
   public updateHeatingSetpoint(celsius: number): void {
     const value = Math.round(celsius * 100)
     this.updateState('thermostat', { occupiedHeatingSetpoint: value })
-    this.logInfo((`heating setpoint: ${celsius}°c.`))
+    this.logInfo(`heating setpoint: ${celsius}°C.`)
   }
 
   public updateCoolingSetpoint(celsius: number): void {
     const value = Math.round(celsius * 100)
     this.updateState('thermostat', { occupiedCoolingSetpoint: value })
-    this.logInfo((`cooling setpoint: ${celsius}°c.`))
+    this.logInfo(`cooling setpoint: ${celsius}°C.`)
   }
 
   public updateSystemMode(mode: number): void {

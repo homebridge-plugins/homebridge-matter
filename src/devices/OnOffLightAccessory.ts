@@ -38,7 +38,7 @@ export class OnOffLightAccessory extends BaseMatterAccessory {
       // Initial cluster states
       clusters: {
         onOff: {
-          onOff: true, // Initial state: light is on
+          onOff: true, // initial state: light is on
         },
       },
 

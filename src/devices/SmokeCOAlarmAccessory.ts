@@ -26,7 +26,7 @@ export class SmokeCOAlarmAccessory extends BaseMatterAccessory {
 
       clusters: {
         smokeCoAlarm: {
-          smokeState: 0, // 0 = Normal, 1 = Warning, 2 = Critical
+          smokeState: 0, // 0 = normal, 1 = warning, 2 = critical
           coState: 0,
           batteryAlert: 0,
           deviceMuted: 0,
@@ -48,12 +48,12 @@ export class SmokeCOAlarmAccessory extends BaseMatterAccessory {
   public updateSmokeState(state: 0 | 1 | 2): void {
     this.updateState('smokeCoAlarm', { smokeState: state })
     const stateStr = ['Normal', 'Warning', 'Critical'][state]
-    this.logInfo((`smoke state: ${stateStr}.`))
+    this.logInfo(`smoke state: ${stateStr}.`)
   }
 
   public updateCOState(state: 0 | 1 | 2): void {
     this.updateState('smokeCoAlarm', { coState: state })
     const stateStr = ['Normal', 'Warning', 'Critical'][state]
-    this.logInfo((`co state: ${stateStr}.`))
+    this.logInfo(`co state: ${stateStr}.`)
   }
 }

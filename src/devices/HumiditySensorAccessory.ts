@@ -32,8 +32,8 @@ export class HumiditySensorAccessory extends BaseMatterAccessory {
   }
 
   public updateHumidity(percent: number): void {
-    const value = Math.round(percent * 100) // Convert to hundredths
+    const value = Math.round(percent * 100) // convert to hundredths
     this.updateState('relativeHumidityMeasurement', { measuredValue: value })
-    this.logInfo((`humidity: ${percent}%.`))
+    this.logInfo(`humidity: ${percent}%.`)
   }
 }

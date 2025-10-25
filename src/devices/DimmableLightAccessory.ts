@@ -117,7 +117,7 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
       // TODO: Control your physical device
       // await myLightAPI.setBrightness(brightnessPercent, transitionTime)
 
-      this.logInfo((`physical device brightness set to ${brightnessPercent}%.`))
+      this.logInfo(`physical device brightness set to ${brightnessPercent}%.`)
     } catch (error) {
       this.logError('Failed to set brightness:', error)
       throw error
@@ -151,7 +151,7 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
       currentLevel: matterLevel,
     })
 
-    this.logInfo((`brightness synced: ${percent}% (level: ${matterLevel}).`))
+    this.logInfo(`brightness synced: ${percent}% (level: ${matterLevel}).`)
   }
 
   /**

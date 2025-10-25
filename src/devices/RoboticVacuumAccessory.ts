@@ -79,7 +79,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
             // Auto mode
             { label: 'Auto', mode: 14, modeTags: [{ value: 0 }, { value: 16385 }] }, // Auto + Vacuum
           ],
-          currentMode: 0, // Start with basic Vacuum
+          currentMode: 0, // start with basic Vacuum
         },
         // Operational State: Current state (Stopped, Running, Paused, Error, etc.)
         rvcOperationalState: {
@@ -92,15 +92,15 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
             { operationalStateId: 65, operationalStateLabel: 'Charging' }, // RvcOperationalState.Charging
             { operationalStateId: 66, operationalStateLabel: 'Docked' }, // RvcOperationalState.Docked
           ],
-          operationalState: 66, // Start docked
+          operationalState: 66, // start docked
         },
         // Service Area: Room/zone selection for targeted cleaning
         serviceArea: {
-          supportedMaps: [], // Empty array - we don't use map features
+          supportedMaps: [], // empty array - we don't use map features
           supportedAreas: [
             {
               areaId: 0,
-              mapId: null, // Required: must be null when supportedMaps is empty
+              mapId: null, // required: must be null when supportedMaps is empty
               areaInfo: {
                 locationInfo: {
                   locationName: 'Living Room',
@@ -147,7 +147,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
               },
             },
           ],
-          selectedAreas: [0, 1, 2, 3], // All areas selected by default
+          selectedAreas: [0, 1, 2, 3], // all areas selected by default
         },
       },
 

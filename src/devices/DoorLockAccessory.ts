@@ -51,6 +51,6 @@ export class DoorLockAccessory extends BaseMatterAccessory {
     // 0 = Not fully locked, 1 = Locked, 2 = Unlocked
     this.updateState('doorLock', { lockState: state })
     const stateStr = ['Not Fully Locked', 'Locked', 'Unlocked'][state]
-    this.logInfo((`lock state: ${stateStr}.`))
+    this.logInfo(`lock state: ${stateStr}.`)
   }
 }

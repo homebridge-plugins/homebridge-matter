@@ -19,7 +19,7 @@ export interface BaseMatterAccessoryConfig {
   model: string
   firmwareRevision: string
   hardwareRevision: string
-  context?: Record<string, any>
+  context?: Record<string, unknown>
   clusters: MatterAccessory['clusters']
   handlers?: MatterAccessory['handlers']
 }
@@ -38,7 +38,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
   public readonly model: string
   public readonly firmwareRevision: string
   public readonly hardwareRevision: string
-  public readonly context: Record<string, any>
+  public readonly context: Record<string, unknown>
   public readonly clusters: MatterAccessory['clusters']
   public readonly handlers?: MatterAccessory['handlers']
 
@@ -81,7 +81,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
    * Update the accessory state
    * Helper method to update cluster attributes
    */
-  protected updateState(cluster: string, attributes: Record<string, any>): void {
+  protected updateState(cluster: string, attributes: Record<string, unknown>): void {
     this.api.matter.updateAccessoryState(this.uuid, cluster, attributes)
     this.log.debug(`[${this.displayName}] Updated ${cluster} state:`, attributes)
   }
@@ -89,19 +89,19 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
   /**
    * Log helper methods
    */
-  protected logInfo(message: string, ...args: any[]): void {
+  protected logInfo(message: string, ...args: unknown[]): void {
     this.log.info(`[${this.displayName}] ${message}`, ...args)
   }
 
-  protected logError(message: string, ...args: any[]): void {
+  protected logError(message: string, ...args: unknown[]): void {
     this.log.error(`[${this.displayName}] ${message}`, ...args)
   }
 
-  protected logDebug(message: string, ...args: any[]): void {
+  protected logDebug(message: string, ...args: unknown[]): void {
     this.log.debug(`[${this.displayName}] ${message}`, ...args)
   }
 
-  protected logWarn(message: string, ...args: any[]): void {
+  protected logWarn(message: string, ...args: unknown[]): void {
     this.log.warn(`[${this.displayName}] ${message}`, ...args)
   }
 

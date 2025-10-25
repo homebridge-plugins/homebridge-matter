@@ -21,7 +21,7 @@ export class ContactSensorAccessory extends BaseMatterAccessory {
 
       clusters: {
         booleanState: {
-          stateValue: true, // Matter: true = closed/normal, false = open/triggered
+          stateValue: true, // matter: true = closed/normal, false = open/triggered
         },
       },
     })

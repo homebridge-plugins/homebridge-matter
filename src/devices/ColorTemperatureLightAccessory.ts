@@ -78,7 +78,7 @@ export class ColorTemperatureLightAccessory extends BaseMatterAccessory {
     this.logInfo(`MoveToColorTemperature request: ${JSON.stringify(request)}`)
     const { colorTemperatureMireds, transitionTime } = request
     const kelvin = Math.round(1000000 / colorTemperatureMireds)
-    this.logInfo((`setting color temp to ${kelvin}k (${colorTemperatureMireds} mireds).`))
+    this.logInfo(`setting color temp to ${kelvin}k (${colorTemperatureMireds} mireds).`)
     // TODO: await myLightAPI.setColorTemperature(kelvin, transitionTime)
   }
 
