@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.3.2 (Unreleased)
+
+### Changes
+
+- use ready events for external accessories
+
 ## v0.3.1 (2025-10-26)
 
 ### Changes

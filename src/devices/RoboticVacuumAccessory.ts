@@ -9,6 +9,19 @@
  * - Multiple clean modes (Vacuum, Mop, Vacuum & Mop, Deep Clean)
  * - Operational state management with realistic transitions
  * - Service area (room) support
+ * - Proper lifecycle event handling (waiting for 'ready' event)
+ *
+ * IMPORTANT: External Matter accessories lifecycle
+ * ================================================
+ * This vacuum is published as an external accessory, which means it runs on its own
+ * dedicated Matter bridge. External accessories have an async publishing process:
+ *
+ * 1. Constructor creates the accessory configuration
+ * 2. Platform calls api.matter.publishExternalAccessories() (returns immediately)
+ * 3. Homebridge starts the Matter server for this accessory (async)
+ * 4. 'ready' event is emitted when the accessory is available on the network
+ *
+ * Any device polling or external API calls should wait for the 'ready' event!
  *
  * Demo behavior:
  * - Start/Resume: Sets run mode to "Cleaning", runs for 15/10 seconds, then returns to dock
@@ -17,12 +30,15 @@
  * - Pause: Cancels automatic completion timer, keeps "Cleaning" mode
  */
 
-import type { API, Logger, MatterRequests } from 'homebridge'
+import type { API, Logger, MatterAccessory, MatterRequests } from 'homebridge'
+
+import { MatterAccessoryEventTypes } from 'homebridge'
 
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class RoboticVacuumAccessory extends BaseMatterAccessory {
   private activeTimers: NodeJS.Timeout[] = []
+  private isReady = false // track if the accessory is ready on the network
 
   constructor(api: API, log: Logger) {
     const serialNumber = 'VACUUM-001'
@@ -173,6 +189,57 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     })
 
     this.logInfo('initialized.')
+
+    // Set up event listeners for external accessory lifecycle
+    // This MUST be done after the accessory is returned from toAccessory()
+    // and after publishExternalAccessories() is called
+    this.setupEventListeners()
+  }
+
+  /**
+   * Set up Matter accessory lifecycle event listeners
+   *
+   * IMPORTANT: This demonstrates the proper pattern for external Matter accessories.
+   * Since this vacuum is published via api.matter.publishExternalAccessories(),
+   * we need to wait for the 'ready' event before starting any device integration.
+   */
+  private setupEventListeners(): void {
+    // Use setImmediate to ensure this runs after the constructor completes
+    // and the accessory is returned to the platform for publishing
+    setImmediate(() => {
+      // Access the public _eventEmitter property
+      // The event emitter is created when the accessory is published as an external accessory
+      const accessory = this.toAccessory() as MatterAccessory
+
+      // Listen for the 'ready' event - fired when the Matter server is running
+      // and the accessory is available on the network for commissioning
+      accessory._eventEmitter?.on(MatterAccessoryEventTypes.READY, (port: number) => {
+        this.logInfo(`✓ accessory is ready on port ${port} and available on the Matter network`)
+        this.isReady = true
+
+        // NOW it's safe to make state updates, start device integration, etc.
+        // Example: Initial state sync from your device
+        // const currentState = await myVacuumAPI.getCurrentState()
+        // this.updateOperationalState(currentState.operationalState)
+        // this.updateRunMode(currentState.runMode)
+
+        // Example: Set up webhook/push notifications from your device
+        // myVacuumAPI.onStateChange((newState) => {
+        //   // These updates will now work because isReady is true
+        //   this.updateOperationalState(newState.operationalState)
+        //   this.updateRunMode(newState.runMode)
+        // })
+      })
+
+      // Listen for commissioning events (optional, but useful for logging)
+      accessory._eventEmitter?.on(MatterAccessoryEventTypes.COMMISSIONED, () => {
+        this.logInfo('accessory has been commissioned (paired with a controller)')
+      })
+
+      accessory._eventEmitter?.on(MatterAccessoryEventTypes.DECOMMISSIONED, () => {
+        this.logWarn('accessory has been decommissioned (unpaired from controller)')
+      })
+    })
   }
 
   private async handleChangeRunMode(request: MatterRequests.ChangeToMode): Promise<void> {
@@ -369,9 +436,19 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
 
   /**
    * Update Methods - Use these to update the vacuum state from your API/device
+   *
+   * IMPORTANT: These methods check the `isReady` flag to prevent state updates
+   * before the Matter server is ready. This prevents errors when trying to update
+   * an accessory that hasn't been fully initialized yet.
    */
 
   public updateOperationalState(state: number): void {
+    // Guard: Don't update state if the accessory isn't ready yet
+    if (!this.isReady) {
+      this.logWarn('cannot update operational state - accessory not ready yet')
+      return
+    }
+
     this.updateState('rvcOperationalState', { operationalState: state })
     const states = [
       'Stopped',
@@ -391,12 +468,24 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   }
 
   public updateRunMode(mode: number): void {
+    // Guard: Don't update state if the accessory isn't ready yet
+    if (!this.isReady) {
+      this.logWarn('cannot update run mode - accessory not ready yet')
+      return
+    }
+
     this.updateState('rvcRunMode', { currentMode: mode })
     const modes = ['Idle', 'Cleaning', 'Mapping']
     this.logInfo(`run mode updated to: ${modes[mode] || `Unknown (${mode})`}`)
   }
 
   public updateCleanMode(mode: number): void {
+    // Guard: Don't update state if the accessory isn't ready yet
+    if (!this.isReady) {
+      this.logWarn('cannot update clean mode - accessory not ready yet')
+      return
+    }
+
     this.updateState('rvcCleanMode', { currentMode: mode })
     const modes = [
       'Vacuum',
@@ -419,6 +508,12 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   }
 
   public updateSelectedAreas(areaIds: number[]): void {
+    // Guard: Don't update state if the accessory isn't ready yet
+    if (!this.isReady) {
+      this.logWarn('cannot update selected areas - accessory not ready yet')
+      return
+    }
+
     this.updateState('serviceArea', { selectedAreas: areaIds })
     const areaNames = areaIds.map(id =>
       ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom'][id] || `Area ${id}`,
@@ -427,6 +522,12 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   }
 
   public updateCurrentArea(areaId: number | null): void {
+    // Guard: Don't update state if the accessory isn't ready yet
+    if (!this.isReady) {
+      this.logWarn('cannot update current area - accessory not ready yet')
+      return
+    }
+
     this.updateState('serviceArea', { currentArea: areaId })
     if (areaId !== null) {
       const areaName = ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom'][areaId] || `Area ${areaId}`
@@ -437,6 +538,12 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   }
 
   public updateProgress(progress: Array<{ areaId: number, status: number }>): void {
+    // Guard: Don't update state if the accessory isn't ready yet
+    if (!this.isReady) {
+      this.logWarn('cannot update progress - accessory not ready yet')
+      return
+    }
+
     this.updateState('serviceArea', { progress })
     this.logInfo(`progress updated: ${progress.length} areas`)
   }
