@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.3.1 (Unreleased)
+
+### Changes
+
+- move api doc to github repo wiki
+
 ## v0.3.0 (2025-10-26)
 
 ### Changes

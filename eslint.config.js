@@ -3,7 +3,7 @@ import { antfu } from '@antfu/eslint-config'
 /** @type {typeof antfu} */
 export default antfu(
   {
-    ignores: ['MATTER_API.md', 'README.md'],
+    ignores: ['README.md'],
     jsx: false,
     rules: {
       'curly': ['error', 'multi-line'],
