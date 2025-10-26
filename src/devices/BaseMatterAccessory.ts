@@ -20,8 +20,9 @@ export interface BaseMatterAccessoryConfig {
   firmwareRevision: string
   hardwareRevision: string
   context?: Record<string, unknown>
-  clusters: MatterAccessory['clusters']
+  clusters?: MatterAccessory['clusters']
   handlers?: MatterAccessory['handlers']
+  parts?: MatterAccessory['parts']
 }
 
 /**
@@ -39,8 +40,9 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
   public readonly firmwareRevision: string
   public readonly hardwareRevision: string
   public readonly context: Record<string, unknown>
-  public readonly clusters: MatterAccessory['clusters']
+  public readonly clusters?: MatterAccessory['clusters']
   public readonly handlers?: MatterAccessory['handlers']
+  public readonly parts?: MatterAccessory['parts']
 
   // Protected properties available to child classes
   protected readonly api: API
@@ -65,6 +67,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
     this.hardwareRevision = config.hardwareRevision
     this.clusters = config.clusters
     this.handlers = config.handlers
+    this.parts = config.parts
 
     // Set context with all metadata
     this.context = {
@@ -122,6 +125,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
       context: this.context,
       clusters: this.clusters,
       handlers: this.handlers,
+      parts: this.parts,
     }
   }
 }

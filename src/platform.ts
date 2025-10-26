@@ -22,6 +22,7 @@ import {
   OnOffLightAccessory,
   OnOffOutletAccessory,
   OnOffSwitchAccessory,
+  PowerStripAccessory,
   RoboticVacuumAccessory,
   SmokeCOAlarmAccessory,
   TemperatureSensorAccessory,
@@ -114,6 +115,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     this.registerSection8Closure()
     this.registerSection9HVAC()
     this.registerSection12Robotic()
+    this.registerCustomDevices()
 
     this.log.info('═'.repeat(80))
     this.log.info('Finished registering Matter accessories')
@@ -145,6 +147,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       { enabled: this.config.enableThermostat, uuid: this.api.matter.uuid.generate('matter-thermostat'), name: 'Thermostat' },
       { enabled: this.config.enableFan, uuid: this.api.matter.uuid.generate('matter-fan'), name: 'Fan' },
       { enabled: this.config.enableRobotVacuum, uuid: this.api.matter.uuid.generate('matter-robot-vacuum'), name: 'Robot Vacuum' },
+      { enabled: this.config.enablePowerStrip, uuid: this.api.matter.uuid.generate('matter-power-strip'), name: 'Power Strip' },
     ]
 
     for (const { enabled, uuid, name } of configMap) {
@@ -425,6 +428,35 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       // DIFFERENT API: publishExternalAccessories() instead of registerPlatformAccessories()
       // This gives each device its own Matter bridge, required for RVC devices in Apple Home
       this.api.matter.publishExternalAccessories(PLUGIN_NAME, accessories)
+    }
+  }
+
+  /**
+   * Custom Devices
+   *
+   * This section demonstrates custom device implementations that go beyond
+   * the standard Matter device types. These examples show advanced patterns
+   * like managing multiple logical components within a single device.
+   */
+  private registerCustomDevices() {
+    this.log.info('═'.repeat(80))
+    this.log.info('Custom Devices')
+    this.log.info('═'.repeat(80))
+
+    const accessories = []
+
+    // Power Strip (4 Outlets)
+    if (this.config.enablePowerStrip !== false) {
+      const device = new PowerStripAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    if (accessories.length > 0) {
+      this.log.info(`✓ Registered ${accessories.length} custom device(s)`)
+      for (const acc of accessories) {
+        this.log.info(`  - ${acc.displayName}`)
+      }
+      this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 }

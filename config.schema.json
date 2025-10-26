@@ -135,6 +135,12 @@
         "type": "boolean",
         "default": false,
         "description": "Enable the robotic vacuum cleaner example accessory (Matter Spec § 12.1). This device is automatically published on its own dedicated Matter bridge for Apple Home compatibility. You'll receive separate commissioning codes (QR code + manual code) for the robot vacuum in the Homebridge logs when Homebridge starts."
+      },
+      "enablePowerStrip": {
+        "title": "Enable Power Strip",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the power strip with 4 outlets example accessory. This is a custom device demonstrating how to manage multiple logical outlets within a single Matter device."
       }
     }
   },
@@ -147,7 +153,7 @@
     {
       "type": "fieldset",
       "title": "Section 4: Lighting Devices",
-      "description": "Matter Specification § 4 - Fundamental lighting device types (5 devices implemented)",
+      "description": "Matter Specification § 4 - Fundamental lighting device types (5 devices implemented).",
       "expandable": true,
       "expanded": false,
       "items": [
@@ -161,7 +167,7 @@
     {
       "type": "fieldset",
       "title": "Section 5: Smart Plugs/Actuators",
-      "description": "Matter Specification § 5 - Devices that control power and fluid flow (1 device implemented)",
+      "description": "Matter Specification § 5 - Devices that control power and fluid flow (1 device implemented).",
       "expandable": true,
       "expanded": false,
       "items": [
@@ -171,7 +177,7 @@
     {
       "type": "fieldset",
       "title": "Section 6: Switches & Controllers",
-      "description": "Matter Specification § 6 - Input devices and control interfaces (1 device implemented)",
+      "description": "Matter Specification § 6 - Input devices and control interfaces (1 device implemented).",
       "expandable": true,
       "expanded": false,
       "items": [
@@ -181,7 +187,7 @@
     {
       "type": "fieldset",
       "title": "Section 7: Sensors",
-      "description": "Matter Specification § 7 - All sensor types (7 devices implemented)",
+      "description": "Matter Specification § 7 - All sensor types (7 devices implemented).",
       "expandable": true,
       "expanded": false,
       "items": [
@@ -197,7 +203,7 @@
     {
       "type": "fieldset",
       "title": "Section 8: Closure Devices",
-      "description": "Matter Specification § 8 - Locks and window coverings (3 devices implemented)",
+      "description": "Matter Specification § 8 - Locks and window coverings (3 devices implemented).",
       "expandable": true,
       "expanded": false,
       "items": [
@@ -209,7 +215,7 @@
     {
       "type": "fieldset",
       "title": "Section 9: HVAC",
-      "description": "Matter Specification § 9 - Heating, ventilation, and air conditioning (2 devices implemented)",
+      "description": "Matter Specification § 9 - Heating, ventilation, and air conditioning (2 devices implemented).",
       "expandable": true,
       "expanded": false,
       "items": [
@@ -220,11 +226,21 @@
     {
       "type": "fieldset",
       "title": "Section 12: Robotic Devices",
-      "description": "Matter Specification § 12 - Autonomous cleaning devices (1 device implemented)",
+      "description": "Matter Specification § 12 - Autonomous cleaning devices (1 device implemented).",
       "expandable": true,
       "expanded": false,
       "items": [
         "enableRobotVacuum"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Custom Devices",
+      "description": "Custom device examples demonstrating advanced patterns and use cases.",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enablePowerStrip"
       ]
     }
   ]

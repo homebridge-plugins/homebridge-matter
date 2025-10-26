@@ -14,7 +14,8 @@ This document serves as a comprehensive guide for integrating Matter devices int
 6. [Using Matter Types](#using-matter-types)
 7. [Best Practices](#best-practices)
 8. [API Reference](#api-reference)
-9. [Device Reference](#device-reference)
+9. [Custom Accessories and Advanced Patterns](#custom-accessories-and-advanced-patterns)
+10. [Device Reference](#device-reference)
 
 ---
 
@@ -1508,7 +1509,8 @@ Update accessory cluster state when device changes externally (Flow B).
 updateAccessoryState(
   uuid: string,
   cluster: string,
-  attributes: Record<string, any>
+  attributes: Record<string, any>,
+  partId?: string
 ): void
 ```
 
@@ -1516,6 +1518,7 @@ updateAccessoryState(
 - `uuid` - Accessory UUID
 - `cluster` - Cluster name (use `api.matter.clusterNames.*`)
 - `attributes` - Attributes to update (key-value pairs)
+- `partId` - (Optional) Part ID for composed devices with multiple endpoints
 
 **Usage:**
 ```typescript
@@ -1542,6 +1545,14 @@ api.matter.updateAccessoryState(
     colorTemperatureMireds: 250
   }
 )
+
+// Update a specific part in a composed device (e.g., outlet 2 in a power strip)
+api.matter.updateAccessoryState(
+  uuid,
+  api.matter.clusterNames.OnOff,
+  { onOff: true },
+  'outlet-2'  // Part ID
+)
 ```
 
 **IMPORTANT:**
@@ -1567,13 +1578,15 @@ Get current cluster state from a Matter accessory.
 ```typescript
 getAccessoryState(
   uuid: string,
-  cluster: string
+  cluster: string,
+  partId?: string
 ): Record<string, any> | undefined
 ```
 
 **Parameters:**
 - `uuid` - Accessory UUID
 - `cluster` - Cluster name (use `api.matter.clusterNames.*`)
+- `partId` - (Optional) Part ID for composed devices with multiple endpoints
 
 **Returns:**
 - Object with current attribute values, or `undefined` if not found
@@ -1600,6 +1613,16 @@ const colorState = api.matter.getAccessoryState(
 )
 if (colorState?.colorMode === api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds) {
   log.info(`Color temp: ${colorState.colorTemperatureMireds} mireds`)
+}
+
+// Read state from a specific part in a composed device (e.g., outlet 2 in a power strip)
+const outlet2State = api.matter.getAccessoryState(
+  uuid,
+  api.matter.clusterNames.OnOff,
+  'outlet-2'  // Part ID
+)
+if (outlet2State?.onOff) {
+  log.info('Outlet 2 is currently on')
 }
 ```
 
@@ -1699,6 +1722,366 @@ const matterTemp = Math.round(celsius * 100)
 // From Matter
 const celsius = matterTemp / 100
 ```
+
+---
+
+## Custom Accessories and Advanced Patterns
+
+This section covers advanced patterns and custom accessory implementations that go beyond the standard single-service Matter devices. These examples demonstrate how to manage more complex device scenarios within the current Homebridge Matter API.
+
+### Multi-Component Devices (Power Strip Example)
+
+The Power Strip example demonstrates how to create a device with multiple independently controllable components (4 outlets) using Matter's composed device architecture.
+
+**Important Note on Matter vs HAP Behavior**:
+- **HAP/HomeKit**: Multiple services (e.g., 4 outlets) can appear as a **single tile** in the Home app with the "Show as Separate Tiles" toggle
+- **Matter**: Each component (endpoint/part) **always appears as a separate tile** in the Home app - there is no option to combine them
+
+This is a fundamental difference in how Matter and HomeKit architectures work. Matter uses independent endpoints for each component, while HomeKit uses services within a single accessory. Real physical Matter power strips (like Tapo P304M, j5create JSPAC4430) also show each outlet as a separate tile in the Home app.
+
+The Homebridge Matter API supports composed devices through the `parts` array, which creates separate Matter endpoints for each component.
+
+#### Implementation Pattern
+
+Located in `src/devices/custom/PowerStripAccessory.ts`, this example shows:
+
+1. **Parts Definition**: Using the `parts` array to create independent Matter endpoints
+2. **Handler Context**: Using the `context` parameter to identify which part triggered the handler
+3. **Individual Control**: Each part has its own handlers that receive the `partId` in context
+4. **Master Control**: Main accessory handlers can control all parts simultaneously
+5. **State Updates**: Updating state for specific parts using the optional `partId` parameter
+
+#### Basic Structure with Parts
+
+<details>
+<summary>Click to expand full example code</summary>
+
+```typescript
+import type { API, Logger } from 'homebridge'
+import { BaseMatterAccessory } from '../BaseMatterAccessory.js'
+
+export class PowerStripAccessory extends BaseMatterAccessory {
+  constructor(api: API, log: Logger) {
+    super(api, log, {
+      uuid: api.matter.uuid.generate('POWER-STRIP-001'),
+      displayName: 'Power Strip',
+      deviceType: api.matter.deviceTypes.OnOffOutlet,
+      serialNumber: 'POWER-STRIP-001',
+      manufacturer: 'Homebridge Matter',
+      model: 'HB-MATTER-POWER-STRIP-4X',
+      firmwareRevision: '2.0.0',
+      hardwareRevision: '1.0.0',
+
+      // Main accessory provides master control
+      clusters: {
+        onOff: { onOff: false },
+      },
+      handlers: {
+        onOff: {
+          on: async () => this.handleMasterOn(),
+          off: async () => this.handleMasterOff(),
+        },
+      },
+
+      // Define 4 independent outlet parts
+      // Each appears as a separate device in Home app
+      parts: [
+        {
+          id: 'outlet-1',
+          displayName: 'Outlet 1',
+          deviceType: api.matter.deviceTypes.OnOffOutlet,
+          clusters: {
+            onOff: { onOff: false },
+          },
+          handlers: {
+            onOff: {
+              on: async (_args, context) => this.handleOutletOn(context?.partId || 'outlet-1'),
+              off: async (_args, context) => this.handleOutletOff(context?.partId || 'outlet-1'),
+            },
+          },
+        },
+        // Outlets 2-4 follow the same pattern...
+      ],
+    })
+  }
+}
+```
+
+</details>
+
+#### Handler Context for Parts
+
+When a handler is called from a part, it receives context information identifying which part triggered it:
+
+```typescript
+// Part handler receives context with partId
+private async handleOutletOn(partId: string): Promise<void> {
+  const outletNumber = this.getOutletNumber(partId) // Extract number from 'outlet-1'
+  this.logInfo(`Outlet ${outletNumber} turned ON`)
+
+  // Send command to actual hardware
+  // await myPowerStripAPI.turnOnOutlet(outletNumber)
+}
+```
+
+#### Controlling Individual Outlets
+
+The power strip provides methods to control each outlet independently:
+
+```typescript
+// In your plugin code
+const powerStrip = new PowerStripAccessory(this.api, this.log)
+
+// Turn on outlet 2
+await powerStrip.turnOnOutlet(2)
+
+// Turn off outlet 4
+await powerStrip.turnOffOutlet(4)
+
+// Toggle outlet 1
+await powerStrip.toggleOutlet(1)
+```
+
+**Method Signature:**
+```typescript
+public async turnOnOutlet(outletNumber: 1 | 2 | 3 | 4): Promise<void>
+public async turnOffOutlet(outletNumber: 1 | 2 | 3 | 4): Promise<void>
+public async toggleOutlet(outletNumber: 1 | 2 | 3 | 4): Promise<void>
+```
+
+#### Getting Outlet State
+
+You can query the current state of any outlet using the Matter API with the `partId` parameter:
+
+```typescript
+// Get state of a specific outlet
+const isOutlet2On = powerStrip.getOutletState(2)
+console.log(`Outlet 2 is ${isOutlet2On ? 'ON' : 'OFF'}`)
+
+// Get all outlet states
+const allStates = powerStrip.getAllOutletStates()
+console.log('All outlet states:', allStates)
+// Output: { outlet1: true, outlet2: false, outlet3: true, outlet4: false }
+```
+
+**Method Signatures:**
+```typescript
+public getOutletState(outletNumber: 1 | 2 | 3 | 4): boolean
+public getAllOutletStates(): Record<string, boolean>
+```
+
+<details>
+<summary>Implementation Detail</summary>
+
+```typescript
+public getOutletState(outletNumber: 1 | 2 | 3 | 4): boolean {
+  const partId = `outlet-${outletNumber}`
+
+  // Get state for specific part using partId parameter
+  const state = this.api.matter.getAccessoryState(
+    this.uuid,
+    this.api.matter.clusterNames.OnOff,
+    partId
+  )
+
+  return state?.onOff === true
+}
+```
+
+</details>
+
+#### Updating State from External Sources
+
+When outlet states change externally (via physical buttons, API, or another controller), use these methods to sync the state:
+
+```typescript
+// Update a single outlet state
+powerStrip.updateOutletStateFromExternal(3, true)  // Outlet 3 turned on externally
+
+// Update all outlet states at once
+powerStrip.updateAllOutletStatesFromExternal({
+  outlet1: true,
+  outlet2: false,
+  outlet3: true,
+  outlet4: false,
+})
+```
+
+**Method Signatures:**
+```typescript
+public updateOutletStateFromExternal(outletNumber: 1 | 2 | 3 | 4, isOn: boolean): void
+public updateAllOutletStatesFromExternal(states: {
+  outlet1: boolean
+  outlet2: boolean
+  outlet3: boolean
+  outlet4: boolean
+}): void
+```
+
+<details>
+<summary>Implementation Detail</summary>
+
+```typescript
+public updateOutletStateFromExternal(outletNumber: 1 | 2 | 3 | 4, isOn: boolean): void {
+  const partId = `outlet-${outletNumber}`
+
+  // Update specific part state using partId parameter
+  this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn }, partId)
+}
+```
+
+</details>
+
+#### Complete Usage Example
+
+<details>
+<summary>Click to expand full integration example</summary>
+
+```typescript
+import { PowerStripAccessory } from './devices/custom/PowerStripAccessory'
+
+class MyPowerStripPlugin {
+  private powerStrip: PowerStripAccessory
+
+  async initialize() {
+    // Create the power strip accessory
+    this.powerStrip = new PowerStripAccessory(this.api, this.log)
+
+    // Register it with Homebridge
+    this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
+      this.powerStrip.toAccessory()
+    ])
+
+    // Set up polling to monitor external state changes
+    this.startMonitoring()
+  }
+
+  // Monitor external API for state changes
+  private startMonitoring() {
+    setInterval(async () => {
+      try {
+        // Fetch current state from your device's API
+        const deviceState = await myPowerStripAPI.getOutletStates()
+
+        // Update each outlet based on external state
+        for (let i = 1; i <= 4; i++) {
+          const outletNumber = i as 1 | 2 | 3 | 4
+          const currentState = this.powerStrip.getOutletState(outletNumber)
+          const externalState = deviceState[`outlet${i}`]
+
+          // Only update if state changed
+          if (currentState !== externalState) {
+            this.powerStrip.updateOutletStateFromExternal(outletNumber, externalState)
+          }
+        }
+      } catch (error) {
+        this.log.error('Failed to fetch outlet states:', error)
+      }
+    }, 5000) // Poll every 5 seconds
+  }
+
+  // Example: Control outlet from your plugin logic
+  async handleWebhook(outlet: number, state: boolean) {
+    try {
+      // Control the physical device
+      await myPowerStripAPI.setOutlet(outlet, state)
+
+      // Update the Matter accessory state
+      if (state) {
+        await this.powerStrip.turnOnOutlet(outlet as 1 | 2 | 3 | 4)
+      } else {
+        await this.powerStrip.turnOffOutlet(outlet as 1 | 2 | 3 | 4)
+      }
+    } catch (error) {
+      this.log.error(`Failed to control outlet ${outlet}:`, error)
+      throw error
+    }
+  }
+}
+```
+
+</details>
+
+#### State Persistence
+
+The power strip automatically persists outlet states using the `context` object:
+
+- States are saved automatically when outlets are controlled
+- States are restored when Homebridge restarts
+- The `context` object is accessible for custom data storage
+
+```typescript
+// Context is automatically saved with outlet states
+context: {
+  outlets: {
+    outlet1: { isOn: true },
+    outlet2: { isOn: false },
+    outlet3: { isOn: true },
+    outlet4: { isOn: false },
+  },
+  // You can add custom data here too
+  customData: 'your data'
+}
+```
+
+#### Master Control Behavior
+
+The power strip's main accessory provides a master on/off control to control all outlets simultaneously:
+
+- **Master ON**: Turns all 4 outlet parts ON
+- **Master OFF**: Turns all 4 outlet parts OFF
+
+<details>
+<summary>Implementation example</summary>
+
+```typescript
+private async handleMasterOn(): Promise<void> {
+  this.logInfo('Master ON - turning on all outlets.')
+
+  // Update each outlet's state
+  for (let i = 1; i <= 4; i++) {
+    const partId = `outlet-${i}`
+    this.updateState(this.api.matter.clusterNames.OnOff, { onOff: true }, partId)
+  }
+
+  // Control your physical device
+  // await myPowerStripAPI.turnOnAllOutlets()
+}
+```
+
+</details>
+
+#### Limitations and Considerations
+
+**Separate Tiles in Home App (Matter vs HAP):**
+
+This is a fundamental architectural difference between Matter and HomeKit (HAP):
+
+- **HAP/HomeKit Accessories**: Multiple services can appear as a **single tile** with the "Show as Separate Tiles" toggle option
+- **Matter Accessories with Parts**: Each part **ALWAYS appears as a separate tile** - there is no option to combine them into a single tile
+
+This is how Matter is designed at the protocol level. Real physical Matter power strips (Tapo P304M, j5create JSPAC4430) also display each outlet as a separate tile in the Home app.
+
+**Current Implementation Features:**
+- Uses the `parts` array to create true multi-endpoint composed devices
+- Each part is an independent Matter endpoint with its own handlers
+- Handler context provides `partId` to identify which part triggered the handler
+- State updates support optional `partId` parameter for part-specific updates
+- All parts inherit manufacturer and model information from parent accessory
+- Parts information is cached and persists across Homebridge restarts
+
+**When to Use Parts:**
+- Device has multiple independently controllable components (outlets, lights, zones, etc.)
+- Each component needs to appear as a separate device in Home app
+- Components share common metadata (manufacturer, model) but have independent state
+- Examples: power strips, multi-zone speakers, combined devices (shade + light)
+
+**Alternative Approaches:**
+If you prefer a single tile with internal state management instead of separate endpoints, you can:
+1. Use a single `MatterAccessory` without `parts`
+2. Manage component states internally in your class
+3. Provide custom methods for component control
+4. Note: This won't provide separate Matter endpoints, just logical organization within your code
 
 ---
 
