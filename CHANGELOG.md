@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changes
 
 - move api doc to github repo wiki
+- support links alignment with github wiki
 
 ## v0.3.0 (2025-10-26)
 

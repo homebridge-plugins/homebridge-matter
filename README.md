@@ -21,53 +21,47 @@ Homebridge plugin to showcase examples of Matter devices in Homebridge.
 
 This plugin provides example implementations of Matter device types in Homebridge:
 
-- **21+ Matter Device Types**: Complete implementations across all major Matter device categories
 - **Demonstration & Testing**: Perfect for developers building Matter plugins or testing Matter integrations
 - **Example Code Reference**: Clean, documented examples showing how to implement Matter devices in Homebridge
-- **Apple Home Compatible**: Special support for devices like robotic vacuum cleaners that require dedicated bridges
-- **Production Ready**: Built on the official Matter specification with proper cluster implementations
-
-#### Supported Matter Device Types
-
-**Section 4: Lighting Devices** (Matter Spec § 4) - 5 devices
-- On/Off Light
-- Dimmable Light
-- Colour Temperature Light
-- Colour Light (HS)
-- Extended Colour Light (HS+CCT)
-
-**Section 5: Smart Plugs/Actuators** (Matter Spec § 5) - 1 device
-- On/Off Outlet
-
-**Section 6: Switches & Controllers** (Matter Spec § 6) - 1 device
-- On/Off Light Switch
-
-**Section 7: Sensors** (Matter Spec § 7) - 7 devices
-- Contact Sensor
-- Light Sensor
-- Motion Sensor (Occupancy)
-- Temperature Sensor
-- Humidity Sensor
-- Smoke/CO Alarm
-- Water Leak Detector
-
-**Section 8: Closure Devices** (Matter Spec § 8) - 3 devices
-- Door Lock
-- Window Blind
-- Venetian Blind (with Tilt)
-
-**Section 9: HVAC** (Matter Spec § 9) - 2 devices
-- Thermostat
-- Fan
-
-**Section 12: Robotic Devices** (Matter Spec § 12) - 1 device
-- Robotic Vacuum Cleaner (published as an external accessory on a dedicated Matter bridge)
+- **Apple Home Compatible**: Works seamlessly with Apple Home and other Matter ecosystems
 
 ### Prerequisites
 
 - To use this plugin, you will need to already have:
   - [Node](https://nodejs.org): latest version of `v20`, `v22` or `v24` - any other major version is not supported.
-  - [Homebridge](https://homebridge.io): `>=2.0.0-alpha.81 <2.0.0-beta.0` - refer to link for more information and installation instructions.
+  - [Homebridge](https://homebridge.io): `>=2.0.0-beta.31` - refer to link for more information and installation instructions.
+
+### Getting Started
+
+- [Home](https://github.com/homebridge-plugins/homebridge-matter/wiki/Home)
+- [Enabling Matter](https://github.com/homebridge-plugins/homebridge-matter/wiki/Enabling-Matter)
+
+### Development Guide
+
+- [Introduction](https://github.com/homebridge-plugins/homebridge-matter/wiki/Introduction)
+- [Core Concepts](https://github.com/homebridge-plugins/homebridge-matter/wiki/Core-Concepts)
+- [Getting Started](https://github.com/homebridge-plugins/homebridge-matter/wiki/Getting-Started)
+- [State Management](https://github.com/homebridge-plugins/homebridge-matter/wiki/State-Management)
+- [Monitoring External Changes](https://github.com/homebridge-plugins/homebridge-matter/wiki/Monitoring-External-Changes)
+- [Best Practices](https://github.com/homebridge-plugins/homebridge-matter/wiki/Best-Practices)
+- [Advanced Patterns](https://github.com/homebridge-plugins/homebridge-matter/wiki/Advanced-Patterns)
+
+### Reference
+
+- [API Reference](https://github.com/homebridge-plugins/homebridge-matter/wiki/API-Reference)
+- [Matter Types](https://github.com/homebridge-plugins/homebridge-matter/wiki/Matter-Types)
+- [Value Conversions](https://github.com/homebridge-plugins/homebridge-matter/wiki/Value-Conversions)
+
+### Device Reference
+
+- [Lighting Devices (§4)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-4-Lighting)
+- [Smart Plugs/Actuators (§5)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-5-Smart-Plugs)
+- [Switches & Controllers (§6)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-6-Switches)
+- [Sensors (§7)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-7-Sensors)
+- [Closure Devices (§8)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-8-Closure)
+- [HVAC (§9)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-9-HVAC)
+- [Robotic Devices (§12)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-12-Robotic)
+- [Custom Devices](https://github.com/homebridge-plugins/homebridge-matter/wiki/Custom-Devices)
 
 ### Help/About
 
