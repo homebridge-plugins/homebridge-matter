@@ -99,23 +99,23 @@ export class MatterPlatform implements DynamicPlatformPlugin {
   /**
    * Register all Matter accessories
    */
-  private registerMatterAccessories() {
+  private async registerMatterAccessories() {
     this.log.info('═'.repeat(80))
     this.log.info('Homebridge Matter Plugin')
     this.log.info('═'.repeat(80))
 
     // Remove accessories that are disabled in config
-    this.removeDisabledAccessories()
+    await this.removeDisabledAccessories()
 
     // Register devices by Matter specification sections
-    this.registerSection4Lighting()
-    this.registerSection5SmartPlugs()
-    this.registerSection6Switches()
-    this.registerSection7Sensors()
-    this.registerSection8Closure()
-    this.registerSection9HVAC()
-    this.registerSection12Robotic()
-    this.registerCustomDevices()
+    await this.registerSection4Lighting()
+    await this.registerSection5SmartPlugs()
+    await this.registerSection6Switches()
+    await this.registerSection7Sensors()
+    await this.registerSection8Closure()
+    await this.registerSection9HVAC()
+    await this.registerSection12Robotic()
+    await this.registerCustomDevices()
 
     this.log.info('═'.repeat(80))
     this.log.info('Finished registering Matter accessories')
@@ -125,7 +125,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
   /**
    * Remove accessories that are disabled in config
    */
-  private removeDisabledAccessories() {
+  private async removeDisabledAccessories() {
     const configMap = [
       { enabled: this.config.enableOnOffLight, uuid: this.api.matter.uuid.generate('matter-onoff-light'), name: 'On/Off Light' },
       { enabled: this.config.enableDimmableLight, uuid: this.api.matter.uuid.generate('matter-dimmable-light'), name: 'Dimmable Light' },
@@ -155,7 +155,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
         const existingAccessory = this.matterAccessories.get(uuid)
         if (existingAccessory) {
           this.log.info(`Removing accessory '${name}' (disabled in config)`)
-          this.api.matter.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory as unknown as MatterAccessory])
+          await this.api.matter.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory as unknown as MatterAccessory])
           this.matterAccessories.delete(uuid)
         }
       }
@@ -165,7 +165,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
   /**
    * Section 4: Lighting Devices (Matter Spec § 4)
    */
-  private registerSection4Lighting() {
+  private async registerSection4Lighting() {
     this.log.info('═'.repeat(80))
     this.log.info('Section 4: Lighting Devices (Matter Spec § 4)')
     this.log.info('═'.repeat(80))
@@ -207,14 +207,14 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
   /**
    * Section 5: Smart Plugs/Actuators (Matter Spec § 5)
    */
-  private registerSection5SmartPlugs() {
+  private async registerSection5SmartPlugs() {
     this.log.info('═'.repeat(80))
     this.log.info('Section 5: Smart Plugs/Actuators (Matter Spec § 5)')
     this.log.info('═'.repeat(80))
@@ -232,14 +232,14 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
   /**
    * Section 6: Switches & Controllers (Matter Spec § 6)
    */
-  private registerSection6Switches() {
+  private async registerSection6Switches() {
     this.log.info('═'.repeat(80))
     this.log.info('Section 6: Switches & Controllers (Matter Spec § 6)')
     this.log.info('═'.repeat(80))
@@ -257,14 +257,14 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
   /**
    * Section 7: Sensors (Matter Spec § 7)
    */
-  private registerSection7Sensors() {
+  private async registerSection7Sensors() {
     this.log.info('═'.repeat(80))
     this.log.info('Section 7: Sensors (Matter Spec § 7)')
     this.log.info('═'.repeat(80))
@@ -318,14 +318,14 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
   /**
    * Section 8: Closure Devices (Matter Spec § 8)
    */
-  private registerSection8Closure() {
+  private async registerSection8Closure() {
     this.log.info('═'.repeat(80))
     this.log.info('Section 8: Closure Devices (Matter Spec § 8)')
     this.log.info('═'.repeat(80))
@@ -355,14 +355,14 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
   /**
    * Section 9: HVAC (Matter Spec § 9)
    */
-  private registerSection9HVAC() {
+  private async registerSection9HVAC() {
     this.log.info('═'.repeat(80))
     this.log.info('Section 9: HVAC (Matter Spec § 9)')
     this.log.info('═'.repeat(80))
@@ -386,27 +386,17 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
   /**
    * Section 12: Robotic Devices (Matter Spec § 12)
-   *
-   * ⚠️ IMPORTANT: RVC devices use a DIFFERENT API than other devices!
-   *
-   * This demonstrates api.matter.publishExternalAccessories() instead of
-   * api.matter.registerPlatformAccessories(). The key differences:
-   *
-   * 1. publishExternalAccessories() creates a dedicated Matter bridge for each device
-   * 2. Each device gets its own port and commissioning codes (QR + manual)
-   * 3. Required for RVC devices to work with Apple Home
-   * 4. Use for devices that need isolation (cameras, doorbells, RVC, etc.)
-   *
+   * ⚠️ IMPORTANT: RVC devices use a DIFFERENT PROCESS (same code) than other devices!
    * When this runs, you'll see separate commissioning codes in the logs for the robot vacuum.
    * Use those codes to pair the vacuum as a separate bridge in your Home app.
    */
-  private registerSection12Robotic() {
+  private async registerSection12Robotic() {
     this.log.info('═'.repeat(80))
     this.log.info('Section 12: Robotic Devices (Matter Spec § 12)')
     this.log.info('═'.repeat(80))
@@ -420,14 +410,11 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     }
 
     if (accessories.length > 0) {
-      this.log.info(`✓ Publishing ${accessories.length} robotic device(s) as external accessories`)
+      this.log.info(`✓ Registered ${accessories.length} robot vacuum device(s)`)
       for (const acc of accessories) {
-        this.log.info(`  - ${acc.displayName} (dedicated bridge for Apple Home compatibility)`)
+        this.log.info(`  - ${acc.displayName} (standalone for Apple Home compatibility)`)
       }
-
-      // DIFFERENT API: publishExternalAccessories() instead of registerPlatformAccessories()
-      // This gives each device its own Matter bridge, required for RVC devices in Apple Home
-      this.api.matter.publishExternalAccessories(PLUGIN_NAME, accessories)
+      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
@@ -438,7 +425,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    * the standard Matter device types. These examples show advanced patterns
    * like managing multiple logical components within a single device.
    */
-  private registerCustomDevices() {
+  private async registerCustomDevices() {
     this.log.info('═'.repeat(80))
     this.log.info('Custom Devices')
     this.log.info('═'.repeat(80))
@@ -456,7 +443,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 }

@@ -210,7 +210,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
    * @param outletNumber - Outlet number (1-4)
    */
   public async toggleOutlet(outletNumber: 1 | 2 | 3 | 4): Promise<void> {
-    const currentState = this.getOutletState(outletNumber)
+    const currentState = await this.getOutletState(outletNumber)
 
     if (currentState) {
       await this.turnOffOutlet(outletNumber)
@@ -225,11 +225,11 @@ export class PowerStripAccessory extends BaseMatterAccessory {
    * @param outletNumber - Outlet number (1-4)
    * @returns Current on/off state of the outlet
    */
-  public getOutletState(outletNumber: 1 | 2 | 3 | 4): boolean {
+  public async getOutletState(outletNumber: 1 | 2 | 3 | 4): Promise<boolean> {
     const partId = `outlet-${outletNumber}`
 
     // Get the state from the Matter server
-    const state = this.api.matter.getAccessoryState(
+    const state = await this.api.matter.getAccessoryState(
       this.uuid,
       this.api.matter.clusterNames.OnOff,
       partId,
@@ -243,12 +243,12 @@ export class PowerStripAccessory extends BaseMatterAccessory {
    *
    * @returns Object containing state of all outlets
    */
-  public getAllOutletStates(): Record<string, boolean> {
+  public async getAllOutletStates(): Promise<Record<string, boolean>> {
     return {
-      outlet1: this.getOutletState(1),
-      outlet2: this.getOutletState(2),
-      outlet3: this.getOutletState(3),
-      outlet4: this.getOutletState(4),
+      outlet1: await this.getOutletState(1),
+      outlet2: await this.getOutletState(2),
+      outlet3: await this.getOutletState(3),
+      outlet4: await this.getOutletState(4),
     }
   }
 
@@ -295,14 +295,14 @@ export class PowerStripAccessory extends BaseMatterAccessory {
   /**
    * Override updateState to support partId parameter
    */
-  protected updateState(cluster: string, attributes: Record<string, unknown>, partId?: string): void {
+  protected async updateState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void> {
     if (partId) {
       // Update a specific part
-      this.api.matter.updateAccessoryState(this.uuid, cluster, attributes, partId)
+      await this.api.matter.updateAccessoryState(this.uuid, cluster, attributes, partId)
       this.logDebug(`Updated ${cluster} state for part ${partId}:`, attributes)
     } else {
       // Update main accessory
-      this.api.matter.updateAccessoryState(this.uuid, cluster, attributes)
+      await this.api.matter.updateAccessoryState(this.uuid, cluster, attributes)
       this.logDebug(`Updated ${cluster} state:`, attributes)
     }
   }

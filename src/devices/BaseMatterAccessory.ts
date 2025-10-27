@@ -84,8 +84,8 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
    * Update the accessory state
    * Helper method to update cluster attributes
    */
-  protected updateState(cluster: string, attributes: Record<string, unknown>): void {
-    this.api.matter.updateAccessoryState(this.uuid, cluster, attributes)
+  protected async updateState(cluster: string, attributes: Record<string, unknown>): Promise<void> {
+    await this.api.matter.updateAccessoryState(this.uuid, cluster, attributes)
     this.log.debug(`[${this.displayName}] Updated ${cluster} state:`, attributes)
   }
 
