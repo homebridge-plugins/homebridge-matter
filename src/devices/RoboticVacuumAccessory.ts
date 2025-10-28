@@ -43,6 +43,16 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
       hardwareRevision: '1.0.0',
 
       clusters: {
+        // Power Source: Battery status and percentage
+        powerSource: {
+          status: 0, // 0 = Active
+          order: 0, // Primary power source
+          description: 'Battery',
+          batPercentRemaining: 100, // 0-200, where 200 = 100% (0.5% increments)
+          batChargeLevel: 2, // 0 = Ok, 1 = Warning, 2 = Critical
+          batReplaceability: 1, // 0 = Unspecified, 1 = Not replaceable, 2 = User replaceable, 3 = Factory replaceable
+        },
+
         // Run Mode: Controls what the vacuum is doing (Idle, Cleaning, Mapping)
         rvcRunMode: {
           supportedModes: [
@@ -52,6 +62,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
           ],
           currentMode: 0,
         },
+
         // Clean Mode: Controls HOW the vacuum cleans
         // You can combine semantic tags (0-9) with functional tags (16384-16386)
         // Available semantic tags: Auto, Quick, Quiet, LowNoise, LowEnergy, Vacation, Min, Max, Night, Day
@@ -87,6 +98,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
           ],
           currentMode: 0, // start with basic Vacuum
         },
+
         // Operational State: Current state (Stopped, Running, Paused, Error, etc.)
         rvcOperationalState: {
           operationalStateList: [
@@ -100,6 +112,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
           ],
           operationalState: 66, // start docked
         },
+
         // Service Area: Room/zone selection for targeted cleaning
         serviceArea: {
           supportedMaps: [], // empty array - we don't use map features
@@ -447,5 +460,25 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   public updateProgress(progress: Array<{ areaId: number, status: number }>): void {
     this.updateState('serviceArea', { progress })
     this.logInfo(`progress updated: ${progress.length} areas`)
+  }
+
+  /**
+   * Update battery percentage
+   * @param percentage - Battery percentage (0-100)
+   */
+  public async updateBatteryPercentage(percentage: number): Promise<void> {
+    // Convert percentage to Matter format (0-200, where 200 = 100%)
+    const batPercentRemaining = Math.max(0, Math.min(200, Math.round(percentage * 2)))
+
+    // Determine charge level based on percentage
+    let batChargeLevel = 0 // Ok
+    if (percentage < 20) {
+      batChargeLevel = 2 // Critical
+    } else if (percentage < 40) {
+      batChargeLevel = 1 // Warning
+    }
+
+    await this.updateState('powerSource', { batPercentRemaining, batChargeLevel })
+    this.logInfo(`battery updated to: ${percentage}% (${batChargeLevel === 0 ? 'Ok' : batChargeLevel === 1 ? 'Warning' : 'Critical'})`)
   }
 }
