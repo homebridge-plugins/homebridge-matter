@@ -113,6 +113,21 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
 
     this.logInfo(`setting brightness to ${brightnessPercent}% (level: ${level}).`)
 
+    // Example: Validate the brightness level meets device constraints
+    // if (level < 10) {
+    //   throw new MatterStatus.ConstraintError('Minimum brightness is 10 (4%) for this bulb')
+    // }
+
+    // Example: Check if device supports the transition time requested
+    // if (transitionTime !== null && transitionTime > 300) {
+    //   throw new MatterStatus.ConstraintError('Maximum transition time is 300 (30 seconds)')
+    // }
+
+    // Example: Check if dimming is supported
+    // if (!this.supportsDimming) {
+    //   throw new MatterStatus.InvalidAction('This bulb does not support dimming')
+    // }
+
     try {
       // TODO: Control your physical device
       // await myLightAPI.setBrightness(brightnessPercent, transitionTime)
@@ -120,6 +135,12 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
       this.logInfo(`physical device brightness set to ${brightnessPercent}%.`)
     } catch (error) {
       this.logError('Failed to set brightness:', error)
+
+      // Example: Handle dimming hardware failures
+      // if (error.code === 'DIMMER_FAULT') {
+      //   throw new MatterStatus.Failure('Dimmer circuit malfunction - bulb may need replacement')
+      // }
+
       throw error
     }
   }

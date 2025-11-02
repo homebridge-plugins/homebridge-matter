@@ -54,6 +54,22 @@ export class FanAccessory extends BaseMatterAccessory {
     const modeNames = ['Off', 'Low', 'Medium', 'High', 'On', 'Auto', 'Smart']
     const modeName = modeNames[request.fanMode] || `Unknown (${request.fanMode})`
     this.logInfo(`fan mode changed to: ${modeName}.`)
+
+    // Example: Check if requested mode is supported by the fan
+    // const supportedModes = [0, 1, 2, 3, 4] // Off, Low, Medium, High, On
+    // if (!supportedModes.includes(request.fanMode)) {
+    //   throw new MatterStatus.InvalidAction(
+    //     `Fan mode ${modeName} is not supported by this device`
+    //   )
+    // }
+
+    // Example: Check if fan can change modes while running
+    // if (this.isOscillating && request.fanMode === 5) {
+    //   throw new MatterStatus.InvalidInState(
+    //     'Cannot switch to Auto mode while oscillating'
+    //   )
+    // }
+
     // TODO: await myFanAPI.setMode(request.fanMode)
   }
 
@@ -62,6 +78,28 @@ export class FanAccessory extends BaseMatterAccessory {
     const percent = request.percentSetting ?? 0
     const isOff = percent === 0
     const wasOff = (request.oldPercentSetting ?? 0) === 0
+
+    // Example: Validate speed percentage is within supported range
+    // if (percent < 0 || percent > 100) {
+    //   throw new MatterStatus.ConstraintError(
+    //     `Fan speed ${percent}% is out of range (0-100)`
+    //   )
+    // }
+
+    // Example: Check if fan supports variable speed control
+    // if (percent > 0 && percent < 100 && !this.supportsVariableSpeed) {
+    //   throw new MatterStatus.InvalidAction(
+    //     'This fan only supports fixed speeds (Low/Medium/High), not variable percentage'
+    //   )
+    // }
+
+    // Example: Enforce minimum speed when fan is on
+    // const minSpeed = 20
+    // if (percent > 0 && percent < minSpeed) {
+    //   throw new MatterStatus.ConstraintError(
+    //     `Fan minimum speed is ${minSpeed}% when on`
+    //   )
+    // }
 
     if (isOff !== wasOff) {
       this.logInfo(`fan turned ${isOff ? 'off' : 'on'}.`)

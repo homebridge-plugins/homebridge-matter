@@ -62,7 +62,23 @@ export class WindowBlindAccessory extends BaseMatterAccessory {
     // Matter uses 0=open, 10000=closed, so invert to get open percentage
     const closedPercent = request.liftPercent100thsValue / 100
     const openPercent = (100 - closedPercent).toFixed(0)
-    this.logInfo(`moved to ${openPercent}% open.`)
+    this.logInfo(`moving to ${openPercent}% open.`)
+
+    // Example: Check if blind motor is already moving
+    // if (this.isMotorActive) {
+    //   throw new MatterStatus.Busy('Blind is currently moving - stop it first')
+    // }
+
+    // Example: Check if blind is obstructed
+    // if (this.isObstructionDetected) {
+    //   throw new MatterStatus.InvalidInState('Cannot move blind - obstruction detected')
+    // }
+
+    // Example: Validate position is within calibrated range
+    // if (!this.isCalibrated) {
+    //   throw new MatterStatus.InvalidInState('Blind must be calibrated before position control')
+    // }
+
     // TODO: await myBlindAPI.setPosition(openPercent)
   }
 
@@ -77,8 +93,20 @@ export class WindowBlindAccessory extends BaseMatterAccessory {
   }
 
   private async handleStop(): Promise<void> {
-    this.logInfo('stopped blind.')
+    this.logInfo('stopping blind.')
+
+    // Example: Check if blind is actually moving before stopping
+    // if (!this.isMotorActive) {
+    //   throw new MatterStatus.InvalidInState('Blind is not currently moving')
+    // }
+
+    // Example: Check if device supports stop command
+    // if (!this.supportsStopCommand) {
+    //   throw new MatterStatus.InvalidAction('This blind model does not support stop command')
+    // }
+
     // TODO: await myBlindAPI.stop()
+    this.logInfo('stopped blind.')
   }
 
   public updateLiftPosition(openPercent: number): void {

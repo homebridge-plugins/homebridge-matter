@@ -73,6 +73,16 @@ export class OnOffLightAccessory extends BaseMatterAccessory {
       // State automatically updated by Homebridge after handler completes
     } catch (error) {
       this.logError('failed to turn on:', error)
+
+      // Example: Handle specific error types from your device API
+      // if (error.code === 'ETIMEDOUT' || error.code === 'ECONNREFUSED') {
+      //   throw new MatterStatus.Timeout('Device did not respond - check network connection')
+      // }
+      // if (error.code === 'DEVICE_OFFLINE') {
+      //   throw new MatterStatus.Failure('Device is offline or unreachable')
+      // }
+
+      // Re-throw the error - Homebridge will wrap it as a generic Failure
       throw error
     }
   }
@@ -92,6 +102,16 @@ export class OnOffLightAccessory extends BaseMatterAccessory {
       // State automatically updated by Homebridge after handler completes
     } catch (error) {
       this.logError('failed to turn off:', error)
+
+      // Example: Map HTTP status codes to appropriate Matter errors
+      // if (error.response?.status === 503) {
+      //   throw new MatterStatus.Busy('Device is busy processing another command')
+      // }
+      // if (error.response?.status === 504) {
+      //   throw new MatterStatus.Timeout('Request timed out after 30 seconds')
+      // }
+
+      // Re-throw the error - Homebridge will wrap it as a generic Failure
       throw error
     }
   }

@@ -255,6 +255,19 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     ]
     const modeStr = modes[newMode] || `Unknown (mode=${newMode})`
     this.logInfo(`changing clean mode to: ${modeStr}`)
+
+    // Example: Check if device supports the requested cleaning mode
+    // const supportedModes = [0, 1, 2, 6] // Only Vacuum, Mop, Vacuum&Mop, Quick Clean
+    // if (!supportedModes.includes(newMode)) {
+    //   throw new MatterStatus.InvalidAction(`Clean mode "${modeStr}" is not supported by this device`)
+    // }
+
+    // Example: Check if mopping is available (water tank attached)
+    // const isMopMode = [1, 2, 5, 10, 13].includes(newMode) // modes that use mop
+    // if (isMopMode && !this.isWaterTankAttached) {
+    //   throw new MatterStatus.InvalidInState('Cannot use mop modes - water tank not attached')
+    // }
+
     // TODO: await myVacuumAPI.setCleanMode(newMode)
   }
 
@@ -275,6 +288,27 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
 
   private async handleStart(): Promise<void> {
     this.logInfo('starting (via start command).')
+
+    // Example: Check battery level before starting
+    // if (this.batteryPercent < 10) {
+    //   throw new MatterStatus.InvalidInState('Battery too low to start cleaning (below 10%)')
+    // }
+
+    // Example: Check if dust bin is full
+    // if (this.isDustBinFull) {
+    //   throw new MatterStatus.InvalidInState('Dust bin is full - please empty before starting')
+    // }
+
+    // Example: Check if vacuum is already running
+    // if (this.operationalState === 1) { // 1 = Running
+    //   throw new MatterStatus.InvalidInState('Vacuum is already running')
+    // }
+
+    // Example: Check if vacuum is on dock
+    // if (!this.isDocked) {
+    //   throw new MatterStatus.InvalidInState('Vacuum must be docked to start mapping mode')
+    // }
+
     // TODO: await myVacuumAPI.start()
 
     // Clear any existing timers
@@ -337,6 +371,24 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
       ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom'][id] || `Area ${id}`,
     )
     this.logInfo(`selecting areas: ${areaNames.join(', ')}`)
+
+    // Example: Validate that all requested areas exist
+    // const validAreaIds = [0, 1, 2, 3]
+    // const invalidAreas = newAreas.filter((id: number) => !validAreaIds.includes(id))
+    // if (invalidAreas.length > 0) {
+    //   throw new MatterStatus.NotFound(`Area ID(s) not found: ${invalidAreas.join(', ')}`)
+    // }
+
+    // Example: Check if vacuum supports area selection
+    // if (!this.supportsAreaSelection) {
+    //   throw new MatterStatus.InvalidAction('This vacuum does not support area selection')
+    // }
+
+    // Example: Prevent selecting areas while vacuum is running
+    // if (this.operationalState === 1) { // 1 = Running
+    //   throw new MatterStatus.InvalidInState('Cannot change area selection while vacuum is running')
+    // }
+
     // TODO: await myVacuumAPI.selectAreas(newAreas)
   }
 

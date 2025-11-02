@@ -64,6 +64,22 @@ export class ThermostatAccessory extends BaseMatterAccessory {
     const modeNames = ['Off', 'Auto', 'Reserved', 'Cool', 'Heat', 'Emergency Heating', 'Precooling', 'Fan Only']
     const modeName = modeNames[request.systemMode] || `Unknown (${request.systemMode})`
     this.logInfo(`system mode changed to: ${modeName}.`)
+
+    // Example: Check if requested mode is supported by device
+    // const supportedModes = [0, 3, 4] // Off, Cool, Heat
+    // if (!supportedModes.includes(request.systemMode)) {
+    //   throw new MatterStatus.InvalidAction(
+    //     `System mode ${modeName} is not supported by this device`
+    //   )
+    // }
+
+    // Example: Check if mode change is allowed based on external conditions
+    // if (request.systemMode === 4 && this.outdoorTemp > 30) {
+    //   throw new MatterStatus.InvalidInState(
+    //     'Heating mode disabled when outdoor temperature exceeds 30°C'
+    //   )
+    // }
+
     // TODO: await myThermostatAPI.setSystemMode(request.systemMode)
   }
 
@@ -71,6 +87,28 @@ export class ThermostatAccessory extends BaseMatterAccessory {
     this.logInfo(`OccupiedHeatingSetpoint change: ${JSON.stringify(request)}`)
     const celsius = request.occupiedHeatingSetpoint / 100 // convert from hundredths to degrees
     this.logInfo(`heating setpoint changed to: ${celsius}°C.`)
+
+    // Example: Validate temperature is within device limits
+    // const minTemp = 7 // 7°C
+    // const maxTemp = 30 // 30°C
+    // if (celsius < minTemp || celsius > maxTemp) {
+    //   throw new MatterStatus.ConstraintError(
+    //     `Heating setpoint ${celsius}°C is out of range (${minTemp}-${maxTemp}°C)`
+    //   )
+    // }
+
+    // Example: Ensure heating setpoint is below cooling setpoint
+    // if (celsius >= this.coolingSetpoint) {
+    //   throw new MatterStatus.ConstraintError(
+    //     `Heating setpoint must be below cooling setpoint (${this.coolingSetpoint}°C)`
+    //   )
+    // }
+
+    // Example: Check if heating is supported
+    // if (!this.supportsHeating) {
+    //   throw new MatterStatus.InvalidInState('Device does not support heating mode')
+    // }
+
     // TODO: await myThermostatAPI.setHeatingSetpoint(celsius)
   }
 

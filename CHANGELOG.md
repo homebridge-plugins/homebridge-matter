@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.4.2 (Unreleased)
+
+### Changes
+
+- added examples of correct error handling
+
 ## v0.4.1 (2025-10-28)
 
 ### Changes

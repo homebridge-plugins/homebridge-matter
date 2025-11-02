@@ -104,6 +104,28 @@ export class ExtendedColorLightAccessory extends BaseMatterAccessory {
     const { colorTemperatureMireds, transitionTime } = request
     const kelvin = Math.round(1000000 / colorTemperatureMireds)
     this.logInfo(`setting color temp to ${kelvin}k.`)
+
+    // Example: Validate color temperature is within device physical limits
+    // const minMireds = 147 // ~6800K (cool white)
+    // const maxMireds = 454 // ~2200K (warm white)
+    // if (colorTemperatureMireds < minMireds || colorTemperatureMireds > maxMireds) {
+    //   throw new MatterStatus.ConstraintError(
+    //     `Color temperature ${kelvin}K is out of range (2200K-6800K)`
+    //   )
+    // }
+
+    // Example: Check if bulb is in the correct color mode for CCT
+    // if (this.currentColorMode === 'xy' || this.currentColorMode === 'hs') {
+    //   throw new MatterStatus.InvalidInState(
+    //     'Cannot set color temperature while in color mode - switch to white mode first'
+    //   )
+    // }
+
+    // Example: Check if bulb supports tunable white
+    // if (!this.supportsTunableWhite) {
+    //   throw new MatterStatus.InvalidAction('This bulb does not support color temperature adjustment')
+    // }
+
     // TODO: await myLightAPI.setColorTemperature(kelvin, transitionTime)
   }
 

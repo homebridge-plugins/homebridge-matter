@@ -76,7 +76,29 @@ export class VenetianBlindAccessory extends BaseMatterAccessory {
 
     // Matter tilt: 0=horizontal/open (0deg), 10000=vertical/closed (90deg)
     const degrees = Math.round((request.tiltPercent100thsValue / 10000) * 90)
-    this.logInfo(`tilted to ${degrees}°.`)
+    this.logInfo(`tilting to ${degrees}°.`)
+
+    // Example: Check if blind is in correct position for tilting
+    // if (this.liftPosition < 10) {
+    //   throw new MatterStatus.InvalidInState('Blind must be lowered at least 10% to adjust tilt')
+    // }
+
+    // Example: Check if tilt motor is already active
+    // if (this.isTiltMotorActive) {
+    //   throw new MatterStatus.Busy('Tilt motor is currently in use')
+    // }
+
+    // Example: Check if tilt mechanism is calibrated
+    // if (!this.isTiltCalibrated) {
+    //   throw new MatterStatus.InvalidInState('Tilt mechanism requires calibration')
+    // }
+
+    // Example: Validate tilt angle limits
+    // const maxTilt = 85 // Some blinds can't go fully to 90 degrees
+    // if (degrees > maxTilt) {
+    //   throw new MatterStatus.ConstraintError(`Maximum tilt angle is ${maxTilt}°`)
+    // }
+
     // TODO: await myBlindAPI.setTiltAngle(degrees)
   }
 

@@ -29,7 +29,7 @@ This plugin provides example implementations of Matter device types in Homebridg
 
 - To use this plugin, you will need to already have:
   - [Node](https://nodejs.org): latest version of `v20`, `v22` or `v24` - any other major version is not supported.
-  - [Homebridge](https://homebridge.io): `>=2.0.0-beta.38` - refer to link for more information and installation instructions.
+  - [Homebridge](https://homebridge.io): `>=2.0.0-beta.40` - refer to link for more information and installation instructions.
 
 ### Getting Started
 
@@ -43,6 +43,7 @@ This plugin provides example implementations of Matter device types in Homebridg
 - [Getting Started](https://github.com/homebridge-plugins/homebridge-matter/wiki/Getting-Started)
 - [State Management](https://github.com/homebridge-plugins/homebridge-matter/wiki/State-Management)
 - [Monitoring External Changes](https://github.com/homebridge-plugins/homebridge-matter/wiki/Monitoring-External-Changes)
+- [Error Handling](https://github.com/homebridge-plugins/homebridge-matter/wiki/Error-Handling)
 - [Best Practices](https://github.com/homebridge-plugins/homebridge-matter/wiki/Best-Practices)
 - [Advanced Patterns](https://github.com/homebridge-plugins/homebridge-matter/wiki/Advanced-Patterns)
 

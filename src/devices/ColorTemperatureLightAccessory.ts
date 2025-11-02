@@ -79,6 +79,22 @@ export class ColorTemperatureLightAccessory extends BaseMatterAccessory {
     const { colorTemperatureMireds, transitionTime } = request
     const kelvin = Math.round(1000000 / colorTemperatureMireds)
     this.logInfo(`setting color temp to ${kelvin}k (${colorTemperatureMireds} mireds).`)
+
+    // Example: Validate against physical limits defined in cluster
+    // const minMireds = 147 // ~6800K (cool daylight)
+    // const maxMireds = 454 // ~2200K (warm candlelight)
+    // if (colorTemperatureMireds < minMireds) {
+    //   throw new MatterStatus.ConstraintError(`Color temp ${kelvin}K exceeds maximum 6800K`)
+    // }
+    // if (colorTemperatureMireds > maxMireds) {
+    //   throw new MatterStatus.ConstraintError(`Color temp ${kelvin}K below minimum 2200K`)
+    // }
+
+    // Example: Check if adjustment requires recalibration
+    // if (this.needsRecalibration && Math.abs(colorTemperatureMireds - this.lastMireds) > 100) {
+    //   throw new MatterStatus.InvalidInState('Large color temp change requires recalibration')
+    // }
+
     // TODO: await myLightAPI.setColorTemperature(kelvin, transitionTime)
   }
 

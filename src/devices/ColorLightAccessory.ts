@@ -59,6 +59,24 @@ export class ColorLightAccessory extends BaseMatterAccessory {
 
   private async handleOn(): Promise<void> {
     this.logInfo('turning on.')
+
+    // Example: Check if device is already processing another command
+    // if (this.isDeviceBusy) {
+    //   throw new MatterStatus.Busy('Light is processing another command')
+    // }
+
+    // Example: Make API call with timeout
+    // try {
+    //   await this.lightAPI.turnOn({ timeout: 5000 })
+    // } catch (error) {
+    //   // If the API call times out, throw a Timeout error
+    //   if (error.code === 'ETIMEDOUT') {
+    //     throw new MatterStatus.Timeout('Light did not respond within 5 seconds')
+    //   }
+    //   // For other errors, let Homebridge wrap it as a generic Failure
+    //   throw error
+    // }
+
     // TODO: await myLightAPI.turnOn()
   }
 
@@ -72,6 +90,19 @@ export class ColorLightAccessory extends BaseMatterAccessory {
     const { level } = request
     const brightnessPercent = Math.round((level / 254) * 100)
     this.logInfo(`setting brightness to ${brightnessPercent}%.`)
+
+    // Example: Validate the value meets device constraints
+    // if (brightnessPercent < 1 || brightnessPercent > 100) {
+    //   throw new MatterStatus.ConstraintError(`Brightness ${brightnessPercent}% is out of range (1-100)`)
+    // }
+
+    // Example: Check if device supports this brightness level
+    // if (brightnessPercent < this.deviceMinBrightness) {
+    //   throw new MatterStatus.ConstraintError(
+    //     `Device minimum brightness is ${this.deviceMinBrightness}%`
+    //   )
+    // }
+
     // TODO: await myLightAPI.setBrightness(brightnessPercent)
   }
 
@@ -90,6 +121,19 @@ export class ColorLightAccessory extends BaseMatterAccessory {
     const hueDegrees = Math.round((hue / 254) * 360)
     const saturationPercent = Math.round((saturation / 254) * 100)
     this.logInfo(`setting color to ${hueDegrees}°, ${saturationPercent}%.`)
+
+    // Example: Check if device is in the right mode for color control
+    // if (this.currentColorMode !== 'hs') {
+    //   throw new MatterStatus.InvalidInState(
+    //     'Light must be in HS color mode to set hue and saturation'
+    //   )
+    // }
+
+    // Example: Check if light is on before setting color
+    // if (!this.isLightOn) {
+    //   throw new MatterStatus.InvalidInState('Cannot set color while light is off')
+    // }
+
     // TODO: await myLightAPI.setColor(hueDegrees, saturationPercent, transitionTime)
   }
 

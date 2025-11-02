@@ -38,11 +38,28 @@ export class OnOffSwitchAccessory extends BaseMatterAccessory {
 
   private async handleOn(): Promise<void> {
     this.logInfo('turning on.')
+
+    // Example: Check if switch is in manual mode
+    // if (this.isManualModeEnabled) {
+    //   throw new MatterStatus.InvalidInState('Switch is in manual mode - disable to allow remote control')
+    // }
+
+    // Example: Check load type compatibility
+    // if (this.loadType === 'inductive' && !this.supportsInductiveLoads) {
+    //   throw new MatterStatus.InvalidAction('Switch not rated for inductive loads')
+    // }
+
     // TODO: await mySwitchAPI.turnOn()
   }
 
   private async handleOff(): Promise<void> {
     this.logInfo('turning off.')
+
+    // Example: Check if always-on mode is enabled
+    // if (this.alwaysOnMode) {
+    //   throw new MatterStatus.InvalidInState('Switch is configured for always-on operation')
+    // }
+
     // TODO: await mySwitchAPI.turnOff()
   }
 

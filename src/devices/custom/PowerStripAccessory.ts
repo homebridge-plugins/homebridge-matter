@@ -114,6 +114,24 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     const outletNumber = this.getOutletNumber(partId)
     this.logInfo(`Outlet ${outletNumber} turned ON`)
 
+    // Example: Check per-outlet overcurrent protection
+    // if (this.outletHasTrippedBreaker(outletNumber)) {
+    //   throw new MatterStatus.InvalidInState(`Outlet ${outletNumber} overcurrent protection tripped`)
+    // }
+
+    // Example: Check if outlet is disabled via child lock
+    // if (this.isChildLockEnabled(outletNumber)) {
+    //   throw new MatterStatus.PermissionDenied(`Outlet ${outletNumber} is child-locked`)
+    // }
+
+    // Example: Check total power strip load capacity
+    // const currentLoad = await this.getTotalPowerDraw()
+    // if (currentLoad + this.estimatedOutletLoad > this.maxWattage) {
+    //   throw new MatterStatus.ResourceExhausted(
+    //     `Cannot turn on - would exceed power strip capacity (${this.maxWattage}W)`
+    //   )
+    // }
+
     // TODO: Send command to actual power strip hardware
     // await myPowerStripAPI.turnOnOutlet(outletNumber)
   }
@@ -135,6 +153,27 @@ export class PowerStripAccessory extends BaseMatterAccessory {
    */
   private async handleMasterOn(): Promise<void> {
     this.logInfo('Master ON - turning on all outlets.')
+
+    // Example: Check if any outlet has a tripped breaker
+    // const trippedOutlets = this.getTrippedOutlets()
+    // if (trippedOutlets.length > 0) {
+    //   throw new MatterStatus.InvalidInState(
+    //     `Cannot turn on all - outlets ${trippedOutlets.join(', ')} have tripped breakers`
+    //   )
+    // }
+
+    // Example: Check if turning on all outlets would exceed capacity
+    // const totalEstimatedLoad = this.estimatedOutletLoad * 4
+    // if (totalEstimatedLoad > this.maxWattage) {
+    //   throw new MatterStatus.ResourceExhausted(
+    //     `Cannot turn on all outlets - would exceed ${this.maxWattage}W capacity`
+    //   )
+    // }
+
+    // Example: Check if master control is disabled
+    // if (this.isMasterControlDisabled) {
+    //   throw new MatterStatus.PermissionDenied('Master control is disabled - control outlets individually')
+    // }
 
     // Update each outlet's state
     for (let i = 1; i <= 4; i++) {

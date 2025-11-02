@@ -40,10 +40,53 @@ export class DoorLockAccessory extends BaseMatterAccessory {
   }
 
   private async handleLock(): Promise<void> {
+    this.logInfo('locking door.')
+
+    // Example: Check if door is closed before locking
+    // if (this.isDoorOpen) {
+    //   throw new MatterStatus.InvalidInState('Cannot lock door while it is open')
+    // }
+
+    // Example: Check if lock mechanism is already in use
+    // if (this.isLockMotorActive) {
+    //   throw new MatterStatus.Busy('Lock mechanism is currently in use')
+    // }
+
+    // Example: Lock with timeout and error handling
+    // try {
+    //   await this.lockAPI.lock({ timeout: 10000 })
+    // } catch (error) {
+    //   if (error.code === 'LOCK_JAMMED') {
+    //     throw new MatterStatus.Failure('Lock is jammed - check door alignment')
+    //   }
+    //   if (error.code === 'ETIMEDOUT') {
+    //     throw new MatterStatus.Timeout('Lock motor did not respond within 10 seconds')
+    //   }
+    //   throw error
+    // }
+
     this.logInfo('locked.')
   }
 
   private async handleUnlock(): Promise<void> {
+    this.logInfo('unlocking door.')
+
+    // Example: Check if user has permission to unlock
+    // if (!this.userHasUnlockPermission) {
+    //   throw new MatterStatus.PermissionDenied('User does not have permission to unlock')
+    // }
+
+    // Example: Check if security system prevents unlocking
+    // if (this.isSecuritySystemArmed) {
+    //   throw new MatterStatus.InvalidInState('Cannot unlock while security system is armed')
+    // }
+
+    // Example: Check time-based access restrictions
+    // const currentHour = new Date().getHours()
+    // if (currentHour < 6 || currentHour > 22) {
+    //   throw new MatterStatus.PermissionDenied('Remote unlocking disabled during night hours')
+    // }
+
     this.logInfo('unlocked.')
   }
 

@@ -38,11 +38,33 @@ export class OnOffOutletAccessory extends BaseMatterAccessory {
 
   private async handleOn(): Promise<void> {
     this.logInfo('turning on.')
+
+    // Example: Check for overcurrent protection
+    // if (this.hasOvercurrentTripped) {
+    //   throw new MatterStatus.InvalidInState('Outlet overcurrent protection tripped - reset required')
+    // }
+
+    // Example: Check power monitoring threshold
+    // if (this.lastPowerDraw > this.maxWattage) {
+    //   throw new MatterStatus.InvalidInState(`Cannot turn on - last load exceeded ${this.maxWattage}W limit`)
+    // }
+
+    // Example: Check if outlet is disabled by physical safety lock
+    // if (this.isPhysicallylocked) {
+    //   throw new MatterStatus.PermissionDenied('Outlet is physically locked for safety')
+    // }
+
     // TODO: await myOutletAPI.turnOn()
   }
 
   private async handleOff(): Promise<void> {
     this.logInfo('turning off.')
+
+    // Example: Check if outlet can be turned off (some outlets with critical loads)
+    // if (this.isCriticalLoad) {
+    //   throw new MatterStatus.InvalidInState('Cannot turn off outlet with critical load connected')
+    // }
+
     // TODO: await myOutletAPI.turnOff()
   }
 
