@@ -68,7 +68,7 @@ export class OnOffOutletAccessory extends BaseMatterAccessory {
     // TODO: await myOutletAPI.turnOff()
   }
 
-  public updateOnOffState(isOn: boolean): void {
-    this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
+  public async updateOnOffState(isOn: boolean): Promise<void> {
+    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
   }
 }

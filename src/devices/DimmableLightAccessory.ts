@@ -148,8 +148,8 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
   /**
    * Update on/off state from external source
    */
-  public updateOnOffState(isOn: boolean): void {
-    this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
+  public async updateOnOffState(isOn: boolean): Promise<void> {
+    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
     this.logInfo(`state synced: ${isOn ? 'ON' : 'OFF'}.`)
   }
 
@@ -157,7 +157,7 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
    * Update brightness level from external source
    * @param percent - Brightness percentage (0-100)
    */
-  public updateBrightness(percent: number): void {
+  public async updateBrightness(percent: number): Promise<void> {
     // Validate input
     if (percent < 0 || percent > 100) {
       this.logWarn(`Invalid brightness percentage: ${percent}. Must be 0-100.`)
@@ -168,7 +168,7 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
     const matterLevel = Math.max(1, Math.round((percent / 100) * 254))
     this.currentLevel = matterLevel
 
-    this.updateState(this.api.matter.clusterNames.LevelControl, {
+    await this.updateState(this.api.matter.clusterNames.LevelControl, {
       currentLevel: matterLevel,
     })
 
@@ -186,10 +186,10 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
    * Set brightness and power state together
    * Useful for syncing complete state from external source
    */
-  public updateFullState(isOn: boolean, percent: number): void {
-    this.updateOnOffState(isOn)
+  public async updateFullState(isOn: boolean, percent: number): Promise<void> {
+    await this.updateOnOffState(isOn)
     if (isOn) {
-      this.updateBrightness(percent)
+      await this.updateBrightness(percent)
     }
   }
 

@@ -111,12 +111,12 @@ export class FanAccessory extends BaseMatterAccessory {
     // TODO: await myFanAPI.setSpeed(percent)
   }
 
-  public updateFanMode(mode: number): void {
-    this.updateState(this.api.matter.clusterNames.FanControl, { fanMode: mode })
+  public async updateFanMode(mode: number): Promise<void> {
+    await this.updateState(this.api.matter.clusterNames.FanControl, { fanMode: mode })
   }
 
-  public updateFanSpeed(percent: number): void {
-    this.updateState(this.api.matter.clusterNames.FanControl, {
+  public async updateFanSpeed(percent: number): Promise<void> {
+    await this.updateState(this.api.matter.clusterNames.FanControl, {
       percentSetting: percent,
       percentCurrent: percent,
     })

@@ -4,6 +4,7 @@
  * Export all base classes and device implementations
  */
 
+export { AirQualitySensorAccessory } from './AirQualitySensorAccessory.js'
 export { BaseMatterAccessory } from './BaseMatterAccessory.js'
 export type { BaseMatterAccessoryConfig } from './BaseMatterAccessory.js'
 export { ColorLightAccessory } from './ColorLightAccessory.js'

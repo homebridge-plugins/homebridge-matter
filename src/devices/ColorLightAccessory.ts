@@ -137,19 +137,19 @@ export class ColorLightAccessory extends BaseMatterAccessory {
     // TODO: await myLightAPI.setColor(hueDegrees, saturationPercent, transitionTime)
   }
 
-  public updateOnOffState(isOn: boolean): void {
-    this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
+  public async updateOnOffState(isOn: boolean): Promise<void> {
+    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
   }
 
-  public updateBrightness(percent: number): void {
+  public async updateBrightness(percent: number): Promise<void> {
     const matterLevel = Math.max(1, Math.round((percent / 100) * 254))
-    this.updateState(this.api.matter.clusterNames.LevelControl, { currentLevel: matterLevel })
+    await this.updateState(this.api.matter.clusterNames.LevelControl, { currentLevel: matterLevel })
   }
 
-  public updateHueSaturation(hue: number, saturation: number): void {
+  public async updateHueSaturation(hue: number, saturation: number): Promise<void> {
     const matterHue = Math.round((hue / 360) * 254)
     const matterSat = Math.round((saturation / 100) * 254)
-    this.updateState(this.api.matter.clusterNames.ColorControl, {
+    await this.updateState(this.api.matter.clusterNames.ColorControl, {
       currentHue: matterHue,
       currentSaturation: matterSat,
     })

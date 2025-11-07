@@ -31,9 +31,9 @@ export class TemperatureSensorAccessory extends BaseMatterAccessory {
     this.logInfo('initialized.')
   }
 
-  public updateTemperature(celsius: number): void {
+  public async updateTemperature(celsius: number): Promise<void> {
     const value = Math.round(celsius * 100) // convert to hundredths
-    this.updateState('temperatureMeasurement', { measuredValue: value })
+    await this.updateState('temperatureMeasurement', { measuredValue: value })
     this.logInfo(`temperature: ${celsius}°C.`)
   }
 }

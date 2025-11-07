@@ -119,25 +119,25 @@ export class ThermostatAccessory extends BaseMatterAccessory {
     // TODO: await myThermostatAPI.setCoolingSetpoint(celsius)
   }
 
-  public updateCurrentTemperature(celsius: number): void {
+  public async updateCurrentTemperature(celsius: number): Promise<void> {
     const value = Math.round(celsius * 100)
-    this.updateState('thermostat', { localTemperature: value })
+    await this.updateState('thermostat', { localTemperature: value })
     this.logInfo(`current temperature: ${celsius}°C.`)
   }
 
-  public updateHeatingSetpoint(celsius: number): void {
+  public async updateHeatingSetpoint(celsius: number): Promise<void> {
     const value = Math.round(celsius * 100)
-    this.updateState('thermostat', { occupiedHeatingSetpoint: value })
+    await this.updateState('thermostat', { occupiedHeatingSetpoint: value })
     this.logInfo(`heating setpoint: ${celsius}°C.`)
   }
 
-  public updateCoolingSetpoint(celsius: number): void {
+  public async updateCoolingSetpoint(celsius: number): Promise<void> {
     const value = Math.round(celsius * 100)
-    this.updateState('thermostat', { occupiedCoolingSetpoint: value })
+    await this.updateState('thermostat', { occupiedCoolingSetpoint: value })
     this.logInfo(`cooling setpoint: ${celsius}°C.`)
   }
 
-  public updateSystemMode(mode: number): void {
-    this.updateState('thermostat', { systemMode: mode })
+  public async updateSystemMode(mode: number): Promise<void> {
+    await this.updateState('thermostat', { systemMode: mode })
   }
 }

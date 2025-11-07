@@ -29,9 +29,9 @@ export class ContactSensorAccessory extends BaseMatterAccessory {
     this.logInfo('initialized.')
   }
 
-  public updateContactState(isOpen: boolean): void {
+  public async updateContactState(isOpen: boolean): Promise<void> {
     // Matter BooleanState: false = open/triggered, true = closed/normal (inverted!)
-    this.updateState(this.api.matter.clusterNames.BooleanState, { stateValue: !isOpen })
+    await this.updateState(this.api.matter.clusterNames.BooleanState, { stateValue: !isOpen })
     this.logInfo(`contact state: ${isOpen ? 'OPEN' : 'CLOSED'}.`)
   }
 }

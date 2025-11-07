@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changes
 
 - add example for air quality sensor
+- update device examples to use `async/await` syntax
 
 ## v0.5.0 (2025-11-02)
 

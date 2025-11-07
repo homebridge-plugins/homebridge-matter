@@ -109,11 +109,11 @@ export class WindowBlindAccessory extends BaseMatterAccessory {
     this.logInfo('stopped blind.')
   }
 
-  public updateLiftPosition(openPercent: number): void {
+  public async updateLiftPosition(openPercent: number): Promise<void> {
     // Convert open percentage to Matter's closed percentage (0=open, 10000=closed)
     const closedPercent = 100 - openPercent
     const value = Math.round(closedPercent * 100)
-    this.updateState(this.api.matter.clusterNames.WindowCovering, {
+    await this.updateState(this.api.matter.clusterNames.WindowCovering, {
       currentPositionLiftPercent100ths: value,
       targetPositionLiftPercent100ths: value,
     })

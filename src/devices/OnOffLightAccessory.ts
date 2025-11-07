@@ -120,8 +120,8 @@ export class OnOffLightAccessory extends BaseMatterAccessory {
    * Update the on/off state from external source
    * Call this when your physical device state changes externally
    */
-  public updateOnOffState(isOn: boolean): void {
-    this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
+  public async updateOnOffState(isOn: boolean): Promise<void> {
+    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
     this.logInfo(`state synced: ${isOn ? 'ON' : 'OFF'}.`)
   }
 

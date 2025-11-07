@@ -178,7 +178,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     // Update each outlet's state
     for (let i = 1; i <= 4; i++) {
       const partId = `outlet-${i}`
-      this.updateState(this.api.matter.clusterNames.OnOff, { onOff: true }, partId)
+      await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: true }, partId)
     }
 
     // TODO: Send command to actual power strip hardware
@@ -194,7 +194,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     // Update each outlet's state
     for (let i = 1; i <= 4; i++) {
       const partId = `outlet-${i}`
-      this.updateState(this.api.matter.clusterNames.OnOff, { onOff: false }, partId)
+      await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: false }, partId)
     }
 
     // TODO: Send command to actual power strip hardware
@@ -220,7 +220,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     this.logInfo(`Programmatically turning ON outlet ${outletNumber}`)
 
     // Update the specific outlet's state
-    this.updateState(this.api.matter.clusterNames.OnOff, { onOff: true }, partId)
+    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: true }, partId)
 
     // TODO: Send command to actual power strip hardware
     // await myPowerStripAPI.turnOnOutlet(outletNumber)
@@ -237,7 +237,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     this.logInfo(`Programmatically turning OFF outlet ${outletNumber}`)
 
     // Update the specific outlet's state
-    this.updateState(this.api.matter.clusterNames.OnOff, { onOff: false }, partId)
+    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: false }, partId)
 
     // TODO: Send command to actual power strip hardware
     // await myPowerStripAPI.turnOffOutlet(outletNumber)
@@ -298,12 +298,12 @@ export class PowerStripAccessory extends BaseMatterAccessory {
    * @param outletNumber - Outlet number (1-4)
    * @param isOn - New state of the outlet
    */
-  public updateOutletStateFromExternal(outletNumber: 1 | 2 | 3 | 4, isOn: boolean): void {
+  public async updateOutletStateFromExternal(outletNumber: 1 | 2 | 3 | 4, isOn: boolean): Promise<void> {
     const partId = `outlet-${outletNumber}`
     this.logInfo(`Outlet ${outletNumber} state updated from external source: ${isOn ? 'ON' : 'OFF'}`)
 
     // Update the specific outlet's state
-    this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn }, partId)
+    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn }, partId)
   }
 
   /**
@@ -315,19 +315,19 @@ export class PowerStripAccessory extends BaseMatterAccessory {
    * @param states.outlet3 - State for outlet 3
    * @param states.outlet4 - State for outlet 4
    */
-  public updateAllOutletStatesFromExternal(states: {
+  public async updateAllOutletStatesFromExternal(states: {
     outlet1: boolean
     outlet2: boolean
     outlet3: boolean
     outlet4: boolean
-  }): void {
+  }): Promise<void> {
     this.logInfo('All outlet states updated from external source.')
 
     for (let i = 1; i <= 4; i++) {
       const key = `outlet${i}` as keyof typeof states
       const partId = `outlet-${i}`
 
-      this.updateState(this.api.matter.clusterNames.OnOff, { onOff: states[key] }, partId)
+      await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: states[key] }, partId)
     }
   }
 

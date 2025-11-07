@@ -48,7 +48,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
   protected readonly api: API
   protected readonly log: Logger
 
-  constructor(
+  protected constructor(
     api: API,
     log: Logger,
     config: BaseMatterAccessoryConfig,

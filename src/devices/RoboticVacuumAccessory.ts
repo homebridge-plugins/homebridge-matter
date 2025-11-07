@@ -206,7 +206,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
 
     if (newMode === 1) {
       // Switching to Cleaning mode - start the vacuum
-      this.updateOperationalState(1) // Running
+      await this.updateOperationalState(1) // Running
 
       // Simulate cleaning completion after 15 seconds
       const completionTimer = setTimeout(() => {
@@ -221,7 +221,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
       this.returnToDock()
     } else if (newMode === 2) {
       // Switching to Mapping mode - start mapping
-      this.updateOperationalState(1) // Running
+      await this.updateOperationalState(1) // Running
 
       // Simulate mapping completion after 20 seconds
       const completionTimer = setTimeout(() => {
@@ -275,15 +275,15 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     this.logInfo('pausing.')
     // TODO: await myVacuumAPI.pause()
     this.clearTimers() // Clear cleaning completion timer
-    this.updateOperationalState(2) // Paused
+    await this.updateOperationalState(2) // Paused
   }
 
   private async handleStop(): Promise<void> {
     this.logInfo('stopping.')
     // TODO: await myVacuumAPI.stop()
     this.clearTimers()
-    this.updateRunMode(0) // Reset to Idle
-    this.updateOperationalState(0) // Stopped
+    await this.updateRunMode(0) // Reset to Idle
+    await this.updateOperationalState(0) // Stopped
   }
 
   private async handleStart(): Promise<void> {
@@ -314,8 +314,8 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     // Clear any existing timers
     this.clearTimers()
 
-    this.updateRunMode(1) // Set to Cleaning mode - this will trigger the run mode handler logic
-    this.updateOperationalState(1) // Running
+    await this.updateRunMode(1) // Set to Cleaning mode - this will trigger the run mode handler logic
+    await this.updateOperationalState(1) // Running
 
     // Simulate cleaning completion after 15 seconds
     const completionTimer = setTimeout(() => {
@@ -334,8 +334,8 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     // Clear any existing timers
     this.clearTimers()
 
-    this.updateRunMode(1) // Set to Cleaning mode
-    this.updateOperationalState(1) // Running
+    await this.updateRunMode(1) // Set to Cleaning mode
+    await this.updateOperationalState(1) // Running
 
     // Simulate cleaning completion after 10 seconds (shorter since resuming)
     const completionTimer = setTimeout(() => {
@@ -416,14 +416,14 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     this.logInfo('initiating return to dock sequence.')
 
     // Defer ALL state updates to ensure handler completes first
-    setImmediate(() => {
+    setImmediate(async () => {
       // Start seeking charger directly (skip intermediate Stopped state)
-      this.updateOperationalState(64) // Seeking Charger
+      await this.updateOperationalState(64) // Seeking Charger
 
       // After 5 seconds, start charging
-      const chargingTimer = setTimeout(() => {
+      const chargingTimer = setTimeout(async () => {
         this.logInfo('reached dock, now charging.')
-        this.updateOperationalState(65) // Charging
+        await this.updateOperationalState(65) // Charging
 
         // After 3 more seconds, fully docked
         const dockedTimer = setTimeout(() => {
@@ -444,8 +444,8 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
    * Since this is a platform accessory, state updates work immediately after registration.
    */
 
-  public updateOperationalState(state: number): void {
-    this.updateState('rvcOperationalState', { operationalState: state })
+  public async updateOperationalState(state: number): Promise<void> {
+    await this.updateState('rvcOperationalState', { operationalState: state })
     const states = [
       'Stopped',
       'Running',
@@ -463,14 +463,14 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     this.logInfo(`operational state updated to: ${states[state] || `Unknown (${state})`}`)
   }
 
-  public updateRunMode(mode: number): void {
-    this.updateState('rvcRunMode', { currentMode: mode })
+  public async updateRunMode(mode: number): Promise<void> {
+    await this.updateState('rvcRunMode', { currentMode: mode })
     const modes = ['Idle', 'Cleaning', 'Mapping']
     this.logInfo(`run mode updated to: ${modes[mode] || `Unknown (${mode})`}`)
   }
 
-  public updateCleanMode(mode: number): void {
-    this.updateState('rvcCleanMode', { currentMode: mode })
+  public async updateCleanMode(mode: number): Promise<void> {
+    await this.updateState('rvcCleanMode', { currentMode: mode })
     const modes = [
       'Vacuum',
       'Mop',
@@ -491,16 +491,16 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     this.logInfo(`clean mode updated to: ${modes[mode] || `Unknown (${mode})`}`)
   }
 
-  public updateSelectedAreas(areaIds: number[]): void {
-    this.updateState('serviceArea', { selectedAreas: areaIds })
+  public async updateSelectedAreas(areaIds: number[]): Promise<void> {
+    await this.updateState('serviceArea', { selectedAreas: areaIds })
     const areaNames = areaIds.map(id =>
       ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom'][id] || `Area ${id}`,
     )
     this.logInfo(`selected areas updated to: ${areaNames.join(', ') || 'All Areas'}`)
   }
 
-  public updateCurrentArea(areaId: number | null): void {
-    this.updateState('serviceArea', { currentArea: areaId })
+  public async updateCurrentArea(areaId: number | null): Promise<void> {
+    await this.updateState('serviceArea', { currentArea: areaId })
     if (areaId !== null) {
       const areaName = ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom'][areaId] || `Area ${areaId}`
       this.logInfo(`current area updated to: ${areaName}`)
@@ -509,8 +509,8 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     }
   }
 
-  public updateProgress(progress: Array<{ areaId: number, status: number }>): void {
-    this.updateState('serviceArea', { progress })
+  public async updateProgress(progress: Array<{ areaId: number, status: number }>): Promise<void> {
+    await this.updateState('serviceArea', { progress })
     this.logInfo(`progress updated: ${progress.length} areas`)
   }
 

@@ -90,9 +90,9 @@ export class DoorLockAccessory extends BaseMatterAccessory {
     this.logInfo('unlocked.')
   }
 
-  public updateLockState(state: 0 | 1 | 2): void {
+  public async updateLockState(state: 0 | 1 | 2): Promise<void> {
     // 0 = Not fully locked, 1 = Locked, 2 = Unlocked
-    this.updateState('doorLock', { lockState: state })
+    await this.updateState('doorLock', { lockState: state })
     const stateStr = ['Not Fully Locked', 'Locked', 'Unlocked'][state]
     this.logInfo(`lock state: ${stateStr}.`)
   }

@@ -29,8 +29,8 @@ export class LeakSensorAccessory extends BaseMatterAccessory {
     this.logInfo('initialized.')
   }
 
-  public updateLeakState(leakDetected: boolean): void {
-    this.updateState(this.api.matter.clusterNames.BooleanState, { stateValue: leakDetected })
+  public async updateLeakState(leakDetected: boolean): Promise<void> {
+    await this.updateState(this.api.matter.clusterNames.BooleanState, { stateValue: leakDetected })
     this.logInfo(`leak: ${leakDetected ? 'detected' : 'none'}.`)
   }
 }

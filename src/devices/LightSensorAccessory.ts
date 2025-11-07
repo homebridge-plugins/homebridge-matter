@@ -31,9 +31,9 @@ export class LightSensorAccessory extends BaseMatterAccessory {
     this.logInfo('initialized.')
   }
 
-  public updateIlluminance(lux: number): void {
+  public async updateIlluminance(lux: number): Promise<void> {
     const value = Math.round(10000 * Math.log10(lux))
-    this.updateState('illuminanceMeasurement', { measuredValue: value })
+    await this.updateState('illuminanceMeasurement', { measuredValue: value })
     this.logInfo(`illuminance: ${lux} lux.`)
   }
 }

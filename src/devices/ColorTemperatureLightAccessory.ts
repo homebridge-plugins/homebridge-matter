@@ -98,17 +98,17 @@ export class ColorTemperatureLightAccessory extends BaseMatterAccessory {
     // TODO: await myLightAPI.setColorTemperature(kelvin, transitionTime)
   }
 
-  public updateOnOffState(isOn: boolean): void {
-    this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
+  public async updateOnOffState(isOn: boolean): Promise<void> {
+    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
   }
 
-  public updateBrightness(percent: number): void {
+  public async updateBrightness(percent: number): Promise<void> {
     const matterLevel = Math.max(1, Math.round((percent / 100) * 254))
-    this.updateState(this.api.matter.clusterNames.LevelControl, { currentLevel: matterLevel })
+    await this.updateState(this.api.matter.clusterNames.LevelControl, { currentLevel: matterLevel })
   }
 
-  public updateColorTemperature(kelvin: number): void {
+  public async updateColorTemperature(kelvin: number): Promise<void> {
     const mireds = Math.round(1000000 / kelvin)
-    this.updateState(this.api.matter.clusterNames.ColorControl, { colorTemperatureMireds: mireds })
+    await this.updateState(this.api.matter.clusterNames.ColorControl, { colorTemperatureMireds: mireds })
   }
 }

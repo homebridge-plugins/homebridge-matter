@@ -117,21 +117,21 @@ export class VenetianBlindAccessory extends BaseMatterAccessory {
     // TODO: await myBlindAPI.stop()
   }
 
-  public updateLiftPosition(openPercent: number): void {
+  public async updateLiftPosition(openPercent: number): Promise<void> {
     // Convert open percentage to Matter's closed percentage (0=open, 10000=closed)
     const closedPercent = 100 - openPercent
     const value = Math.round(closedPercent * 100)
-    this.updateState(this.api.matter.clusterNames.WindowCovering, {
+    await this.updateState(this.api.matter.clusterNames.WindowCovering, {
       currentPositionLiftPercent100ths: value,
       targetPositionLiftPercent100ths: value,
     })
     this.logInfo(`lift position: ${openPercent}% open.`)
   }
 
-  public updateTiltPosition(degrees: number): void {
+  public async updateTiltPosition(degrees: number): Promise<void> {
     // Convert degrees (0-90) to Matter's tilt percentage (0=horizontal, 10000=vertical)
     const value = Math.round((degrees / 90) * 10000)
-    this.updateState(this.api.matter.clusterNames.WindowCovering, {
+    await this.updateState(this.api.matter.clusterNames.WindowCovering, {
       currentPositionTiltPercent100ths: value,
       targetPositionTiltPercent100ths: value,
     })

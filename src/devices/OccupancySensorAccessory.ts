@@ -10,9 +10,8 @@ export class OccupancySensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'SENSOR-003'
     // Note: Matter.js API calls this "MotionSensor" but it's actually an Occupancy Sensor
-    const OccupancySensingServer = api.matter.deviceTypes.MotionSensor.requirements.OccupancySensingServer
     const OccupancySensorWithPIR = api.matter.deviceTypes.MotionSensor.with(
-      OccupancySensingServer.with('PassiveInfrared'),
+      api.matter.deviceTypes.MotionSensor.requirements.OccupancySensingServer.with('PassiveInfrared'),
     )
 
     super(api, log, {
@@ -43,8 +42,8 @@ export class OccupancySensorAccessory extends BaseMatterAccessory {
     this.logInfo('initialized.')
   }
 
-  public updateOccupancyDetected(detected: boolean): void {
-    this.updateState('occupancySensing', {
+  public async updateOccupancyDetected(detected: boolean): Promise<void> {
+    await this.updateState('occupancySensing', {
       occupancy: { occupied: detected },
     })
     this.logInfo(`occupancy: ${detected ? 'detected' : 'clear'}.`)

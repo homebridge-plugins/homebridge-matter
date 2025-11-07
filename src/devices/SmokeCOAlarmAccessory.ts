@@ -9,9 +9,8 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 export class SmokeCOAlarmAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'SENSOR-006'
-    const SmokeCoAlarmServer = api.matter.deviceTypes.SmokeSensor.requirements.SmokeCoAlarmServer
     const SmokeSensorWithBoth = api.matter.deviceTypes.SmokeSensor.with(
-      SmokeCoAlarmServer.with('SmokeAlarm', 'CoAlarm'),
+      api.matter.deviceTypes.SmokeSensor.requirements.SmokeCoAlarmServer.with('SmokeAlarm', 'CoAlarm'),
     )
 
     super(api, log, {
@@ -45,14 +44,14 @@ export class SmokeCOAlarmAccessory extends BaseMatterAccessory {
     this.logInfo('initialized.')
   }
 
-  public updateSmokeState(state: 0 | 1 | 2): void {
-    this.updateState('smokeCoAlarm', { smokeState: state })
+  public async updateSmokeState(state: 0 | 1 | 2): Promise<void> {
+    await this.updateState('smokeCoAlarm', { smokeState: state })
     const stateStr = ['Normal', 'Warning', 'Critical'][state]
     this.logInfo(`smoke state: ${stateStr}.`)
   }
 
-  public updateCOState(state: 0 | 1 | 2): void {
-    this.updateState('smokeCoAlarm', { coState: state })
+  public async updateCOState(state: 0 | 1 | 2): Promise<void> {
+    await this.updateState('smokeCoAlarm', { coState: state })
     const stateStr = ['Normal', 'Warning', 'Critical'][state]
     this.logInfo(`co state: ${stateStr}.`)
   }
