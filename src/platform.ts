@@ -8,6 +8,7 @@ import type {
 } from 'homebridge'
 
 import {
+  AirQualitySensorAccessory,
   ColorLightAccessory,
   ColorTemperatureLightAccessory,
   ContactSensorAccessory,
@@ -134,6 +135,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       { enabled: this.config.enableExtendedColourLight, uuid: this.api.matter.uuid.generate('matter-extended-colour-light'), name: 'Extended Colour Light' },
       { enabled: this.config.enableOnOffOutlet, uuid: this.api.matter.uuid.generate('matter-onoff-outlet'), name: 'On/Off Outlet' },
       { enabled: this.config.enableOnOffSwitch, uuid: this.api.matter.uuid.generate('matter-onoff-switch'), name: 'On/Off Switch' },
+      { enabled: this.config.enableAirQualitySensor, uuid: this.api.matter.uuid.generate('matter-air-quality-sensor'), name: 'Air Quality Sensor' },
       { enabled: this.config.enableTemperatureSensor, uuid: this.api.matter.uuid.generate('matter-temperature-sensor'), name: 'Temperature Sensor' },
       { enabled: this.config.enableHumiditySensor, uuid: this.api.matter.uuid.generate('matter-humidity-sensor'), name: 'Humidity Sensor' },
       { enabled: this.config.enableLightSensor, uuid: this.api.matter.uuid.generate('matter-light-sensor'), name: 'Light Sensor' },
@@ -270,6 +272,12 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     this.log.info('═'.repeat(80))
 
     const accessories = []
+
+    // Air Quality Sensor
+    if (this.config.enableAirQualitySensor !== false) {
+      const device = new AirQualitySensorAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
 
     // Contact Sensor
     if (this.config.enableContactSensor !== false) {

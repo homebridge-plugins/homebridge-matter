@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.6.0 (Unreleased)
+
+### Changes
+
+- add example for air quality sensor
+
 ## v0.5.0 (2025-11-02)
 
 ### Changes

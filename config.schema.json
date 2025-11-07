@@ -58,6 +58,12 @@
         "default": false,
         "description": "Enable the on/off light switch example accessory (Matter Spec § 6.1)."
       },
+      "enableAirQualitySensor": {
+        "title": "Enable Air Quality Sensor",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the air quality sensor example accessory (Matter Spec § 7.6). Monitors air quality, PM2.5, PM10, temperature, and humidity."
+      },
       "enableContactSensor": {
         "title": "Enable Contact Sensor",
         "type": "boolean",
@@ -187,10 +193,11 @@
     {
       "type": "fieldset",
       "title": "Section 7: Sensors",
-      "description": "Matter Specification § 7 - All sensor types (7 devices implemented).",
+      "description": "Matter Specification § 7 - All sensor types (8 devices implemented).",
       "expandable": true,
       "expanded": false,
       "items": [
+        "enableAirQualitySensor",
         "enableContactSensor",
         "enableLightSensor",
         "enableOccupancySensor",
