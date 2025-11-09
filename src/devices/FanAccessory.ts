@@ -22,7 +22,7 @@ export class FanAccessory extends BaseMatterAccessory {
       clusters: {
         fanControl: {
           fanMode: api.matter.types.FanControl.FanMode.Off,
-          fanModeSequence: api.matter.types.FanControl.FanModeSequence.OffLowMedHigh,
+          fanModeSequence: api.matter.types.FanControl.FanModeSequence.OffHigh,
           percentSetting: 0,
           percentCurrent: 0,
         },
