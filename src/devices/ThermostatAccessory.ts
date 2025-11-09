@@ -21,15 +21,19 @@ export class ThermostatAccessory extends BaseMatterAccessory {
 
       clusters: {
         thermostat: {
-          localTemperature: 2100, // 21.00°C
-          occupiedHeatingSetpoint: 2000,
-          occupiedCoolingSetpoint: 2400,
-          minHeatSetpointLimit: 700,
-          maxHeatSetpointLimit: 3000,
-          minCoolSetpointLimit: 1600,
-          maxCoolSetpointLimit: 3200,
+          externalMeasuredIndoorTemperature: 2100, // 21.00°C
+          occupiedHeatingSetpoint: 2000, // 20.00°C
+          occupiedCoolingSetpoint: 2400, // 24.00°C
+          unoccupiedHeatingSetpoint: 1800, // 18.00°C
+          unoccupiedCoolingSetpoint: 2600, // 26.00°C
+          minHeatSetpointLimit: 700, // 7.00°C
+          maxHeatSetpointLimit: 3000, // 30.00°C
+          minCoolSetpointLimit: 1600, // 16.00°C
+          maxCoolSetpointLimit: 3200, // 32.00°C
+          minSetpointDeadBand: 25, // 2.5°C minimum difference between heat/cool setpoints (required for Auto mode)
           controlSequenceOfOperation: 4, // cooling and heating
-          systemMode: 0, // off
+          systemMode: 1, // auto mode (0=off, 1=auto, 3=cool, 4=heat)
+          occupancy: { occupied: true }, // default to occupied state
         },
       },
 
@@ -121,7 +125,7 @@ export class ThermostatAccessory extends BaseMatterAccessory {
 
   public async updateCurrentTemperature(celsius: number): Promise<void> {
     const value = Math.round(celsius * 100)
-    await this.updateState('thermostat', { localTemperature: value })
+    await this.updateState('thermostat', { externalMeasuredIndoorTemperature: value })
     this.logInfo(`current temperature: ${celsius}°C.`)
   }
 
@@ -139,5 +143,20 @@ export class ThermostatAccessory extends BaseMatterAccessory {
 
   public async updateSystemMode(mode: number): Promise<void> {
     await this.updateState('thermostat', { systemMode: mode })
+  }
+
+  public async updateOccupancy(occupied: boolean): Promise<void> {
+    await this.updateState('thermostat', { occupancy: { occupied } })
+    this.logInfo(`occupancy: ${occupied ? 'occupied' : 'unoccupied'}.`)
+  }
+
+  public async updateUnoccupiedSetpoints(heating: number, cooling: number): Promise<void> {
+    const heatingValue = Math.round(heating * 100)
+    const coolingValue = Math.round(cooling * 100)
+    await this.updateState('thermostat', {
+      unoccupiedHeatingSetpoint: heatingValue,
+      unoccupiedCoolingSetpoint: coolingValue,
+    })
+    this.logInfo(`unoccupied setpoints - heat: ${heating}°C, cool: ${cooling}°C.`)
   }
 }

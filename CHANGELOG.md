@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changes
 
 - improvements to fan implementation
+- improvements to thermostat implementation
 
 ## v0.6.0 (2025-11-07)
 
