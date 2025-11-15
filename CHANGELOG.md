@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.7.1 (Unreleased)
+
+### Changes
+
+- updates states for robot vacuum example
+
 ## v0.7.0 (2025-11-09)
 
 ### Changes

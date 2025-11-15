@@ -25,10 +25,13 @@
 
 import type { API, Logger, MatterRequests } from 'homebridge'
 
+import { MatterStatus } from 'homebridge'
+
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class RoboticVacuumAccessory extends BaseMatterAccessory {
   private activeTimers: NodeJS.Timeout[] = []
+  private currentOperationalState = 66 // Track current state (start docked)
 
   constructor(api: API, log: Logger) {
     const serialNumber = 'VACUUM-001'
@@ -109,6 +112,10 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
             { operationalStateId: 64 }, // seeking charger
             { operationalStateId: 65 }, // charging
             { operationalStateId: 66 }, // docked
+            { operationalStateId: 67 }, // emptying dust bin
+            { operationalStateId: 68 }, // cleaning mop
+            { operationalStateId: 69 }, // filling water tank
+            { operationalStateId: 70 }, // updating maps
           ],
           operationalState: 66, // start docked
         },
@@ -207,15 +214,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     if (newMode === 1) {
       // Switching to Cleaning mode - start the vacuum
       await this.updateOperationalState(1) // Running
-
-      // Simulate cleaning completion after 15 seconds
-      const completionTimer = setTimeout(() => {
-        this.logInfo('cleaning completed, returning to dock.')
-        this.updateRunMode(0) // Set to Idle - cleaning session ending
-        this.returnToDock()
-      }, 15000)
-
-      this.activeTimers.push(completionTimer)
+      this.scheduleCleaningCompletion(15) // Complete after 15 seconds
     } else if (newMode === 0) {
       // Switching to Idle mode - return to dock
       this.returnToDock()
@@ -273,6 +272,23 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
 
   private async handlePause(): Promise<void> {
     this.logInfo('pausing.')
+
+    // Validate current state - cannot pause in maintenance or charging states
+    const invalidStates = [65, 66, 67, 68, 69, 70] // Charging, Docked, EmptyingDustBin, CleaningMop, FillingWaterTank, UpdatingMaps
+    if (invalidStates.includes(this.currentOperationalState)) {
+      const stateNames: Record<number, string> = {
+        65: 'Charging',
+        66: 'Docked',
+        67: 'Emptying Dust Bin',
+        68: 'Cleaning Mop',
+        69: 'Filling Water Tank',
+        70: 'Updating Maps',
+      }
+      throw new MatterStatus.InvalidInState(
+        `Cannot pause while in ${stateNames[this.currentOperationalState]} state`,
+      )
+    }
+
     // TODO: await myVacuumAPI.pause()
     this.clearTimers() // Clear cleaning completion timer
     await this.updateOperationalState(2) // Paused
@@ -316,19 +332,29 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
 
     await this.updateRunMode(1) // Set to Cleaning mode - this will trigger the run mode handler logic
     await this.updateOperationalState(1) // Running
-
-    // Simulate cleaning completion after 15 seconds
-    const completionTimer = setTimeout(() => {
-      this.logInfo('cleaning completed, returning to dock.')
-      this.updateRunMode(0) // Set to Idle - cleaning session ending
-      this.returnToDock()
-    }, 15000)
-
-    this.activeTimers.push(completionTimer)
+    this.scheduleCleaningCompletion(15) // Complete after 15 seconds
   }
 
   private async handleResume(): Promise<void> {
     this.logInfo('resuming.')
+
+    // Validate current state - cannot resume in maintenance, charging, or seeking states
+    const invalidStates = [64, 65, 66, 67, 68, 69, 70] // SeekingCharger, Charging, Docked, EmptyingDustBin, CleaningMop, FillingWaterTank, UpdatingMaps
+    if (invalidStates.includes(this.currentOperationalState)) {
+      const stateNames: Record<number, string> = {
+        64: 'Seeking Charger',
+        65: 'Charging',
+        66: 'Docked',
+        67: 'Emptying Dust Bin',
+        68: 'Cleaning Mop',
+        69: 'Filling Water Tank',
+        70: 'Updating Maps',
+      }
+      throw new MatterStatus.InvalidInState(
+        `Cannot resume while in ${stateNames[this.currentOperationalState]} state`,
+      )
+    }
+
     // TODO: await myVacuumAPI.resume()
 
     // Clear any existing timers
@@ -336,15 +362,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
 
     await this.updateRunMode(1) // Set to Cleaning mode
     await this.updateOperationalState(1) // Running
-
-    // Simulate cleaning completion after 10 seconds (shorter since resuming)
-    const completionTimer = setTimeout(() => {
-      this.logInfo('cleaning completed, returning to dock.')
-      this.updateRunMode(0) // Set to Idle - cleaning session ending
-      this.returnToDock()
-    }, 10000)
-
-    this.activeTimers.push(completionTimer)
+    this.scheduleCleaningCompletion(10) // Complete after 10 seconds (shorter since resuming)
   }
 
   private async handleGoHome(): Promise<void> {
@@ -445,6 +463,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
    */
 
   public async updateOperationalState(state: number): Promise<void> {
+    this.currentOperationalState = state // Track the current state
     await this.updateState('rvcOperationalState', { operationalState: state })
     const states = [
       'Stopped',
@@ -459,6 +478,10 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
       'Seeking Charger',
       'Charging',
       'Docked',
+      'Emptying Dust Bin',
+      'Cleaning Mop',
+      'Filling Water Tank',
+      'Updating Maps',
     ]
     this.logInfo(`operational state updated to: ${states[state] || `Unknown (${state})`}`)
   }
@@ -532,5 +555,55 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
 
     await this.updateState('powerSource', { batPercentRemaining, batChargeLevel })
     this.logInfo(`battery updated to: ${percentage}% (${batChargeLevel === 0 ? 'Ok' : batChargeLevel === 1 ? 'Warning' : 'Critical'})`)
+  }
+
+  /**
+   * Convenience Methods for Maintenance States
+   * These helper methods make it easier to transition to maintenance states
+   */
+
+  /**
+   * Set the vacuum to emptying dust bin state (e.g., on a dock)
+   */
+  public async setEmptyingDustBin(): Promise<void> {
+    await this.updateOperationalState(67)
+  }
+
+  /**
+   * Set the vacuum to cleaning mop state (e.g., on a dock)
+   */
+  public async setCleaningMop(): Promise<void> {
+    await this.updateOperationalState(68)
+  }
+
+  /**
+   * Set the vacuum to filling water tank state (e.g., from a dock)
+   */
+  public async setFillingWaterTank(): Promise<void> {
+    await this.updateOperationalState(69)
+  }
+
+  /**
+   * Set the vacuum to updating maps state
+   */
+  public async setUpdatingMaps(): Promise<void> {
+    await this.updateOperationalState(70)
+  }
+
+  /**
+   * Schedule a cleaning operation with automatic completion
+   * Reduces code duplication across start/resume handlers
+   *
+   * @param durationSeconds - How long the cleaning should run before completing
+   */
+  private scheduleCleaningCompletion(durationSeconds: number): void {
+    const completionTimer = setTimeout(async () => {
+      this.logInfo('cleaning completed, returning to dock.')
+      await this.updateRunMode(0) // Set to Idle - cleaning session ending
+
+      this.returnToDock()
+    }, durationSeconds * 1000)
+
+    this.activeTimers.push(completionTimer)
   }
 }
