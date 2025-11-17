@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changes
 
 - replace verified badge (use `shields.io`)
+- updates to release workflows to use oidc
 
 ## v0.7.1 (2025-11-15)
 
