@@ -8,10 +8,8 @@
 Homebridge plugin to showcase examples of Matter devices in Homebridge.
 
 [![npm](https://img.shields.io/npm/v/@homebridge-plugins/homebridge-matter/latest?label=latest)](https://www.npmjs.com/package/@homebridge-plugins/homebridge-matter)
-[![npm](https://img.shields.io/npm/v/@homebridge-plugins/homebridge-matter/beta?label=beta)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Beta-Version)
-
-[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
-
+[![npm](https://img.shields.io/npm/v/@homebridge-plugins/homebridge-matter/beta?label=beta)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Beta-Version)  
+[![verified-by-homebridge](https://img.shields.io/badge/homebridge-verified-blueviolet?color=%23491F59&style=flat)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)  
 [![npm](https://img.shields.io/npm/dt/@homebridge-plugins/homebridge-matter)](https://www.npmjs.com/package/@homebridge-plugins/homebridge-matter)
 [![Discord](https://img.shields.io/discord/432663330281226270?color=728ED5&logo=discord&label=hb-discord)](https://discord.com/channels/432663330281226270/742733745743855627)
 
