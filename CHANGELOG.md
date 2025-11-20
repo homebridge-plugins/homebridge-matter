@@ -2,7 +2,7 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
-## v0.7.3 (Unreleased)
+## v0.8.0 (2025-11-20)
 
 ### Changes
 
