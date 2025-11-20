@@ -2,7 +2,13 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
-## v0.7.2 (Unreleased)
+## v0.7.3 (Unreleased)
+
+### Changes
+
+- update versions of actions in workflows
+
+## v0.7.2 (2025-11-17)
 
 ### Changes
 
