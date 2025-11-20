@@ -33,7 +33,7 @@ export class ThermostatAccessory extends BaseMatterAccessory {
           minSetpointDeadBand: 25, // 2.5°C minimum difference between heat/cool setpoints (required for Auto mode)
           controlSequenceOfOperation: 4, // cooling and heating
           systemMode: 1, // auto mode (0=off, 1=auto, 3=cool, 4=heat)
-          occupancy: { occupied: true }, // default to occupied state
+          externallyMeasuredOccupancy: true, // default to occupied state (via external sensor)
         },
       },
 
@@ -146,7 +146,7 @@ export class ThermostatAccessory extends BaseMatterAccessory {
   }
 
   public async updateOccupancy(occupied: boolean): Promise<void> {
-    await this.updateState('thermostat', { occupancy: { occupied } })
+    await this.updateState('thermostat', { externallyMeasuredOccupancy: occupied })
     this.logInfo(`occupancy: ${occupied ? 'occupied' : 'unoccupied'}.`)
   }
 

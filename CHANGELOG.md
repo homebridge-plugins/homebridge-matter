@@ -8,6 +8,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 
 - update versions of actions in workflows
 - fix serial number for air quality sensor
+- fix occupancy sensor for thermostat
 
 ## v0.7.2 (2025-11-17)
 
