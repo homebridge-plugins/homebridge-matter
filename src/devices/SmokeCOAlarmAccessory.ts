@@ -14,7 +14,7 @@ export class SmokeCOAlarmAccessory extends BaseMatterAccessory {
     )
 
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Smoke Sensor',
       deviceType: SmokeSensorWithBoth,
       serialNumber,

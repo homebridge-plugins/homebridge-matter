@@ -11,7 +11,7 @@ export class ExtendedColorLightAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'LIGHT-005'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Extended Colour Light (HS+CCT)',
       deviceType: api.matter.deviceTypes.ExtendedColorLight,
       serialNumber,

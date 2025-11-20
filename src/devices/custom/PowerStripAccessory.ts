@@ -17,7 +17,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     const serialNumber = 'POWER-STRIP-001'
 
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Power Strip',
       deviceType: api.matter.deviceTypes.OnOffOutlet,
       serialNumber,
@@ -269,7 +269,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
 
     // Get the state from the Matter server
     const state = await this.api.matter.getAccessoryState(
-      this.uuid,
+      this.UUID,
       this.api.matter.clusterNames.OnOff,
       partId,
     )
@@ -337,11 +337,11 @@ export class PowerStripAccessory extends BaseMatterAccessory {
   protected async updateState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void> {
     if (partId) {
       // Update a specific part
-      await this.api.matter.updateAccessoryState(this.uuid, cluster, attributes, partId)
+      await this.api.matter.updateAccessoryState(this.UUID, cluster, attributes, partId)
       this.logDebug(`Updated ${cluster} state for part ${partId}:`, attributes)
     } else {
       // Update main accessory
-      await this.api.matter.updateAccessoryState(this.uuid, cluster, attributes)
+      await this.api.matter.updateAccessoryState(this.UUID, cluster, attributes)
       this.logDebug(`Updated ${cluster} state:`, attributes)
     }
   }

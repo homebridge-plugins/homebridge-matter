@@ -12,7 +12,7 @@ export class VenetianBlindAccessory extends BaseMatterAccessory {
     const serialNumber = 'BLIND-002'
 
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Venetian Blind (Tilt)',
       deviceType: api.matter.deviceTypes.WindowCovering,
       serialNumber,

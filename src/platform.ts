@@ -4,7 +4,6 @@ import type {
   Logging,
   MatterAccessory,
   PlatformConfig,
-  SerializedMatterAccessory,
 } from 'homebridge'
 
 import {
@@ -45,7 +44,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
   // public readonly accessories: Map<string, PlatformAccessory> = new Map()
 
   // Track restored Matter cached accessories
-  public readonly matterAccessories: Map<string, SerializedMatterAccessory> = new Map()
+  public readonly matterAccessories: Map<string, MatterAccessory> = new Map()
 
   constructor(
     public readonly log: Logging,
@@ -92,9 +91,9 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    * This is where you can access the `accessory.context` object to retrieve
    * any custom data you stored when the accessory was originally registered.
    */
-  configureMatterAccessory(accessory: SerializedMatterAccessory) {
+  configureMatterAccessory(accessory: MatterAccessory) {
     this.log.debug('Loading cached Matter accessory:', accessory.displayName)
-    this.matterAccessories.set(accessory.uuid, accessory)
+    this.matterAccessories.set(accessory.UUID, accessory)
   }
 
   /**
@@ -157,7 +156,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
         const existingAccessory = this.matterAccessories.get(uuid)
         if (existingAccessory) {
           this.log.info(`Removing accessory '${name}' (disabled in config)`)
-          await this.api.matter.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory as unknown as MatterAccessory])
+          await this.api.matter.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory])
           this.matterAccessories.delete(uuid)
         }
       }

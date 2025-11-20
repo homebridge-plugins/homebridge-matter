@@ -15,7 +15,7 @@ export class OccupancySensorAccessory extends BaseMatterAccessory {
     )
 
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Occupancy Sensor',
       deviceType: OccupancySensorWithPIR,
       serialNumber,

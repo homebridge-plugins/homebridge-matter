@@ -10,7 +10,7 @@ export class ThermostatAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'THERMOSTAT-001'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Thermostat',
       deviceType: api.matter.deviceTypes.Thermostat,
       serialNumber,

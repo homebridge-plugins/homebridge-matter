@@ -10,7 +10,7 @@ export class DoorLockAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'LOCK-001'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Door Lock',
       deviceType: api.matter.deviceTypes.DoorLock,
       serialNumber,

@@ -11,7 +11,7 @@
 import type { API, EndpointType, Logger, MatterAccessory } from 'homebridge'
 
 export interface BaseMatterAccessoryConfig {
-  uuid: string
+  UUID: string
   displayName: string
   deviceType: EndpointType
   serialNumber: string
@@ -31,7 +31,7 @@ export interface BaseMatterAccessoryConfig {
  */
 export abstract class BaseMatterAccessory implements MatterAccessory {
   // Required MatterAccessory properties
-  public readonly uuid: string
+  public readonly UUID: string
   public readonly displayName: string
   public readonly deviceType: EndpointType
   public readonly serialNumber: string
@@ -57,7 +57,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
     this.log = log
 
     // Set all required properties
-    this.uuid = config.uuid
+    this.UUID = config.UUID
     this.displayName = config.displayName
     this.deviceType = config.deviceType
     this.serialNumber = config.serialNumber
@@ -85,7 +85,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
    * Helper method to update cluster attributes
    */
   protected async updateState(cluster: string, attributes: Record<string, unknown>): Promise<void> {
-    await this.api.matter.updateAccessoryState(this.uuid, cluster, attributes)
+    await this.api.matter.updateAccessoryState(this.UUID, cluster, attributes)
     this.log.debug(`[${this.displayName}] Updated ${cluster} state:`, attributes)
   }
 
@@ -114,7 +114,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
    */
   public toAccessory(): MatterAccessory {
     return {
-      uuid: this.uuid,
+      UUID: this.UUID,
       displayName: this.displayName,
       deviceType: this.deviceType,
       serialNumber: this.serialNumber,

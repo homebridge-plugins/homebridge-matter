@@ -10,7 +10,7 @@ export class TemperatureSensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'SENSOR-004'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Temperature Sensor',
       deviceType: api.matter.deviceTypes.TemperatureSensor,
       serialNumber,

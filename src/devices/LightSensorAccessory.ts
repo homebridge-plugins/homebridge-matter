@@ -10,7 +10,7 @@ export class LightSensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'SENSOR-002'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Light Sensor',
       deviceType: api.matter.deviceTypes.LightSensor,
       serialNumber,

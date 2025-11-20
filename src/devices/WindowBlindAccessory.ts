@@ -12,7 +12,7 @@ export class WindowBlindAccessory extends BaseMatterAccessory {
     const serialNumber = 'BLIND-001'
 
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Window Blind',
       deviceType: api.matter.deviceTypes.WindowCovering,
       serialNumber,

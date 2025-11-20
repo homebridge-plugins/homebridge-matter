@@ -10,7 +10,7 @@ export class ColorTemperatureLightAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'LIGHT-003'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Colour Temperature Light',
       deviceType: api.matter.deviceTypes.ColorTemperatureLight,
       serialNumber,

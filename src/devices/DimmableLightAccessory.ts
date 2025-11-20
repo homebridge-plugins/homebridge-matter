@@ -31,7 +31,7 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
     const hardwareRevision = '1.0.0'
 
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName,
       deviceType: api.matter.deviceTypes.DimmableLight,
       serialNumber,

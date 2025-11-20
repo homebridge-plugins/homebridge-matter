@@ -26,7 +26,7 @@ export class OnOffLightAccessory extends BaseMatterAccessory {
 
     // Call parent constructor with device configuration
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName,
       deviceType: api.matter.deviceTypes.OnOffLight,
       serialNumber,

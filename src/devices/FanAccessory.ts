@@ -10,7 +10,7 @@ export class FanAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'FAN-001'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Fan',
       deviceType: api.matter.deviceTypes.Fan,
       serialNumber,

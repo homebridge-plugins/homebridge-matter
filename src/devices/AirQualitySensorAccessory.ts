@@ -17,7 +17,7 @@ export class AirQualitySensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'SENSOR-008'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Air Quality Sensor',
       deviceType: api.matter.deviceTypes.AirQualitySensor,
       serialNumber,

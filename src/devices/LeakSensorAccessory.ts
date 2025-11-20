@@ -10,7 +10,7 @@ export class LeakSensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'SENSOR-007'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Leak Sensor',
       deviceType: api.matter.deviceTypes.LeakSensor,
       serialNumber,

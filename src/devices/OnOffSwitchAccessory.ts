@@ -10,7 +10,7 @@ export class OnOffSwitchAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'SWITCH-001'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'On/Off Switch',
       deviceType: api.matter.deviceTypes.OnOffSwitch,
       serialNumber,

@@ -10,7 +10,7 @@ export class HumiditySensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'SENSOR-005'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Humidity Sensor',
       deviceType: api.matter.deviceTypes.HumiditySensor,
       serialNumber,

@@ -36,7 +36,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'VACUUM-001'
     super(api, log, {
-      uuid: api.matter.uuid.generate(serialNumber),
+      UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Robot Vacuum',
       deviceType: api.matter.deviceTypes.RoboticVacuumCleaner,
       serialNumber,
