@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changes
 
 - update versions of actions in workflows
+- fix serial number for air quality sensor
 
 ## v0.7.2 (2025-11-17)
 
