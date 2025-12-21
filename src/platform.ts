@@ -31,6 +31,7 @@ import {
   WindowBlindAccessory,
 } from './devices/index.js'
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js'
+import { parseError } from './utils.js'
 
 /**
  * MatterPlatform
@@ -71,7 +72,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     // Register Matter accessories when Homebridge has finished launching
     this.api.on('didFinishLaunching', () => {
       this.log.debug('Executed didFinishLaunching callback')
-      this.registerMatterAccessories()
+      void this.registerMatterAccessories()
     })
   }
 
@@ -153,11 +154,18 @@ export class MatterPlatform implements DynamicPlatformPlugin {
 
     for (const { enabled, uuid, name } of configMap) {
       if (enabled === false) {
-        const existingAccessory = this.matterAccessories.get(uuid)
-        if (existingAccessory) {
-          this.log.info(`Removing accessory '${name}' (disabled in config)`)
-          await this.api.matter.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory])
-          this.matterAccessories.delete(uuid)
+        this.log.warn(`Removing accessory '${name}' (disabled in config).`)
+        try {
+          const existingAccessory = this.matterAccessories.get(uuid)
+          if (existingAccessory) {
+            await this.api.matter.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory])
+            this.matterAccessories.delete(uuid)
+            this.log.debug(`Accessory '${name}' removed successfully.`)
+          } else {
+            this.log.debug(`Cannot remove accessory '${name}': not found among cached accessories.`)
+          }
+        } catch (error) {
+          this.log.warn(`Error removing accessory '${name}': ${parseError(error)}.`)
         }
       }
     }

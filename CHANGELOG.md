@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.8.2 (Unreleased)
+
+### Changes
+
+- improve logging when removing accessory
+
 ## v0.8.1 (2025-12-05)
 
 ### Changes
