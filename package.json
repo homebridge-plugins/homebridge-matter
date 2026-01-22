@@ -49,7 +49,7 @@
   "main": "dist/index.js",
   "engines": {
     "node": "^20.18.0 || ^22.10.0 || ^24.0.0",
-    "homebridge": ">=2.0.0-beta.63"
+    "homebridge": ">=2.0.0-beta.69"
   },
   "scripts": {
     "build": "rimraf ./dist && tsc && npm run plugin-ui",
@@ -62,9 +62,9 @@
     "@homebridge/plugin-ui-utils": "^2.1.3-beta.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^6.7.1",
-    "@types/node": "^25.0.3",
-    "homebridge": "^2.0.0-beta.65",
+    "@antfu/eslint-config": "^7.2.0",
+    "@types/node": "^25.0.10",
+    "homebridge": "^2.0.0-beta.69",
     "rimraf": "^6.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
