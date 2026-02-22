@@ -8,8 +8,8 @@
 Homebridge plugin to showcase examples of Matter devices in Homebridge.
 
 [![npm](https://img.shields.io/npm/v/@homebridge-plugins/homebridge-matter/latest?label=latest)](https://www.npmjs.com/package/@homebridge-plugins/homebridge-matter)
-[![npm](https://img.shields.io/npm/v/@homebridge-plugins/homebridge-matter/beta?label=beta)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Beta-Version)  
-[![verified-by-homebridge](https://img.shields.io/badge/homebridge-verified-blueviolet?color=%23491F59&style=flat)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)  
+[![npm](https://img.shields.io/npm/v/@homebridge-plugins/homebridge-matter/beta?label=beta)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Beta-Version)<br>
+[![verified-by-homebridge](https://img.shields.io/badge/homebridge-verified-blueviolet?color=%23491F59&style=flat)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)<br>
 [![npm](https://img.shields.io/npm/dt/@homebridge-plugins/homebridge-matter)](https://www.npmjs.com/package/@homebridge-plugins/homebridge-matter)
 [![Discord](https://img.shields.io/discord/432663330281226270?color=728ED5&logo=discord&label=hb-discord)](https://discord.com/channels/432663330281226270/742733745743855627)
 
@@ -27,7 +27,7 @@ This plugin provides example implementations of Matter device types in Homebridg
 
 - To use this plugin, you will need to already have:
   - [Node](https://nodejs.org): latest version of `v20`, `v22` or `v24` - any other major version is not supported.
-  - [Homebridge](https://homebridge.io): `>=2.0.0-beta.69` - refer to link for more information and installation instructions.
+  - [Homebridge](https://homebridge.io): `>=2.0.0-beta.72` - refer to link for more information and installation instructions.
 
 ### Getting Started
 

@@ -3,15 +3,11 @@ import { antfu } from '@antfu/eslint-config'
 /** @type {typeof antfu} */
 export default antfu(
   {
-    ignores: ['README.md'],
+    ignores: [],
     jsx: false,
     rules: {
       'curly': ['error', 'multi-line'],
       'new-cap': 'off',
-      'jsdoc/check-alignment': 'warn',
-      'jsdoc/check-line-alignment': 'warn',
-      'jsdoc/require-returns-check': 0,
-      'jsdoc/require-returns-description': 0,
       'no-undef': 'error',
       'perfectionist/sort-exports': 'error',
       'perfectionist/sort-imports': [
