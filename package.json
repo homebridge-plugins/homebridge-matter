@@ -64,7 +64,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^7.4.3",
     "@types/node": "^25.3.0",
-    "homebridge": "^2.0.0-beta.73",
+    "homebridge": "^2.0.0-beta.75",
     "rimraf": "^6.1.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
