@@ -45,8 +45,7 @@ export class WindowBlindAccessory extends BaseMatterAccessory {
 
       handlers: {
         windowCovering: {
-          goToLiftPercentage: async (request: MatterRequests.GoToLiftPercentage) =>
-            this.handleGoToLift(request),
+          goToLiftPercentage: async request => this.handleGoToLift(request),
           upOrOpen: async () => this.handleUpOrOpen(),
           downOrClose: async () => this.handleDownOrClose(),
           stopMotion: async () => this.handleStop(),

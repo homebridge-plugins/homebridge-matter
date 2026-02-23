@@ -50,7 +50,7 @@ export class OnOffOutletAccessory extends BaseMatterAccessory {
     // }
 
     // Example: Check if outlet is disabled by physical safety lock
-    // if (this.isPhysicallylocked) {
+    // if (this.isPhysicallyLocked) {
     //   throw new MatterStatus.PermissionDenied('Outlet is physically locked for safety')
     // }
 

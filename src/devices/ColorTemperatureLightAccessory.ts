@@ -4,6 +4,10 @@
 
 import type { API, Logger, MatterRequests } from 'homebridge'
 
+// Handler type approaches:
+// 1. MatterRequests.* — raw matter.js request types (useful for some handlers like MoveToLevel)
+// 2. ClusterHandlerMap — behavior-transformed types with automatic inference (recommended for color handlers)
+// Both approaches work. Color handlers use inferred types since the behavior transforms the request.
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class ColorTemperatureLightAccessory extends BaseMatterAccessory {
@@ -43,12 +47,11 @@ export class ColorTemperatureLightAccessory extends BaseMatterAccessory {
           off: async () => this.handleOff(),
         },
         levelControl: {
-          moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) =>
-            this.handleSetLevel(request),
+          moveToLevelWithOnOff: async request => this.handleSetLevel(request),
         },
         colorControl: {
-          moveToColorTemperatureLogic: async (request: MatterRequests.MoveToColorTemperature) =>
-            this.handleSetColorTemperature(request),
+          // Color temp handler uses inferred type from ClusterHandlerMap
+          moveToColorTemperatureLogic: async request => this.handleSetColorTemperature(request),
         },
       },
     })
@@ -74,7 +77,7 @@ export class ColorTemperatureLightAccessory extends BaseMatterAccessory {
     // TODO: await myLightAPI.setBrightness(brightnessPercent)
   }
 
-  private async handleSetColorTemperature(request: MatterRequests.MoveToColorTemperature): Promise<void> {
+  private async handleSetColorTemperature(request: { colorTemperatureMireds: number, transitionTime: number }): Promise<void> {
     this.logInfo(`MoveToColorTemperature request: ${JSON.stringify(request)}`)
     const { colorTemperatureMireds, transitionTime } = request
     const kelvin = Math.round(1000000 / colorTemperatureMireds)

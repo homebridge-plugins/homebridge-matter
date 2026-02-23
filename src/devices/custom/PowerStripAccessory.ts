@@ -8,7 +8,7 @@
  * composed devices, where each part has its own Matter endpoint.
  */
 
-import type { API, Logger } from 'homebridge'
+import type { API, ClusterStateMap, Logger } from 'homebridge'
 
 import { BaseMatterAccessory } from '../BaseMatterAccessory.js'
 
@@ -267,12 +267,8 @@ export class PowerStripAccessory extends BaseMatterAccessory {
   public async getOutletState(outletNumber: 1 | 2 | 3 | 4): Promise<boolean> {
     const partId = `outlet-${outletNumber}`
 
-    // Get the state from the Matter server
-    const state = await this.api.matter.getAccessoryState(
-      this.UUID,
-      this.api.matter.clusterNames.OnOff,
-      partId,
-    )
+    // Get the state using the typed readState helper
+    const state = await this.readState('onOff', partId)
 
     return state?.onOff === true
   }
@@ -332,16 +328,15 @@ export class PowerStripAccessory extends BaseMatterAccessory {
   }
 
   /**
-   * Override updateState to support partId parameter
+   * Override updateState to support partId parameter with typed overloads
    */
+  protected async updateState<K extends keyof ClusterStateMap>(cluster: K, attributes: Partial<ClusterStateMap[K]>, partId?: string): Promise<void>
+  protected async updateState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void>
   protected async updateState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void> {
+    await this.api.matter.updateAccessoryState(this.UUID, cluster, attributes, partId)
     if (partId) {
-      // Update a specific part
-      await this.api.matter.updateAccessoryState(this.UUID, cluster, attributes, partId)
       this.logDebug(`Updated ${cluster} state for part ${partId}:`, attributes)
     } else {
-      // Update main accessory
-      await this.api.matter.updateAccessoryState(this.UUID, cluster, attributes)
       this.logDebug(`Updated ${cluster} state:`, attributes)
     }
   }

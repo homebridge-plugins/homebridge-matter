@@ -2,7 +2,7 @@
  * Fan Accessory Class
  */
 
-import type { API, Logger, MatterRequests } from 'homebridge'
+import type { API, Logger } from 'homebridge'
 
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
@@ -30,23 +30,14 @@ export class FanAccessory extends BaseMatterAccessory {
 
       handlers: {
         fanControl: {
-          step: async (request: MatterRequests.FanStep) => this.handleStep(request),
-          fanModeChange: async (request: { fanMode: number, oldFanMode: number }) => this.handleFanModeChange(request),
-          percentSettingChange: async (request: { percentSetting: number | null, oldPercentSetting: number | null }) =>
-            this.handlePercentSettingChange(request),
+          // Handler types are automatically inferred from ClusterHandlerMap
+          fanModeChange: async request => this.handleFanModeChange(request),
+          percentSettingChange: async request => this.handlePercentSettingChange(request),
         },
       },
     })
 
     this.logInfo('initialized.')
-  }
-
-  private async handleStep(request: MatterRequests.FanStep): Promise<void> {
-    this.logInfo(`FanStep request: ${JSON.stringify(request)}`)
-    const { direction, wrap, lowestOff } = request
-    const dirStr = direction === 0 ? 'increase' : 'decrease'
-    this.logInfo(`step ${dirStr} (wrap: ${wrap}, lowestoff: ${lowestOff}).`)
-    // TODO: await myFanAPI.step(direction, wrap, lowestOff)
   }
 
   private async handleFanModeChange(request: { fanMode: number, oldFanMode: number }): Promise<void> {

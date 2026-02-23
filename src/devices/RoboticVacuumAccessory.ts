@@ -23,7 +23,7 @@
  * - Pause: Cancels automatic completion timer, keeps "Cleaning" mode
  */
 
-import type { API, Logger, MatterRequests } from 'homebridge'
+import type { API, Logger } from 'homebridge'
 
 import { MatterStatus } from 'homebridge'
 
@@ -179,21 +179,22 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
 
       handlers: {
         rvcRunMode: {
-          changeToMode: async (request: MatterRequests.ChangeToMode) => this.handleChangeRunMode(request),
+          // Handler types are automatically inferred from ClusterHandlerMap
+          changeToMode: async request => this.handleChangeRunMode(request),
         },
         rvcCleanMode: {
-          changeToMode: async (request: MatterRequests.ChangeToMode) => this.handleChangeCleanMode(request),
+          changeToMode: async request => this.handleChangeCleanMode(request),
         },
+        // Note: rvcOperationalState only supports pause, resume, and goHome handlers.
+        // Start/stop is controlled through rvcRunMode.changeToMode instead.
         rvcOperationalState: {
           pause: async () => this.handlePause(),
-          stop: async () => this.handleStop(),
-          start: async () => this.handleStart(),
           resume: async () => this.handleResume(),
           goHome: async () => this.handleGoHome(),
         },
         serviceArea: {
-          selectAreas: async (request: MatterRequests.SelectAreas) => this.handleSelectAreas(request),
-          skipArea: async (request: MatterRequests.SkipArea) => this.handleSkipArea(request),
+          selectAreas: async request => this.handleSelectAreas(request),
+          skipArea: async request => this.handleSkipArea(request),
         },
       },
     })
@@ -201,7 +202,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     this.logInfo('initialized and ready.')
   }
 
-  private async handleChangeRunMode(request: MatterRequests.ChangeToMode): Promise<void> {
+  private async handleChangeRunMode(request: { newMode: number }): Promise<void> {
     this.logInfo(`ChangeToMode (run) request received: ${JSON.stringify(request)}`)
     const { newMode } = request
     const modeStr = ['Idle', 'Cleaning', 'Mapping'][newMode] || `Unknown (mode=${newMode})`
@@ -232,7 +233,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     }
   }
 
-  private async handleChangeCleanMode(request: MatterRequests.ChangeToMode): Promise<void> {
+  private async handleChangeCleanMode(request: { newMode: number }): Promise<void> {
     this.logInfo(`ChangeToMode (clean) request received: ${JSON.stringify(request)}`)
     const { newMode } = request
     const modes = [
@@ -294,47 +295,6 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     await this.updateOperationalState(2) // Paused
   }
 
-  private async handleStop(): Promise<void> {
-    this.logInfo('stopping.')
-    // TODO: await myVacuumAPI.stop()
-    this.clearTimers()
-    await this.updateRunMode(0) // Reset to Idle
-    await this.updateOperationalState(0) // Stopped
-  }
-
-  private async handleStart(): Promise<void> {
-    this.logInfo('starting (via start command).')
-
-    // Example: Check battery level before starting
-    // if (this.batteryPercent < 10) {
-    //   throw new MatterStatus.InvalidInState('Battery too low to start cleaning (below 10%)')
-    // }
-
-    // Example: Check if dust bin is full
-    // if (this.isDustBinFull) {
-    //   throw new MatterStatus.InvalidInState('Dust bin is full - please empty before starting')
-    // }
-
-    // Example: Check if vacuum is already running
-    // if (this.operationalState === 1) { // 1 = Running
-    //   throw new MatterStatus.InvalidInState('Vacuum is already running')
-    // }
-
-    // Example: Check if vacuum is on dock
-    // if (!this.isDocked) {
-    //   throw new MatterStatus.InvalidInState('Vacuum must be docked to start mapping mode')
-    // }
-
-    // TODO: await myVacuumAPI.start()
-
-    // Clear any existing timers
-    this.clearTimers()
-
-    await this.updateRunMode(1) // Set to Cleaning mode - this will trigger the run mode handler logic
-    await this.updateOperationalState(1) // Running
-    this.scheduleCleaningCompletion(15) // Complete after 15 seconds
-  }
-
   private async handleResume(): Promise<void> {
     this.logInfo('resuming.')
 
@@ -382,7 +342,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     })
   }
 
-  private async handleSelectAreas(request: MatterRequests.SelectAreas): Promise<void> {
+  private async handleSelectAreas(request: { newAreas: number[] }): Promise<void> {
     this.logInfo(`SelectAreas request received: ${JSON.stringify(request)}`)
     const { newAreas } = request
     const areaNames = newAreas.map((id: number) =>
@@ -410,7 +370,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     // TODO: await myVacuumAPI.selectAreas(newAreas)
   }
 
-  private async handleSkipArea(request: MatterRequests.SkipArea): Promise<void> {
+  private async handleSkipArea(request: { skippedArea: number }): Promise<void> {
     this.logInfo(`SkipArea request received: ${JSON.stringify(request)}`)
     const { skippedArea } = request
     const areaName = ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom'][skippedArea] || `Area ${skippedArea}`

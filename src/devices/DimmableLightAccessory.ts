@@ -57,8 +57,7 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
           off: async () => this.handleOff(),
         },
         levelControl: {
-          moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) =>
-            this.handleSetLevel(request),
+          moveToLevelWithOnOff: async request => this.handleSetLevel(request),
         },
       },
     })

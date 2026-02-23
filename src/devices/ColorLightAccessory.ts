@@ -7,6 +7,11 @@ import type { API, Logger, MatterRequests } from 'homebridge'
 
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
+// Handler type approaches:
+// 1. MatterRequests.* — raw matter.js request types (useful for some handlers like MoveToLevel)
+// 2. ClusterHandlerMap — behavior-transformed types with automatic inference (recommended for color handlers)
+// Both approaches work. Color handlers use inferred types since the behavior transforms the request.
+
 export class ColorLightAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'LIGHT-004'
@@ -42,14 +47,13 @@ export class ColorLightAccessory extends BaseMatterAccessory {
           off: async () => this.handleOff(),
         },
         levelControl: {
-          moveToLevelWithOnOff: async (request: MatterRequests.MoveToLevel) =>
-            this.handleSetLevel(request),
+          moveToLevelWithOnOff: async request => this.handleSetLevel(request),
         },
         colorControl: {
-          moveToColorLogic: async (request: MatterRequests.MoveToColor) =>
-            this.handleSetColor(request),
-          moveToHueAndSaturationLogic: async (request: MatterRequests.MoveToHueAndSaturation) =>
-            this.handleSetHueSaturation(request),
+          // Color handlers use inferred types from ClusterHandlerMap — the behavior transforms
+          // the raw matter.js request before passing it to your handler
+          moveToColorLogic: async request => this.handleSetColor(request),
+          moveToHueAndSaturationLogic: async request => this.handleSetHueSaturation(request),
         },
       },
     })
@@ -106,16 +110,16 @@ export class ColorLightAccessory extends BaseMatterAccessory {
     // TODO: await myLightAPI.setBrightness(brightnessPercent)
   }
 
-  private async handleSetColor(request: MatterRequests.MoveToColor): Promise<void> {
+  private async handleSetColor(request: { targetX: number, targetY: number, transitionTime: number }): Promise<void> {
     this.logInfo(`MoveToColor request: ${JSON.stringify(request)}`)
-    const { colorX, colorY, transitionTime } = request
-    const xFloat = (colorX / 65535).toFixed(4)
-    const yFloat = (colorY / 65535).toFixed(4)
+    const { targetX, targetY, transitionTime } = request
+    const xFloat = (targetX / 65535).toFixed(4)
+    const yFloat = (targetY / 65535).toFixed(4)
     this.logInfo(`setting xy color to (${xFloat}, ${yFloat}).`)
     // TODO: await myLightAPI.setXY(xFloat, yFloat, transitionTime)
   }
 
-  private async handleSetHueSaturation(request: MatterRequests.MoveToHueAndSaturation): Promise<void> {
+  private async handleSetHueSaturation(request: { hue: number, saturation: number, transitionTime: number }): Promise<void> {
     this.logInfo(`MoveToHueAndSaturation request: ${JSON.stringify(request)}`)
     const { hue, saturation, transitionTime } = request
     const hueDegrees = Math.round((hue / 254) * 360)

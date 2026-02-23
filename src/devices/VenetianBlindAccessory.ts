@@ -47,10 +47,8 @@ export class VenetianBlindAccessory extends BaseMatterAccessory {
 
       handlers: {
         windowCovering: {
-          goToLiftPercentage: async (request: MatterRequests.GoToLiftPercentage) =>
-            this.handleGoToLift(request),
-          goToTiltPercentage: async (request: MatterRequests.GoToTiltPercentage) =>
-            this.handleGoToTilt(request),
+          goToLiftPercentage: async request => this.handleGoToLift(request),
+          goToTiltPercentage: async request => this.handleGoToTilt(request),
           upOrOpen: async () => this.handleUpOrOpen(),
           downOrClose: async () => this.handleDownOrClose(),
           stopMotion: async () => this.handleStop(),

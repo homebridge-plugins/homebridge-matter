@@ -39,14 +39,10 @@ export class ThermostatAccessory extends BaseMatterAccessory {
 
       handlers: {
         thermostat: {
-          setpointRaiseLower: async (request: MatterRequests.SetpointRaiseLower) =>
-            this.handleSetpointRaiseLower(request),
-          systemModeChange: async (request: { systemMode: number, oldSystemMode: number }) =>
-            this.handleSystemModeChange(request),
-          occupiedHeatingSetpointChange: async (request: { occupiedHeatingSetpoint: number, oldOccupiedHeatingSetpoint: number }) =>
-            this.handleOccupiedHeatingSetpointChange(request),
-          occupiedCoolingSetpointChange: async (request: { occupiedCoolingSetpoint: number, oldOccupiedCoolingSetpoint: number }) =>
-            this.handleOccupiedCoolingSetpointChange(request),
+          setpointRaiseLower: async request => this.handleSetpointRaiseLower(request),
+          systemModeChange: async request => this.handleSystemModeChange(request),
+          occupiedHeatingSetpointChange: async request => this.handleOccupiedHeatingSetpointChange(request),
+          occupiedCoolingSetpointChange: async request => this.handleOccupiedCoolingSetpointChange(request),
         },
       },
     })

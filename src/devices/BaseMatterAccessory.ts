@@ -8,7 +8,7 @@
  * the required configuration.
  */
 
-import type { API, EndpointType, Logger, MatterAccessory } from 'homebridge'
+import type { API, ClusterStateMap, EndpointType, Logger, MatterAccessory } from 'homebridge'
 
 export interface BaseMatterAccessoryConfig {
   UUID: string
@@ -82,11 +82,45 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
 
   /**
    * Update the accessory state
-   * Helper method to update cluster attributes
+   * Helper method to update cluster attributes with full type safety
+   *
+   * @example
+   * ```typescript
+   * // Known clusters get autocomplete for attribute names
+   * await this.updateState('onOff', { onOff: true })
+   * await this.updateState('levelControl', { currentLevel: 200 })
+   *
+   * // Unknown/custom clusters still work with Record<string, unknown>
+   * await this.updateState('customCluster', { myAttr: 42 })
+   * ```
    */
-  protected async updateState(cluster: string, attributes: Record<string, unknown>): Promise<void> {
-    await this.api.matter.updateAccessoryState(this.UUID, cluster, attributes)
+  protected async updateState<K extends keyof ClusterStateMap>(cluster: K, attributes: Partial<ClusterStateMap[K]>, partId?: string): Promise<void>
+  protected async updateState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void>
+  protected async updateState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void> {
+    await this.api.matter.updateAccessoryState(this.UUID, cluster, attributes, partId)
     this.log.debug(`[${this.displayName}] Updated ${cluster} state:`, attributes)
+  }
+
+  /**
+   * Read the current accessory state
+   * Helper method to retrieve cluster attributes with full type safety
+   *
+   * @example
+   * ```typescript
+   * // Known clusters return typed state
+   * const state = await this.readState('onOff')
+   * if (state?.onOff) {
+   *   this.logInfo('light is on')
+   * }
+   *
+   * // Works with partId for composed devices
+   * const outletState = await this.readState('onOff', 'outlet-1')
+   * ```
+   */
+  protected async readState<K extends keyof ClusterStateMap>(cluster: K, partId?: string): Promise<Partial<ClusterStateMap[K]> | undefined>
+  protected async readState(cluster: string, partId?: string): Promise<Record<string, unknown> | undefined>
+  protected async readState(cluster: string, partId?: string): Promise<Record<string, unknown> | undefined> {
+    return await this.api.matter.getAccessoryState(this.UUID, cluster, partId)
   }
 
   /**
