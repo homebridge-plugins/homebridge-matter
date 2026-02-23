@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changes
 
 - updates from homebridge `v2.0.0-beta.73`
+- dependency + engine updates
 
 ## v0.8.4 (2026-02-22)
 
