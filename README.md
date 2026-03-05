@@ -3,7 +3,7 @@
 </p>
 <span align="center">
 
-# homebridge-matter
+## homebridge-matter
 
 Homebridge plugin to showcase examples of Matter devices in Homebridge.
 
