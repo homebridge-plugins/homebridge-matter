@@ -12,6 +12,8 @@ import type { API, ClusterStateMap, Logger } from 'homebridge'
 
 import { BaseMatterAccessory } from '../BaseMatterAccessory.js'
 
+const OUTLET_REGEX = /outlet-(\d+)/
+
 export class PowerStripAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'POWER-STRIP-001'
@@ -205,7 +207,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
    * Extract outlet number from part ID
    */
   private getOutletNumber(partId: string): number {
-    const match = partId.match(/outlet-(\d+)/)
+    const match = partId.match(OUTLET_REGEX)
     return match ? Number.parseInt(match[1], 10) : 0
   }
 

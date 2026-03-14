@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changes
 
 - fix accessory removal if removed from the config
+- updated dependencies + apply new lint rules
 
 ## v0.9.2 (2026-03-05)
 
