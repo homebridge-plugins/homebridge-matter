@@ -153,11 +153,11 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     ]
 
     for (const { enabled, uuid, name } of configMap) {
-      if (enabled === false) {
-        this.log.warn(`Removing accessory '${name}' (disabled in config).`)
+      if (enabled !== true) {
         try {
           const existingAccessory = this.matterAccessories.get(uuid)
           if (existingAccessory) {
+            this.log.warn(`Removing accessory '${name}' (disabled in config).`)
             await this.api.matter.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory])
             this.matterAccessories.delete(uuid)
             this.log.debug(`Accessory '${name}' removed successfully.`)
@@ -182,31 +182,31 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     const accessories = []
 
     // On/Off Light
-    if (this.config.enableOnOffLight !== false) {
+    if (this.config.enableOnOffLight === true) {
       const device = new OnOffLightAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Dimmable Light
-    if (this.config.enableDimmableLight !== false) {
+    if (this.config.enableDimmableLight === true) {
       const device = new DimmableLightAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Color Temperature Light
-    if (this.config.enableColourTemperatureLight !== false) {
+    if (this.config.enableColourTemperatureLight === true) {
       const device = new ColorTemperatureLightAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Color Light (HS only)
-    if (this.config.enableColourLight !== false) {
+    if (this.config.enableColourLight === true) {
       const device = new ColorLightAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Extended Color Light (HS+CCT)
-    if (this.config.enableExtendedColourLight !== false) {
+    if (this.config.enableExtendedColourLight === true) {
       const device = new ExtendedColorLightAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
@@ -231,7 +231,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     const accessories = []
 
     // On/Off Outlet
-    if (this.config.enableOnOffOutlet !== false) {
+    if (this.config.enableOnOffOutlet === true) {
       const device = new OnOffOutletAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
@@ -256,7 +256,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     const accessories = []
 
     // On/Off Switch
-    if (this.config.enableOnOffSwitch !== false) {
+    if (this.config.enableOnOffSwitch === true) {
       const device = new OnOffSwitchAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
@@ -281,49 +281,49 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     const accessories = []
 
     // Air Quality Sensor
-    if (this.config.enableAirQualitySensor !== false) {
+    if (this.config.enableAirQualitySensor === true) {
       const device = new AirQualitySensorAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Contact Sensor
-    if (this.config.enableContactSensor !== false) {
+    if (this.config.enableContactSensor === true) {
       const device = new ContactSensorAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Light Sensor
-    if (this.config.enableLightSensor !== false) {
+    if (this.config.enableLightSensor === true) {
       const device = new LightSensorAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Occupancy Sensor
-    if (this.config.enableOccupancySensor !== false) {
+    if (this.config.enableOccupancySensor === true) {
       const device = new OccupancySensorAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Temperature Sensor
-    if (this.config.enableTemperatureSensor !== false) {
+    if (this.config.enableTemperatureSensor === true) {
       const device = new TemperatureSensorAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Humidity Sensor
-    if (this.config.enableHumiditySensor !== false) {
+    if (this.config.enableHumiditySensor === true) {
       const device = new HumiditySensorAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Smoke/CO Alarm
-    if (this.config.enableSmokeSensor !== false) {
+    if (this.config.enableSmokeSensor === true) {
       const device = new SmokeCOAlarmAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Leak Sensor
-    if (this.config.enableLeakSensor !== false) {
+    if (this.config.enableLeakSensor === true) {
       const device = new LeakSensorAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
@@ -348,19 +348,19 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     const accessories = []
 
     // Door Lock
-    if (this.config.enableDoorLock !== false) {
+    if (this.config.enableDoorLock === true) {
       const device = new DoorLockAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Window Blind
-    if (this.config.enableWindowBlind !== false) {
+    if (this.config.enableWindowBlind === true) {
       const device = new WindowBlindAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Venetian Blind
-    if (this.config.enableVenetianBlind !== false) {
+    if (this.config.enableVenetianBlind === true) {
       const device = new VenetianBlindAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
@@ -385,13 +385,13 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     const accessories = []
 
     // Thermostat
-    if (this.config.enableThermostat !== false) {
+    if (this.config.enableThermostat === true) {
       const device = new ThermostatAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 
     // Fan
-    if (this.config.enableFan !== false) {
+    if (this.config.enableFan === true) {
       const device = new FanAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
@@ -419,7 +419,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     const accessories = []
 
     // Robot Vacuum
-    if (this.config.enableRobotVacuum !== false) {
+    if (this.config.enableRobotVacuum === true) {
       const device = new RoboticVacuumAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
@@ -448,7 +448,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     const accessories = []
 
     // Power Strip (4 Outlets)
-    if (this.config.enablePowerStrip !== false) {
+    if (this.config.enablePowerStrip === true) {
       const device = new PowerStripAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }

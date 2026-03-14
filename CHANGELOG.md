@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v0.9.3 (Pending Release)
+
+### Changes
+
+- fix accessory removal if removed from the config
+
 ## v0.9.2 (2026-03-05)
 
 ### Changes
