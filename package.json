@@ -3,7 +3,7 @@
   "displayName": "Homebridge Matter",
   "alias": "Matter",
   "type": "module",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Homebridge plugin to showcase examples of Matter devices in Homebridge.",
   "author": {
     "name": "bwp91",
