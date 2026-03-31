@@ -8,7 +8,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class OnOffOutletAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'OUTLET-001'
+    const serialNumber = 'matter-onoff-outlet'
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'On/Off Outlet',

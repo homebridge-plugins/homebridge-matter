@@ -8,7 +8,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class DoorLockAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'LOCK-001'
+    const serialNumber = 'matter-door-lock'
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Door Lock',

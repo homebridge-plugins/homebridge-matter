@@ -8,7 +8,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class FanAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'FAN-001'
+    const serialNumber = 'matter-fan'
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Fan',

@@ -13,7 +13,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class ExtendedColorLightAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'LIGHT-005'
+    const serialNumber = 'matter-extended-colour-light'
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Extended Colour Light (HS+CCT)',

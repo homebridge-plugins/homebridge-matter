@@ -8,7 +8,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class TemperatureSensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'SENSOR-004'
+    const serialNumber = 'matter-temperature-sensor'
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Temperature Sensor',

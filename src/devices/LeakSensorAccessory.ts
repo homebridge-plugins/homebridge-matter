@@ -8,7 +8,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class LeakSensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'SENSOR-007'
+    const serialNumber = 'matter-leak-sensor'
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Leak Sensor',

@@ -8,7 +8,8 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class OccupancySensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'SENSOR-003'
+    const serialNumber = 'matter-occupancy-sensor'
+
     // Note: Matter.js API calls this "MotionSensor" but it's actually an Occupancy Sensor
     const OccupancySensorWithPIR = api.matter.deviceTypes.MotionSensor.with(
       api.matter.deviceTypes.MotionSensor.requirements.OccupancySensingServer.with('PassiveInfrared'),

@@ -16,7 +16,7 @@ const OUTLET_REGEX = /outlet-(\d+)/
 
 export class PowerStripAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'POWER-STRIP-001'
+    const serialNumber = 'matter-power-strip'
 
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),

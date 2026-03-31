@@ -15,7 +15,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class AirQualitySensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'SENSOR-008'
+    const serialNumber = 'matter-air-quality-sensor'
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Air Quality Sensor',

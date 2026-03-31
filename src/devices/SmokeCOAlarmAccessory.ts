@@ -8,7 +8,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class SmokeCOAlarmAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'SENSOR-006'
+    const serialNumber = 'matter-smoke-sensor'
     const SmokeSensorWithBoth = api.matter.deviceTypes.SmokeSensor.with(
       api.matter.deviceTypes.SmokeSensor.requirements.SmokeCoAlarmServer.with('SmokeAlarm', 'CoAlarm'),
     )

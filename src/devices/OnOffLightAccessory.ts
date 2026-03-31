@@ -17,7 +17,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
  */
 export class OnOffLightAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'LIGHT-001'
+    const serialNumber = 'matter-onoff-light'
     const displayName = 'On/Off Light'
     const manufacturer = 'Homebridge Matter'
     const model = 'HB-MATTER-LIGHT-ON-OFF'

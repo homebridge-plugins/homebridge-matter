@@ -9,7 +9,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class VenetianBlindAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'BLIND-002'
+    const serialNumber = 'matter-venetian-blind'
 
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),

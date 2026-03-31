@@ -14,7 +14,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class ColorLightAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'LIGHT-004'
+    const serialNumber = 'matter-colour-light'
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Colour Light (HS)',

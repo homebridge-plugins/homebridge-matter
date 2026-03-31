@@ -9,7 +9,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class WindowBlindAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'BLIND-001'
+    const serialNumber = 'matter-window-blind'
 
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),

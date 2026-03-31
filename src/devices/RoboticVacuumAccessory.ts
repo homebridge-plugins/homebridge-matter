@@ -34,7 +34,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   private currentOperationalState = 66 // Track current state (start docked)
 
   constructor(api: API, log: Logger) {
-    const serialNumber = 'VACUUM-001'
+    const serialNumber = 'matter-robot-vacuum'
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Robot Vacuum',

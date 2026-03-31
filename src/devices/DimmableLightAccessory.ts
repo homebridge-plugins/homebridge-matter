@@ -23,7 +23,7 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
   private currentLevel: number = 127 // 50% brightness
 
   constructor(api: API, log: Logger) {
-    const serialNumber = 'LIGHT-002'
+    const serialNumber = 'matter-dimmable-light'
     const displayName = 'Dimmable Light'
     const manufacturer = 'Homebridge Matter'
     const model = 'HB-MATTER-LIGHT-DIMMABLE'

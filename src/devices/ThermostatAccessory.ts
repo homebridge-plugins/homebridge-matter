@@ -8,7 +8,7 @@ import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class ThermostatAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
-    const serialNumber = 'THERMOSTAT-001'
+    const serialNumber = 'matter-thermostat'
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Thermostat',
