@@ -9,6 +9,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - dependency updates
 - align accessory UUIDs between platform configMap and constructors
 - improve `RoboticVacuumAccessory` typing and runtime compatibility
+- add required `DoorLock` cluster defaults
 
 ## v0.9.4 (2026-03-29)
 
