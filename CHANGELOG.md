@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v1.0.1 (Pending Release)
+
+### Changed
+
+- add required `colorControl` physical bounds
+
 ## v1.0.0 (2026-03-31)
 
 ### Changes
