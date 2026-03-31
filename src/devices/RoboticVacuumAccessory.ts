@@ -1,5 +1,3 @@
-/* global NodeJS */
-
 /**
  * Robotic Vacuum Cleaner Accessory Class
  *
@@ -23,14 +21,14 @@
  * - Pause: Cancels automatic completion timer, keeps "Cleaning" mode
  */
 
-import type { API, Logger } from 'homebridge'
+import type { API, Logger, MatterRequests } from 'homebridge'
 
 import { MatterStatus } from 'homebridge'
 
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class RoboticVacuumAccessory extends BaseMatterAccessory {
-  private activeTimers: NodeJS.Timeout[] = []
+  private activeTimers: ReturnType<typeof setTimeout>[] = []
   private currentOperationalState = 66 // Track current state (start docked)
 
   constructor(api: API, log: Logger) {
@@ -202,7 +200,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     this.logInfo('initialized and ready.')
   }
 
-  private async handleChangeRunMode(request: { newMode: number }): Promise<void> {
+  private async handleChangeRunMode(request: MatterRequests.ChangeToMode): Promise<void> {
     this.logInfo(`ChangeToMode (run) request received: ${JSON.stringify(request)}`)
     const { newMode } = request
     const modeStr = ['Idle', 'Cleaning', 'Mapping'][newMode] || `Unknown (mode=${newMode})`
@@ -233,7 +231,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     }
   }
 
-  private async handleChangeCleanMode(request: { newMode: number }): Promise<void> {
+  private async handleChangeCleanMode(request: MatterRequests.ChangeToMode): Promise<void> {
     this.logInfo(`ChangeToMode (clean) request received: ${JSON.stringify(request)}`)
     const { newMode } = request
     const modes = [
@@ -333,16 +331,16 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     this.clearTimers()
 
     // Defer state updates to ensure handler completes first
-    setImmediate(() => {
+    setTimeout(() => {
       // Set to Idle mode since we're ending the cleaning session
       this.updateRunMode(0)
 
       // Initiate return to dock sequence
       this.returnToDock()
-    })
+    }, 0)
   }
 
-  private async handleSelectAreas(request: { newAreas: number[] }): Promise<void> {
+  private async handleSelectAreas(request: MatterRequests.SelectAreas): Promise<void> {
     this.logInfo(`SelectAreas request received: ${JSON.stringify(request)}`)
     const { newAreas } = request
     const areaNames = newAreas.map((id: number) =>
@@ -370,7 +368,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     // TODO: await myVacuumAPI.selectAreas(newAreas)
   }
 
-  private async handleSkipArea(request: { skippedArea: number }): Promise<void> {
+  private async handleSkipArea(request: MatterRequests.SkipArea): Promise<void> {
     this.logInfo(`SkipArea request received: ${JSON.stringify(request)}`)
     const { skippedArea } = request
     const areaName = ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom'][skippedArea] || `Area ${skippedArea}`
@@ -394,7 +392,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     this.logInfo('initiating return to dock sequence.')
 
     // Defer ALL state updates to ensure handler completes first
-    setImmediate(async () => {
+    setTimeout(async () => {
       // Start seeking charger directly (skip intermediate Stopped state)
       await this.updateOperationalState(64) // Seeking Charger
 
@@ -413,7 +411,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
       }, 5000)
 
       this.activeTimers.push(chargingTimer)
-    })
+    }, 0)
   }
 
   /**
