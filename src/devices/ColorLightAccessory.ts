@@ -38,12 +38,10 @@ export class ColorLightAccessory extends BaseMatterAccessory {
           currentSaturation: 254,
           currentX: 41942,
           currentY: 21626,
-
-          // Required by ExtendedColorLight even when using HS mode —
-          // colorTemperatureMireds must be within these physical bounds
           colorTempPhysicalMinMireds: 147,
           colorTempPhysicalMaxMireds: 454,
           colorTemperatureMireds: 250,
+          coupleColorTempToLevelMinMireds: 147,
         },
       },
 

@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v1.1.0 (Pending Release)
+
+### Changed
+
+- remove custom colour light device
+
 ## v1.0.1 (2026-03-31)
 
 ### Changed

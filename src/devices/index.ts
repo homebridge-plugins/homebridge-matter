@@ -7,7 +7,6 @@
 export { AirQualitySensorAccessory } from './AirQualitySensorAccessory.js'
 export { BaseMatterAccessory } from './BaseMatterAccessory.js'
 export type { BaseMatterAccessoryConfig } from './BaseMatterAccessory.js'
-export { ColorLightAccessory } from './ColorLightAccessory.js'
 export { ColorTemperatureLightAccessory } from './ColorTemperatureLightAccessory.js'
 export { ContactSensorAccessory } from './ContactSensorAccessory.js'
 export { PowerStripAccessory } from './custom/index.js'

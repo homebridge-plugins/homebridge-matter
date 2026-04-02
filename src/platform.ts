@@ -8,7 +8,6 @@ import type {
 
 import {
   AirQualitySensorAccessory,
-  ColorLightAccessory,
   ColorTemperatureLightAccessory,
   ContactSensorAccessory,
   DimmableLightAccessory,
@@ -131,7 +130,6 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       { enabled: this.config.enableOnOffLight, uuid: this.api.matter.uuid.generate('matter-onoff-light'), name: 'On/Off Light' },
       { enabled: this.config.enableDimmableLight, uuid: this.api.matter.uuid.generate('matter-dimmable-light'), name: 'Dimmable Light' },
       { enabled: this.config.enableColourTemperatureLight, uuid: this.api.matter.uuid.generate('matter-colour-temp-light'), name: 'Colour Temperature Light' },
-      { enabled: this.config.enableColourLight, uuid: this.api.matter.uuid.generate('matter-colour-light'), name: 'Colour Light (HS)' },
       { enabled: this.config.enableExtendedColourLight, uuid: this.api.matter.uuid.generate('matter-extended-colour-light'), name: 'Extended Colour Light' },
       { enabled: this.config.enableOnOffOutlet, uuid: this.api.matter.uuid.generate('matter-onoff-outlet'), name: 'On/Off Outlet' },
       { enabled: this.config.enableOnOffSwitch, uuid: this.api.matter.uuid.generate('matter-onoff-switch'), name: 'On/Off Switch' },
@@ -196,12 +194,6 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     // Color Temperature Light
     if (this.config.enableColourTemperatureLight === true) {
       const device = new ColorTemperatureLightAccessory(this.api, this.log)
-      accessories.push(device.toAccessory())
-    }
-
-    // Color Light (HS only)
-    if (this.config.enableColourLight === true) {
-      const device = new ColorLightAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 

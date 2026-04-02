@@ -34,12 +34,6 @@
         "default": false,
         "description": "Enable the colour temperature light example accessory (Matter Spec § 4.3)."
       },
-      "enableColourLight": {
-        "title": "Enable Colour Light (HS)",
-        "type": "boolean",
-        "default": false,
-        "description": "Enable the colour light (hue/saturation) example accessory (Matter Spec § 4.4)."
-      },
       "enableExtendedColourLight": {
         "title": "Enable Extended Colour Light (HS+CCT)",
         "type": "boolean",
@@ -166,7 +160,6 @@
         "enableOnOffLight",
         "enableDimmableLight",
         "enableColourTemperatureLight",
-        "enableColourLight",
         "enableExtendedColourLight"
       ]
     },

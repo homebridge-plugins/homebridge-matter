@@ -6,15 +6,6 @@ import type { API, Logger } from 'homebridge'
 
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
-/**
- * Door Lock Accessory Class
- *
- * Note on PIN codes: The Matter spec supports PIN credential features (pinCode field
- * in lock/unlock requests), but Apple Home does not expose a keypad UI for entering
- * PINs. Lock/unlock commands from Apple Home are sent without a PIN. Other Matter
- * controllers (e.g. some Android apps) may support PIN entry. For simplicity, this
- * example does not use the PIN credential feature.
- */
 export class DoorLockAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-door-lock'
@@ -34,12 +25,6 @@ export class DoorLockAccessory extends BaseMatterAccessory {
           lockType: api.matter.types.DoorLock.LockType.DeadBolt,
           actuatorEnabled: true,
           operatingMode: api.matter.types.DoorLock.OperatingMode.Normal,
-
-          // Required by the Matter spec (constraint: 1-255) for DoorLock validation at startup.
-          // These only take effect when a PIN-capable controller sends credentials —
-          // Apple Home does not send PINs, so these are functionally inert in practice.
-          wrongCodeEntryLimit: 3, // lock out after 3 wrong PIN attempts
-          userCodeTemporaryDisableTime: 10, // 10 second cooldown after lockout
         },
       },
 
