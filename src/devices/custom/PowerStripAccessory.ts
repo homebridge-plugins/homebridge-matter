@@ -1,11 +1,19 @@
 /**
  * Power Strip Accessory Class
  *
- * This demonstrates a composed device with multiple independent endpoints (parts).
- * Each outlet appears as a separate device in the Home app and can be controlled independently.
+ * This demonstrates a composed device with multiple independent child endpoints (parts).
+ * The parent uses BridgedNode as a non-controllable container, and each outlet is a
+ * child endpoint. In Apple Home, this appears as a single accessory that can be
+ * expanded into separate tiles for independent control.
  *
- * This uses the Homebridge Matter API's `parts` feature to create true multi-endpoint
- * composed devices, where each part has its own Matter endpoint.
+ * This uses the Homebridge Matter API's `parts` feature to create true sub-endpoint
+ * composed devices, where each part is a child of the parent endpoint.
+ *
+ * Note: In Apple Home, the child accessories inherit their name from the parent
+ * accessory's displayName, not from the individual part displayName. This is a
+ * HomeKit limitation. The part displayName is used in the Homebridge UI.
+ *
+ * @see https://github.com/matter-js/matter.js/blob/main/docs/MIGRATION_GUIDE_08.md
  */
 
 import type { API, ClusterStateMap, Logger } from 'homebridge'
@@ -21,30 +29,17 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     super(api, log, {
       UUID: api.matter.uuid.generate(serialNumber),
       displayName: 'Power Strip',
-      deviceType: api.matter.deviceTypes.OnOffOutlet,
+      deviceType: api.matter.deviceTypes.BridgedNode,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-POWER-STRIP-4X',
       firmwareRevision: '2.0.0',
       hardwareRevision: '1.0.0',
 
-      // Main accessory can optionally have its own clusters/handlers
-      // Here we'll just use it as a container for the 4 outlet parts
-      clusters: {
-        onOff: {
-          onOff: false, // Master control
-        },
-      },
-
-      handlers: {
-        onOff: {
-          on: async () => this.handleMasterOn(),
-          off: async () => this.handleMasterOff(),
-        },
-      },
-
-      // Define 4 independent outlet parts
-      // Each part appears as a separate device in the Home app
+      // BridgedNode is a non-controllable container for composed devices.
+      // No clusters or handlers on the parent — only the child parts below.
+      // In Apple Home, the parts appear as a single accessory that can be
+      // expanded into separate tiles.
       parts: [
         {
           id: 'outlet-1',
@@ -116,24 +111,6 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     const outletNumber = this.getOutletNumber(partId)
     this.logInfo(`Outlet ${outletNumber} turned ON`)
 
-    // Example: Check per-outlet overcurrent protection
-    // if (this.outletHasTrippedBreaker(outletNumber)) {
-    //   throw new MatterStatus.InvalidInState(`Outlet ${outletNumber} overcurrent protection tripped`)
-    // }
-
-    // Example: Check if outlet is disabled via child lock
-    // if (this.isChildLockEnabled(outletNumber)) {
-    //   throw new MatterStatus.PermissionDenied(`Outlet ${outletNumber} is child-locked`)
-    // }
-
-    // Example: Check total power strip load capacity
-    // const currentLoad = await this.getTotalPowerDraw()
-    // if (currentLoad + this.estimatedOutletLoad > this.maxWattage) {
-    //   throw new MatterStatus.ResourceExhausted(
-    //     `Cannot turn on - would exceed power strip capacity (${this.maxWattage}W)`
-    //   )
-    // }
-
     // TODO: Send command to actual power strip hardware
     // await myPowerStripAPI.turnOnOutlet(outletNumber)
   }
@@ -148,59 +125,6 @@ export class PowerStripAccessory extends BaseMatterAccessory {
 
     // TODO: Send command to actual power strip hardware
     // await myPowerStripAPI.turnOffOutlet(outletNumber)
-  }
-
-  /**
-   * Master ON - Turns on all outlets
-   */
-  private async handleMasterOn(): Promise<void> {
-    this.logInfo('Master ON - turning on all outlets.')
-
-    // Example: Check if any outlet has a tripped breaker
-    // const trippedOutlets = this.getTrippedOutlets()
-    // if (trippedOutlets.length > 0) {
-    //   throw new MatterStatus.InvalidInState(
-    //     `Cannot turn on all - outlets ${trippedOutlets.join(', ')} have tripped breakers`
-    //   )
-    // }
-
-    // Example: Check if turning on all outlets would exceed capacity
-    // const totalEstimatedLoad = this.estimatedOutletLoad * 4
-    // if (totalEstimatedLoad > this.maxWattage) {
-    //   throw new MatterStatus.ResourceExhausted(
-    //     `Cannot turn on all outlets - would exceed ${this.maxWattage}W capacity`
-    //   )
-    // }
-
-    // Example: Check if master control is disabled
-    // if (this.isMasterControlDisabled) {
-    //   throw new MatterStatus.PermissionDenied('Master control is disabled - control outlets individually')
-    // }
-
-    // Update each outlet's state
-    for (let i = 1; i <= 4; i++) {
-      const partId = `outlet-${i}`
-      await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: true }, partId)
-    }
-
-    // TODO: Send command to actual power strip hardware
-    // await myPowerStripAPI.turnOnAllOutlets()
-  }
-
-  /**
-   * Master OFF - Turns off all outlets
-   */
-  private async handleMasterOff(): Promise<void> {
-    this.logInfo('Master OFF - turning off all outlets.')
-
-    // Update each outlet's state
-    for (let i = 1; i <= 4; i++) {
-      const partId = `outlet-${i}`
-      await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: false }, partId)
-    }
-
-    // TODO: Send command to actual power strip hardware
-    // await myPowerStripAPI.turnOffAllOutlets()
   }
 
   /**
@@ -221,11 +145,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     const partId = `outlet-${outletNumber}`
     this.logInfo(`Programmatically turning ON outlet ${outletNumber}`)
 
-    // Update the specific outlet's state
     await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: true }, partId)
-
-    // TODO: Send command to actual power strip hardware
-    // await myPowerStripAPI.turnOnOutlet(outletNumber)
   }
 
   /**
@@ -238,11 +158,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     const partId = `outlet-${outletNumber}`
     this.logInfo(`Programmatically turning OFF outlet ${outletNumber}`)
 
-    // Update the specific outlet's state
     await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: false }, partId)
-
-    // TODO: Send command to actual power strip hardware
-    // await myPowerStripAPI.turnOffOutlet(outletNumber)
   }
 
   /**
@@ -269,7 +185,6 @@ export class PowerStripAccessory extends BaseMatterAccessory {
   public async getOutletState(outletNumber: 1 | 2 | 3 | 4): Promise<boolean> {
     const partId = `outlet-${outletNumber}`
 
-    // Get the state using the typed readState helper
     const state = await this.readState('onOff', partId)
 
     return state?.onOff === true
@@ -300,7 +215,6 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     const partId = `outlet-${outletNumber}`
     this.logInfo(`Outlet ${outletNumber} state updated from external source: ${isOn ? 'ON' : 'OFF'}`)
 
-    // Update the specific outlet's state
     await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn }, partId)
   }
 
