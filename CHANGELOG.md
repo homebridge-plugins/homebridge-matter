@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changed
 
 - fix: allow combined accessories
+- dependency updates
 
 ## v1.1.0 (2026-04-02)
 
