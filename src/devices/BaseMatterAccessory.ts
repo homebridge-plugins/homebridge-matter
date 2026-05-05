@@ -8,7 +8,9 @@
  * the required configuration.
  */
 
-import type { API, ClusterStateMap, EndpointType, Logger, MatterAccessory } from 'homebridge'
+import type { API, ClusterStateMap, EndpointType, Logger, MatterAccessory, MatterAPI } from 'homebridge'
+
+import { getMatter } from '../utils.js'
 
 export interface BaseMatterAccessoryConfig {
   UUID: string
@@ -47,6 +49,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
   // Protected properties available to child classes
   protected readonly api: API
   protected readonly log: Logger
+  protected readonly matter: MatterAPI
 
   protected constructor(
     api: API,
@@ -55,6 +58,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
   ) {
     this.api = api
     this.log = log
+    this.matter = getMatter(api)
 
     // Set all required properties
     this.UUID = config.UUID
@@ -97,7 +101,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
   protected async updateState<K extends keyof ClusterStateMap>(cluster: K, attributes: Partial<ClusterStateMap[K]>, partId?: string): Promise<void>
   protected async updateState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void>
   protected async updateState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void> {
-    await this.api.matter.updateAccessoryState(this.UUID, cluster, attributes, partId)
+    await this.matter.updateAccessoryState(this.UUID, cluster, attributes, partId)
     this.log.debug(`[${this.displayName}] Updated ${cluster} state:`, attributes)
   }
 
@@ -120,7 +124,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
   protected async readState<K extends keyof ClusterStateMap>(cluster: K, partId?: string): Promise<Partial<ClusterStateMap[K]> | undefined>
   protected async readState(cluster: string, partId?: string): Promise<Record<string, unknown> | undefined>
   protected async readState(cluster: string, partId?: string): Promise<Record<string, unknown> | undefined> {
-    return await this.api.matter.getAccessoryState(this.UUID, cluster, partId)
+    return await this.matter.getAccessoryState(this.UUID, cluster, partId)
   }
 
   /**

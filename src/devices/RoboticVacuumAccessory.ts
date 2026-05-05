@@ -25,6 +25,7 @@ import type { API, Logger, MatterRequests } from 'homebridge'
 
 import { MatterStatus } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class RoboticVacuumAccessory extends BaseMatterAccessory {
@@ -33,10 +34,11 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
 
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-robot-vacuum'
+    const matter = getMatter(api)
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Robot Vacuum',
-      deviceType: api.matter.deviceTypes.RoboticVacuumCleaner,
+      deviceType: matter.deviceTypes.RoboticVacuumCleaner,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-VACUUM-ROBOTIC',

@@ -8,6 +8,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 
 - chore: dependency updates
 - docs: add `CLAUDE.md` to repo
+- fix: update code for homebridge v2
 
 ## v1.2.0 (2026-04-05)
 

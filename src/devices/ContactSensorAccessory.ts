@@ -4,15 +4,17 @@
 
 import type { API, Logger } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class ContactSensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-contact-sensor'
+    const matter = getMatter(api)
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Contact Sensor',
-      deviceType: api.matter.deviceTypes.ContactSensor,
+      deviceType: matter.deviceTypes.ContactSensor,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-SENSOR-CONTACT',
@@ -31,7 +33,7 @@ export class ContactSensorAccessory extends BaseMatterAccessory {
 
   public async updateContactState(isOpen: boolean): Promise<void> {
     // Matter BooleanState: false = open/triggered, true = closed/normal (inverted!)
-    await this.updateState(this.api.matter.clusterNames.BooleanState, { stateValue: !isOpen })
+    await this.updateState(this.matter.clusterNames.BooleanState, { stateValue: !isOpen })
     this.logInfo(`contact state: ${isOpen ? 'OPEN' : 'CLOSED'}.`)
   }
 }

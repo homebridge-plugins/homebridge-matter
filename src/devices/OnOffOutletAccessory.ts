@@ -4,15 +4,17 @@
 
 import type { API, Logger } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class OnOffOutletAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-onoff-outlet'
+    const matter = getMatter(api)
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'On/Off Outlet',
-      deviceType: api.matter.deviceTypes.OnOffOutlet,
+      deviceType: matter.deviceTypes.OnOffOutlet,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-OUTLET-ON-OFF',
@@ -69,6 +71,6 @@ export class OnOffOutletAccessory extends BaseMatterAccessory {
   }
 
   public async updateOnOffState(isOn: boolean): Promise<void> {
-    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
+    await this.updateState(this.matter.clusterNames.OnOff, { onOff: isOn })
   }
 }

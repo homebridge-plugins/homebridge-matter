@@ -4,15 +4,17 @@
 
 import type { API, Logger } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class FanAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-fan'
+    const matter = getMatter(api)
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Fan',
-      deviceType: api.matter.deviceTypes.Fan,
+      deviceType: matter.deviceTypes.Fan,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-FAN',
@@ -21,8 +23,8 @@ export class FanAccessory extends BaseMatterAccessory {
 
       clusters: {
         fanControl: {
-          fanMode: api.matter.types.FanControl.FanMode.Off,
-          fanModeSequence: api.matter.types.FanControl.FanModeSequence.OffHigh,
+          fanMode: matter.types.FanControl.FanMode.Off,
+          fanModeSequence: matter.types.FanControl.FanModeSequence.OffHigh,
           percentSetting: 0,
           percentCurrent: 0,
         },
@@ -103,11 +105,11 @@ export class FanAccessory extends BaseMatterAccessory {
   }
 
   public async updateFanMode(mode: number): Promise<void> {
-    await this.updateState(this.api.matter.clusterNames.FanControl, { fanMode: mode })
+    await this.updateState(this.matter.clusterNames.FanControl, { fanMode: mode })
   }
 
   public async updateFanSpeed(percent: number): Promise<void> {
-    await this.updateState(this.api.matter.clusterNames.FanControl, {
+    await this.updateState(this.matter.clusterNames.FanControl, {
       percentSetting: percent,
       percentCurrent: percent,
     })

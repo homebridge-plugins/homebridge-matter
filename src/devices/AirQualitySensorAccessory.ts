@@ -11,15 +11,17 @@
 
 import type { API, Logger } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class AirQualitySensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-air-quality-sensor'
+    const matter = getMatter(api)
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Air Quality Sensor',
-      deviceType: api.matter.deviceTypes.AirQualitySensor,
+      deviceType: matter.deviceTypes.AirQualitySensor,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-SENSOR-AIR-QUALITY',

@@ -4,15 +4,17 @@
 
 import type { API, Logger } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class DoorLockAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-door-lock'
+    const matter = getMatter(api)
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Door Lock',
-      deviceType: api.matter.deviceTypes.DoorLock,
+      deviceType: matter.deviceTypes.DoorLock,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-LOCK-DOOR',
@@ -21,10 +23,10 @@ export class DoorLockAccessory extends BaseMatterAccessory {
 
       clusters: {
         doorLock: {
-          lockState: api.matter.types.DoorLock.LockState.Unlocked,
-          lockType: api.matter.types.DoorLock.LockType.DeadBolt,
+          lockState: matter.types.DoorLock.LockState.Unlocked,
+          lockType: matter.types.DoorLock.LockType.DeadBolt,
           actuatorEnabled: true,
-          operatingMode: api.matter.types.DoorLock.OperatingMode.Normal,
+          operatingMode: matter.types.DoorLock.OperatingMode.Normal,
         },
       },
 

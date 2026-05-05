@@ -9,15 +9,17 @@ import type { API, Logger, MatterRequests } from 'homebridge'
 // 1. MatterRequests.* — raw matter.js request types (useful for some handlers like MoveToLevel)
 // 2. ClusterHandlerMap — behavior-transformed types with automatic inference (recommended for color handlers)
 // Both approaches work. Color handlers use inferred types since the behavior transforms the request.
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class ExtendedColorLightAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-extended-colour-light'
+    const matter = getMatter(api)
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Extended Colour Light (HS+CCT)',
-      deviceType: api.matter.deviceTypes.ExtendedColorLight,
+      deviceType: matter.deviceTypes.ExtendedColorLight,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-LIGHT-EXTENDED-COLOUR',
@@ -32,7 +34,7 @@ export class ExtendedColorLightAccessory extends BaseMatterAccessory {
           maxLevel: 254,
         },
         colorControl: {
-          colorMode: api.matter.types.ColorControl.ColorMode.CurrentHueAndCurrentSaturation,
+          colorMode: matter.types.ColorControl.ColorMode.CurrentHueAndCurrentSaturation,
           currentHue: 0,
           currentSaturation: 254,
           currentX: 41942,
@@ -132,18 +134,18 @@ export class ExtendedColorLightAccessory extends BaseMatterAccessory {
   }
 
   public async updateOnOffState(isOn: boolean): Promise<void> {
-    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
+    await this.updateState(this.matter.clusterNames.OnOff, { onOff: isOn })
   }
 
   public async updateBrightness(percent: number): Promise<void> {
     const matterLevel = Math.max(1, Math.round((percent / 100) * 254))
-    await this.updateState(this.api.matter.clusterNames.LevelControl, { currentLevel: matterLevel })
+    await this.updateState(this.matter.clusterNames.LevelControl, { currentLevel: matterLevel })
   }
 
   public async updateHueSaturation(hue: number, saturation: number): Promise<void> {
     const matterHue = Math.round((hue / 360) * 254)
     const matterSat = Math.round((saturation / 100) * 254)
-    await this.updateState(this.api.matter.clusterNames.ColorControl, {
+    await this.updateState(this.matter.clusterNames.ColorControl, {
       currentHue: matterHue,
       currentSaturation: matterSat,
     })

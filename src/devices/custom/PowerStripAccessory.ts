@@ -18,6 +18,7 @@
 
 import type { API, ClusterStateMap, Logger } from 'homebridge'
 
+import { getMatter } from '../../utils.js'
 import { BaseMatterAccessory } from '../BaseMatterAccessory.js'
 
 const OUTLET_REGEX = /outlet-(\d+)/
@@ -25,11 +26,12 @@ const OUTLET_REGEX = /outlet-(\d+)/
 export class PowerStripAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-power-strip'
+    const matter = getMatter(api)
 
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Power Strip',
-      deviceType: api.matter.deviceTypes.BridgedNode,
+      deviceType: matter.deviceTypes.BridgedNode,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-POWER-STRIP-4X',
@@ -44,7 +46,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
         {
           id: 'outlet-1',
           displayName: 'Outlet 1',
-          deviceType: api.matter.deviceTypes.OnOffOutlet,
+          deviceType: matter.deviceTypes.OnOffOutlet,
           clusters: {
             onOff: { onOff: false },
           },
@@ -58,7 +60,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
         {
           id: 'outlet-2',
           displayName: 'Outlet 2',
-          deviceType: api.matter.deviceTypes.OnOffOutlet,
+          deviceType: matter.deviceTypes.OnOffOutlet,
           clusters: {
             onOff: { onOff: false },
           },
@@ -72,7 +74,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
         {
           id: 'outlet-3',
           displayName: 'Outlet 3',
-          deviceType: api.matter.deviceTypes.OnOffOutlet,
+          deviceType: matter.deviceTypes.OnOffOutlet,
           clusters: {
             onOff: { onOff: false },
           },
@@ -86,7 +88,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
         {
           id: 'outlet-4',
           displayName: 'Outlet 4',
-          deviceType: api.matter.deviceTypes.OnOffOutlet,
+          deviceType: matter.deviceTypes.OnOffOutlet,
           clusters: {
             onOff: { onOff: false },
           },
@@ -145,7 +147,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     const partId = `outlet-${outletNumber}`
     this.logInfo(`Programmatically turning ON outlet ${outletNumber}`)
 
-    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: true }, partId)
+    await this.updateState(this.matter.clusterNames.OnOff, { onOff: true }, partId)
   }
 
   /**
@@ -158,7 +160,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     const partId = `outlet-${outletNumber}`
     this.logInfo(`Programmatically turning OFF outlet ${outletNumber}`)
 
-    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: false }, partId)
+    await this.updateState(this.matter.clusterNames.OnOff, { onOff: false }, partId)
   }
 
   /**
@@ -215,7 +217,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
     const partId = `outlet-${outletNumber}`
     this.logInfo(`Outlet ${outletNumber} state updated from external source: ${isOn ? 'ON' : 'OFF'}`)
 
-    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn }, partId)
+    await this.updateState(this.matter.clusterNames.OnOff, { onOff: isOn }, partId)
   }
 
   /**
@@ -239,7 +241,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
       const key = `outlet${i}` as keyof typeof states
       const partId = `outlet-${i}`
 
-      await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: states[key] }, partId)
+      await this.updateState(this.matter.clusterNames.OnOff, { onOff: states[key] }, partId)
     }
   }
 
@@ -249,7 +251,7 @@ export class PowerStripAccessory extends BaseMatterAccessory {
   protected async updateState<K extends keyof ClusterStateMap>(cluster: K, attributes: Partial<ClusterStateMap[K]>, partId?: string): Promise<void>
   protected async updateState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void>
   protected async updateState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void> {
-    await this.api.matter.updateAccessoryState(this.UUID, cluster, attributes, partId)
+    await this.matter.updateAccessoryState(this.UUID, cluster, attributes, partId)
     if (partId) {
       this.logDebug(`Updated ${cluster} state for part ${partId}:`, attributes)
     } else {

@@ -4,15 +4,17 @@
 
 import type { API, Logger, MatterRequests } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class ThermostatAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-thermostat'
+    const matter = getMatter(api)
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Thermostat',
-      deviceType: api.matter.deviceTypes.Thermostat,
+      deviceType: matter.deviceTypes.Thermostat,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-THERMOSTAT',

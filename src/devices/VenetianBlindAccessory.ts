@@ -5,16 +5,18 @@
 
 import type { API, Logger, MatterRequests } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class VenetianBlindAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-venetian-blind'
+    const matter = getMatter(api)
 
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Venetian Blind (Tilt)',
-      deviceType: api.matter.deviceTypes.WindowCovering,
+      deviceType: matter.deviceTypes.WindowCovering,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-BLIND-VENETIAN',
@@ -119,7 +121,7 @@ export class VenetianBlindAccessory extends BaseMatterAccessory {
     // Convert open percentage to Matter's closed percentage (0=open, 10000=closed)
     const closedPercent = 100 - openPercent
     const value = Math.round(closedPercent * 100)
-    await this.updateState(this.api.matter.clusterNames.WindowCovering, {
+    await this.updateState(this.matter.clusterNames.WindowCovering, {
       currentPositionLiftPercent100ths: value,
       targetPositionLiftPercent100ths: value,
     })
@@ -129,7 +131,7 @@ export class VenetianBlindAccessory extends BaseMatterAccessory {
   public async updateTiltPosition(degrees: number): Promise<void> {
     // Convert degrees (0-90) to Matter's tilt percentage (0=horizontal, 10000=vertical)
     const value = Math.round((degrees / 90) * 10000)
-    await this.updateState(this.api.matter.clusterNames.WindowCovering, {
+    await this.updateState(this.matter.clusterNames.WindowCovering, {
       currentPositionTiltPercent100ths: value,
       targetPositionTiltPercent100ths: value,
     })

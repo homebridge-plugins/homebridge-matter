@@ -7,6 +7,7 @@
 
 import type { API, Logger } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 /**
@@ -24,11 +25,12 @@ export class OnOffLightAccessory extends BaseMatterAccessory {
     const firmwareRevision = '2.0.0'
     const hardwareRevision = '1.0.0'
 
+    const matter = getMatter(api)
     // Call parent constructor with device configuration
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName,
-      deviceType: api.matter.deviceTypes.OnOffLight,
+      deviceType: matter.deviceTypes.OnOffLight,
       serialNumber,
       manufacturer,
       model,
@@ -121,7 +123,7 @@ export class OnOffLightAccessory extends BaseMatterAccessory {
    * Call this when your physical device state changes externally
    */
   public async updateOnOffState(isOn: boolean): Promise<void> {
-    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
+    await this.updateState(this.matter.clusterNames.OnOff, { onOff: isOn })
     this.logInfo(`state synced: ${isOn ? 'ON' : 'OFF'}.`)
   }
 

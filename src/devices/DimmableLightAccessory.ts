@@ -7,6 +7,7 @@
 
 import type { API, Logger, MatterRequests } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 /**
@@ -30,10 +31,11 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
     const firmwareRevision = '2.0.0'
     const hardwareRevision = '1.0.0'
 
+    const matter = getMatter(api)
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName,
-      deviceType: api.matter.deviceTypes.DimmableLight,
+      deviceType: matter.deviceTypes.DimmableLight,
       serialNumber,
       manufacturer,
       model,
@@ -148,7 +150,7 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
    * Update on/off state from external source
    */
   public async updateOnOffState(isOn: boolean): Promise<void> {
-    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
+    await this.updateState(this.matter.clusterNames.OnOff, { onOff: isOn })
     this.logInfo(`state synced: ${isOn ? 'ON' : 'OFF'}.`)
   }
 
@@ -167,7 +169,7 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
     const matterLevel = Math.max(1, Math.round((percent / 100) * 254))
     this.currentLevel = matterLevel
 
-    await this.updateState(this.api.matter.clusterNames.LevelControl, {
+    await this.updateState(this.matter.clusterNames.LevelControl, {
       currentLevel: matterLevel,
     })
 

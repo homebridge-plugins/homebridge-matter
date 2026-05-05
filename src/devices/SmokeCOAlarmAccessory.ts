@@ -4,17 +4,19 @@
 
 import type { API, Logger } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class SmokeCOAlarmAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-smoke-sensor'
-    const SmokeSensorWithBoth = api.matter.deviceTypes.SmokeSensor.with(
-      api.matter.deviceTypes.SmokeSensor.requirements.SmokeCoAlarmServer.with('SmokeAlarm', 'CoAlarm'),
+    const matter = getMatter(api)
+    const SmokeSensorWithBoth = matter.deviceTypes.SmokeSensor.with(
+      matter.deviceTypes.SmokeSensor.requirements.SmokeCoAlarmServer.with('SmokeAlarm', 'CoAlarm'),
     )
 
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Smoke Sensor',
       deviceType: SmokeSensorWithBoth,
       serialNumber,

@@ -3,6 +3,7 @@ import type {
   DynamicPlatformPlugin,
   Logging,
   MatterAccessory,
+  MatterAPI,
   PlatformConfig,
 } from 'homebridge'
 
@@ -30,7 +31,7 @@ import {
   WindowBlindAccessory,
 } from './devices/index.js'
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js'
-import { parseError } from './utils.js'
+import { getMatter, parseError } from './utils.js'
 
 /**
  * MatterPlatform
@@ -45,6 +46,10 @@ export class MatterPlatform implements DynamicPlatformPlugin {
 
   // Track restored Matter cached accessories
   public readonly matterAccessories: Map<string, MatterAccessory> = new Map()
+
+  // Resolved once `isMatterEnabled` has gated the registration path; safe to use
+  // from `didFinishLaunching` onwards.
+  private readonly matter!: MatterAPI
 
   constructor(
     public readonly log: Logging,
@@ -67,6 +72,8 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       this.log.warn('Matter is not enabled in Homebridge. Please enable Matter in the Homebridge settings to use this plugin.')
       return
     }
+
+    this.matter = getMatter(this.api)
 
     // Register Matter accessories when Homebridge has finished launching
     this.api.on('didFinishLaunching', () => {
@@ -127,27 +134,27 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    */
   private async removeDisabledAccessories() {
     const configMap = [
-      { enabled: this.config.enableOnOffLight, uuid: this.api.matter.uuid.generate('matter-onoff-light'), name: 'On/Off Light' },
-      { enabled: this.config.enableDimmableLight, uuid: this.api.matter.uuid.generate('matter-dimmable-light'), name: 'Dimmable Light' },
-      { enabled: this.config.enableColourTemperatureLight, uuid: this.api.matter.uuid.generate('matter-colour-temp-light'), name: 'Colour Temperature Light' },
-      { enabled: this.config.enableExtendedColourLight, uuid: this.api.matter.uuid.generate('matter-extended-colour-light'), name: 'Extended Colour Light' },
-      { enabled: this.config.enableOnOffOutlet, uuid: this.api.matter.uuid.generate('matter-onoff-outlet'), name: 'On/Off Outlet' },
-      { enabled: this.config.enableOnOffSwitch, uuid: this.api.matter.uuid.generate('matter-onoff-switch'), name: 'On/Off Switch' },
-      { enabled: this.config.enableAirQualitySensor, uuid: this.api.matter.uuid.generate('matter-air-quality-sensor'), name: 'Air Quality Sensor' },
-      { enabled: this.config.enableTemperatureSensor, uuid: this.api.matter.uuid.generate('matter-temperature-sensor'), name: 'Temperature Sensor' },
-      { enabled: this.config.enableHumiditySensor, uuid: this.api.matter.uuid.generate('matter-humidity-sensor'), name: 'Humidity Sensor' },
-      { enabled: this.config.enableLightSensor, uuid: this.api.matter.uuid.generate('matter-light-sensor'), name: 'Light Sensor' },
-      { enabled: this.config.enableOccupancySensor, uuid: this.api.matter.uuid.generate('matter-occupancy-sensor'), name: 'Occupancy Sensor' },
-      { enabled: this.config.enableContactSensor, uuid: this.api.matter.uuid.generate('matter-contact-sensor'), name: 'Contact Sensor' },
-      { enabled: this.config.enableLeakSensor, uuid: this.api.matter.uuid.generate('matter-leak-sensor'), name: 'Leak Sensor' },
-      { enabled: this.config.enableSmokeSensor, uuid: this.api.matter.uuid.generate('matter-smoke-sensor'), name: 'Smoke Sensor' },
-      { enabled: this.config.enableDoorLock, uuid: this.api.matter.uuid.generate('matter-door-lock'), name: 'Door Lock' },
-      { enabled: this.config.enableWindowBlind, uuid: this.api.matter.uuid.generate('matter-window-blind'), name: 'Window Blind' },
-      { enabled: this.config.enableVenetianBlind, uuid: this.api.matter.uuid.generate('matter-venetian-blind'), name: 'Venetian Blind' },
-      { enabled: this.config.enableThermostat, uuid: this.api.matter.uuid.generate('matter-thermostat'), name: 'Thermostat' },
-      { enabled: this.config.enableFan, uuid: this.api.matter.uuid.generate('matter-fan'), name: 'Fan' },
-      { enabled: this.config.enableRobotVacuum, uuid: this.api.matter.uuid.generate('matter-robot-vacuum'), name: 'Robot Vacuum' },
-      { enabled: this.config.enablePowerStrip, uuid: this.api.matter.uuid.generate('matter-power-strip'), name: 'Power Strip' },
+      { enabled: this.config.enableOnOffLight, uuid: this.matter.uuid.generate('matter-onoff-light'), name: 'On/Off Light' },
+      { enabled: this.config.enableDimmableLight, uuid: this.matter.uuid.generate('matter-dimmable-light'), name: 'Dimmable Light' },
+      { enabled: this.config.enableColourTemperatureLight, uuid: this.matter.uuid.generate('matter-colour-temp-light'), name: 'Colour Temperature Light' },
+      { enabled: this.config.enableExtendedColourLight, uuid: this.matter.uuid.generate('matter-extended-colour-light'), name: 'Extended Colour Light' },
+      { enabled: this.config.enableOnOffOutlet, uuid: this.matter.uuid.generate('matter-onoff-outlet'), name: 'On/Off Outlet' },
+      { enabled: this.config.enableOnOffSwitch, uuid: this.matter.uuid.generate('matter-onoff-switch'), name: 'On/Off Switch' },
+      { enabled: this.config.enableAirQualitySensor, uuid: this.matter.uuid.generate('matter-air-quality-sensor'), name: 'Air Quality Sensor' },
+      { enabled: this.config.enableTemperatureSensor, uuid: this.matter.uuid.generate('matter-temperature-sensor'), name: 'Temperature Sensor' },
+      { enabled: this.config.enableHumiditySensor, uuid: this.matter.uuid.generate('matter-humidity-sensor'), name: 'Humidity Sensor' },
+      { enabled: this.config.enableLightSensor, uuid: this.matter.uuid.generate('matter-light-sensor'), name: 'Light Sensor' },
+      { enabled: this.config.enableOccupancySensor, uuid: this.matter.uuid.generate('matter-occupancy-sensor'), name: 'Occupancy Sensor' },
+      { enabled: this.config.enableContactSensor, uuid: this.matter.uuid.generate('matter-contact-sensor'), name: 'Contact Sensor' },
+      { enabled: this.config.enableLeakSensor, uuid: this.matter.uuid.generate('matter-leak-sensor'), name: 'Leak Sensor' },
+      { enabled: this.config.enableSmokeSensor, uuid: this.matter.uuid.generate('matter-smoke-sensor'), name: 'Smoke Sensor' },
+      { enabled: this.config.enableDoorLock, uuid: this.matter.uuid.generate('matter-door-lock'), name: 'Door Lock' },
+      { enabled: this.config.enableWindowBlind, uuid: this.matter.uuid.generate('matter-window-blind'), name: 'Window Blind' },
+      { enabled: this.config.enableVenetianBlind, uuid: this.matter.uuid.generate('matter-venetian-blind'), name: 'Venetian Blind' },
+      { enabled: this.config.enableThermostat, uuid: this.matter.uuid.generate('matter-thermostat'), name: 'Thermostat' },
+      { enabled: this.config.enableFan, uuid: this.matter.uuid.generate('matter-fan'), name: 'Fan' },
+      { enabled: this.config.enableRobotVacuum, uuid: this.matter.uuid.generate('matter-robot-vacuum'), name: 'Robot Vacuum' },
+      { enabled: this.config.enablePowerStrip, uuid: this.matter.uuid.generate('matter-power-strip'), name: 'Power Strip' },
     ]
 
     for (const { enabled, uuid, name } of configMap) {
@@ -156,7 +163,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
           const existingAccessory = this.matterAccessories.get(uuid)
           if (existingAccessory) {
             this.log.warn(`Removing accessory '${name}' (disabled in config).`)
-            await this.api.matter.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory])
+            await this.matter.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory])
             this.matterAccessories.delete(uuid)
             this.log.debug(`Accessory '${name}' removed successfully.`)
           } else {
@@ -208,7 +215,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
@@ -233,7 +240,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
@@ -258,7 +265,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
@@ -325,7 +332,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
@@ -362,7 +369,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
@@ -393,7 +400,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
@@ -421,7 +428,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName} (standalone for Apple Home compatibility)`)
       }
-      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 
@@ -450,7 +457,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       for (const acc of accessories) {
         this.log.info(`  - ${acc.displayName}`)
       }
-      await this.api.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
     }
   }
 }

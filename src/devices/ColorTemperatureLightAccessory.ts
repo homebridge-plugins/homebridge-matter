@@ -8,15 +8,17 @@ import type { API, Logger, MatterRequests } from 'homebridge'
 // 1. MatterRequests.* — raw matter.js request types (useful for some handlers like MoveToLevel)
 // 2. ClusterHandlerMap — behavior-transformed types with automatic inference (recommended for color handlers)
 // Both approaches work. Color handlers use inferred types since the behavior transforms the request.
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class ColorTemperatureLightAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-colour-temp-light'
+    const matter = getMatter(api)
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Colour Temperature Light',
-      deviceType: api.matter.deviceTypes.ColorTemperatureLight,
+      deviceType: matter.deviceTypes.ColorTemperatureLight,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-LIGHT-COLOUR-TEMP',
@@ -33,7 +35,7 @@ export class ColorTemperatureLightAccessory extends BaseMatterAccessory {
           maxLevel: 254,
         },
         colorControl: {
-          colorMode: api.matter.types.ColorControl.ColorMode.ColorTemperatureMireds,
+          colorMode: matter.types.ColorControl.ColorMode.ColorTemperatureMireds,
           colorTemperatureMireds: 250,
           colorTempPhysicalMinMireds: 147,
           colorTempPhysicalMaxMireds: 454,
@@ -102,16 +104,16 @@ export class ColorTemperatureLightAccessory extends BaseMatterAccessory {
   }
 
   public async updateOnOffState(isOn: boolean): Promise<void> {
-    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
+    await this.updateState(this.matter.clusterNames.OnOff, { onOff: isOn })
   }
 
   public async updateBrightness(percent: number): Promise<void> {
     const matterLevel = Math.max(1, Math.round((percent / 100) * 254))
-    await this.updateState(this.api.matter.clusterNames.LevelControl, { currentLevel: matterLevel })
+    await this.updateState(this.matter.clusterNames.LevelControl, { currentLevel: matterLevel })
   }
 
   public async updateColorTemperature(kelvin: number): Promise<void> {
     const mireds = Math.round(1000000 / kelvin)
-    await this.updateState(this.api.matter.clusterNames.ColorControl, { colorTemperatureMireds: mireds })
+    await this.updateState(this.matter.clusterNames.ColorControl, { colorTemperatureMireds: mireds })
   }
 }

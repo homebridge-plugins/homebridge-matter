@@ -4,19 +4,21 @@
 
 import type { API, Logger } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class OccupancySensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-occupancy-sensor'
+    const matter = getMatter(api)
 
     // Note: Matter.js API calls this "MotionSensor" but it's actually an Occupancy Sensor
-    const OccupancySensorWithPIR = api.matter.deviceTypes.MotionSensor.with(
-      api.matter.deviceTypes.MotionSensor.requirements.OccupancySensingServer.with('PassiveInfrared'),
+    const OccupancySensorWithPIR = matter.deviceTypes.MotionSensor.with(
+      matter.deviceTypes.MotionSensor.requirements.OccupancySensingServer.with('PassiveInfrared'),
     )
 
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'Occupancy Sensor',
       deviceType: OccupancySensorWithPIR,
       serialNumber,

@@ -4,15 +4,17 @@
 
 import type { API, Logger } from 'homebridge'
 
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class OnOffSwitchAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-onoff-switch'
+    const matter = getMatter(api)
     super(api, log, {
-      UUID: api.matter.uuid.generate(serialNumber),
+      UUID: matter.uuid.generate(serialNumber),
       displayName: 'On/Off Switch',
-      deviceType: api.matter.deviceTypes.OnOffSwitch,
+      deviceType: matter.deviceTypes.OnOffSwitch,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-SWITCH-ON-OFF',
@@ -64,6 +66,6 @@ export class OnOffSwitchAccessory extends BaseMatterAccessory {
   }
 
   public async updateOnOffState(isOn: boolean): Promise<void> {
-    await this.updateState(this.api.matter.clusterNames.OnOff, { onOff: isOn })
+    await this.updateState(this.matter.clusterNames.OnOff, { onOff: isOn })
   }
 }
