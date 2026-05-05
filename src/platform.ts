@@ -15,6 +15,7 @@ import {
   DoorLockAccessory,
   ExtendedColorLightAccessory,
   FanAccessory,
+  GenericSwitchAccessory,
   HumiditySensorAccessory,
   LeakSensorAccessory,
   LightSensorAccessory,
@@ -140,6 +141,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       { enabled: this.config.enableExtendedColourLight, uuid: this.matter.uuid.generate('matter-extended-colour-light'), name: 'Extended Colour Light' },
       { enabled: this.config.enableOnOffOutlet, uuid: this.matter.uuid.generate('matter-onoff-outlet'), name: 'On/Off Outlet' },
       { enabled: this.config.enableOnOffSwitch, uuid: this.matter.uuid.generate('matter-onoff-switch'), name: 'On/Off Switch' },
+      { enabled: this.config.enableGenericSwitch, uuid: this.matter.uuid.generate('matter-generic-switch'), name: 'Generic Switch' },
       { enabled: this.config.enableAirQualitySensor, uuid: this.matter.uuid.generate('matter-air-quality-sensor'), name: 'Air Quality Sensor' },
       { enabled: this.config.enableTemperatureSensor, uuid: this.matter.uuid.generate('matter-temperature-sensor'), name: 'Temperature Sensor' },
       { enabled: this.config.enableHumiditySensor, uuid: this.matter.uuid.generate('matter-humidity-sensor'), name: 'Humidity Sensor' },
@@ -257,6 +259,12 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     // On/Off Switch
     if (this.config.enableOnOffSwitch === true) {
       const device = new OnOffSwitchAccessory(this.api, this.log)
+      accessories.push(device.toAccessory())
+    }
+
+    // Generic Switch (stateless remote / button)
+    if (this.config.enableGenericSwitch === true) {
+      const device = new GenericSwitchAccessory(this.api, this.log)
       accessories.push(device.toAccessory())
     }
 

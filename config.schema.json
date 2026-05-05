@@ -52,6 +52,12 @@
         "default": false,
         "description": "Enable the on/off light switch example accessory (Matter Spec § 6.1)."
       },
+      "enableGenericSwitch": {
+        "title": "Enable Generic Switch",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the generic switch (stateless remote/button) example accessory (Matter Spec § 6.6)."
+      },
       "enableAirQualitySensor": {
         "title": "Enable Air Quality Sensor",
         "type": "boolean",
@@ -176,11 +182,12 @@
     {
       "type": "fieldset",
       "title": "Section 6: Switches & Controllers",
-      "description": "Matter Specification § 6 - Input devices and control interfaces (1 device implemented).",
+      "description": "Matter Specification § 6 - Input devices and control interfaces (2 devices implemented).",
       "expandable": true,
       "expanded": false,
       "items": [
-        "enableOnOffSwitch"
+        "enableOnOffSwitch",
+        "enableGenericSwitch"
       ]
     },
     {
