@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changed
 
 - chore: update actions/checkout to v7
+- chore: remove stray exit 1 from deprecation workflow
 
 ## v1.4.0 (2026-05-05)
 
