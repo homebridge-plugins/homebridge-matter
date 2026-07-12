@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v1.4.1 (Pending Release)
+
+### Changed
+
+- chore: update actions/checkout to v7
+
 ## v1.4.0 (2026-05-05)
 
 ### Added
@@ -13,6 +19,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changed
 
 - chore: dependency updates
+- chore: remove claude github workflows
 - docs: add `CLAUDE.md` to repo
 - fix: update code for homebridge v2
 
