@@ -1,0 +1,69 @@
+name: Support Request
+description: Need help?
+labels: [question]
+body:
+  - type: textarea
+    id: describe-your-problem
+    attributes:
+      label: Describe Your Problem
+      description: Please provide a clear and concise description of what problem you are trying to solve.
+      placeholder: |
+        Tip: You can attach images or files by clicking this area to highlight it and then dragging files in.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      render: shell
+      description: |
+        * Show the Homebridge logs here, remove any sensitive information.
+        * Keep this short. Do not paste in hundreds of lines repeating the same error.
+  - type: textarea
+    id: json-config
+    attributes:
+      label: Plugin Config
+      render: JSON
+      description: |
+        Show your Homebridge `config.json` here. Be sure to **remove any sensitive information (passwords, tokens, etc.)**.
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain your problem.
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin Version
+    validations:
+      required: true
+  - type: input
+    id: homebridge-version
+    attributes:
+      label: Homebridge Version
+    validations:
+      required: true
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js Version
+    validations:
+      required: true
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: Operating System
+      options:
+        - Official Homebridge Raspberry Pi Image
+        - Raspberry Pi OS / Raspbian
+        - Ubuntu / Debian (or a variant)
+        - Fedora / CentOS / RedHat (or a variant)
+        - macOS
+        - Windows
+        - Synology DSM
+        - QNAP
+        - Unraid
+        - Docker
+        - Other (please specify in the description)
+    validations:
+      required: true
