@@ -157,6 +157,10 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       { enabled: this.config.enableFan, uuid: this.matter.uuid.generate('matter-fan'), name: 'Fan' },
       { enabled: this.config.enableRobotVacuum, uuid: this.matter.uuid.generate('matter-robot-vacuum'), name: 'Robot Vacuum' },
       { enabled: this.config.enablePowerStrip, uuid: this.matter.uuid.generate('matter-power-strip'), name: 'Power Strip' },
+      // Retired device type (custom Colour Light, removed in 87e74c8) — always
+      // remove so users who registered it before the removal don't keep an
+      // orphaned cached accessory.
+      { enabled: false, uuid: this.matter.uuid.generate('matter-colour-light'), name: 'Colour Light' },
     ]
 
     for (const { enabled, uuid, name } of configMap) {
