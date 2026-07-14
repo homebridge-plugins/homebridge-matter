@@ -51,8 +51,8 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
           status: 0, // 0 = Active
           order: 0, // Primary power source
           description: 'Battery',
-          batPercentRemaining: 100, // 0-200, where 200 = 100% (0.5% increments)
-          batChargeLevel: 2, // 0 = Ok, 1 = Warning, 2 = Critical
+          batPercentRemaining: 200, // 0-200, where 200 = 100% (0.5% increments)
+          batChargeLevel: 0, // 0 = Ok, 1 = Warning, 2 = Critical
           batReplaceability: 1, // 0 = Unspecified, 1 = Not replaceable, 2 = User replaceable, 3 = Factory replaceable
         },
 

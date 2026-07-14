@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changed
 
 - chore: remove retired colour light device
+- fix: correct robot vacuum battery demo values
 
 ## v1.4.1 (2026-07-12)
 
