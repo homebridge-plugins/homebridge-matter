@@ -2,12 +2,13 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
-## v1.4.2 (Pending Release)
+## v1.5.0 (Pending Release)
 
 ### Changed
 
 - chore: remove retired colour light device
 - fix: correct robot vacuum battery demo values
+- feat: drop device type workarounds for homebridge 2.1.2
 
 ## v1.4.1 (2026-07-12)
 

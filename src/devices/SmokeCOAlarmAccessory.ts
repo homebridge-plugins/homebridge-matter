@@ -11,14 +11,13 @@ export class SmokeCOAlarmAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-smoke-sensor'
     const matter = getMatter(api)
-    const SmokeSensorWithBoth = matter.deviceTypes.SmokeSensor.with(
-      matter.deviceTypes.SmokeSensor.requirements.SmokeCoAlarmServer.with('SmokeAlarm', 'CoAlarm'),
-    )
 
     super(api, log, {
       UUID: matter.uuid.generate(serialNumber),
       displayName: 'Smoke Sensor',
-      deviceType: SmokeSensorWithBoth,
+      // Homebridge >= 2.1.2 adds the SmokeCoAlarm cluster with the SmokeAlarm and
+      // CoAlarm features auto-detected from the smokeState/coState attributes below.
+      deviceType: matter.deviceTypes.SmokeSensor,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-SENSOR-SMOKE-CO',

@@ -12,15 +12,14 @@ export class OccupancySensorAccessory extends BaseMatterAccessory {
     const serialNumber = 'matter-occupancy-sensor'
     const matter = getMatter(api)
 
-    // Note: Matter.js API calls this "MotionSensor" but it's actually an Occupancy Sensor
-    const OccupancySensorWithPIR = matter.deviceTypes.MotionSensor.with(
-      matter.deviceTypes.MotionSensor.requirements.OccupancySensingServer.with('PassiveInfrared'),
-    )
-
     super(api, log, {
       UUID: matter.uuid.generate(serialNumber),
       displayName: 'Occupancy Sensor',
-      deviceType: OccupancySensorWithPIR,
+      // Note: Matter.js API calls this "MotionSensor" but it's actually an Occupancy Sensor.
+      // Homebridge >= 2.1.2 ships the OccupancySensing cluster on this device type with the
+      // PassiveInfrared detector type and the OccupancyEvent feature (automatic
+      // OccupancyChanged events), and fills in the sensor-type attributes from the features.
+      deviceType: matter.deviceTypes.MotionSensor,
       serialNumber,
       manufacturer: 'Homebridge Matter',
       model: 'HB-MATTER-SENSOR-OCCUPANCY',
@@ -31,12 +30,6 @@ export class OccupancySensorAccessory extends BaseMatterAccessory {
         occupancySensing: {
           occupancy: {
             occupied: false,
-          },
-          occupancySensorType: 0,
-          occupancySensorTypeBitmap: {
-            pir: true,
-            ultrasonic: false,
-            physicalContact: false,
           },
         },
       },
