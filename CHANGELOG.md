@@ -11,6 +11,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - feat: drop device type workarounds for homebridge 2.1.2
 - chore(github): update the setup-node action to v7
 - chore: bump homebridge to v2.2.0 and update version references
+- feat: demonstrate electrical power and energy measurement on the outlet
 
 ## v1.4.1 (2026-07-12)
 

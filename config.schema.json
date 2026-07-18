@@ -44,7 +44,7 @@
         "title": "Enable On/Off Outlet",
         "type": "boolean",
         "default": false,
-        "description": "Enable the on/off outlet (smart plug) example accessory (Matter Spec § 5.1)."
+        "description": "Enable the on/off outlet (smart plug) example accessory (Matter Spec § 5.1). Also demonstrates electrical power and energy measurement (requires Homebridge v2.2.0 or later) by simulating a 60 W load while on."
       },
       "enableOnOffSwitch": {
         "title": "Enable On/Off Light Switch",
