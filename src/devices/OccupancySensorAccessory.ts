@@ -16,7 +16,7 @@ export class OccupancySensorAccessory extends BaseMatterAccessory {
       UUID: matter.uuid.generate(serialNumber),
       displayName: 'Occupancy Sensor',
       // Note: Matter.js API calls this "MotionSensor" but it's actually an Occupancy Sensor.
-      // Homebridge >= 2.1.2 ships the OccupancySensing cluster on this device type with the
+      // Homebridge >= 2.2.0 ships the OccupancySensing cluster on this device type with the
       // PassiveInfrared detector type and the OccupancyEvent feature (automatic
       // OccupancyChanged events), and fills in the sensor-type attributes from the features.
       deviceType: matter.deviceTypes.MotionSensor,
