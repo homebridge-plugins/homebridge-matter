@@ -1,5 +1,5 @@
 <p align="center">
-   <a href="https://github.com/homebridge-plugins/homebridge-matter"><img alt="Homebridge Verified" src="https://github.com/homebridge-plugins/homebridge-matter/blob/latest/plugin-header.png?raw=true" width="600px"></a>
+   <a href="https://github.com/homebridge-plugins/homebridge-matter"><img alt="Homebridge Verified" src="https://raw.githubusercontent.com/homebridge-plugins/homebridge-matter/latest/branding/Homebridge_x_Matter.png" width="600px"></a>
 </p>
 <span align="center">
 
