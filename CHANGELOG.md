@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v1.5.1 (2026-07-19)
+
+### Changed
+
+- chore(branding): move the plugin header into the standard branding folder
+
 ## v1.5.0 (2026-07-18)
 
 ### Changed
