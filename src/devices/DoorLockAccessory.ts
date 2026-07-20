@@ -46,12 +46,12 @@ export class DoorLockAccessory extends BaseMatterAccessory {
 
     // Example: Check if door is closed before locking
     // if (this.isDoorOpen) {
-    //   throw new MatterStatus.InvalidInState('Cannot lock door while it is open')
+    //   throw await matterStatusError('InvalidInState', 'Cannot lock door while it is open')
     // }
 
     // Example: Check if lock mechanism is already in use
     // if (this.isLockMotorActive) {
-    //   throw new MatterStatus.Busy('Lock mechanism is currently in use')
+    //   throw await matterStatusError('Busy', 'Lock mechanism is currently in use')
     // }
 
     // Example: Lock with timeout and error handling
@@ -59,10 +59,10 @@ export class DoorLockAccessory extends BaseMatterAccessory {
     //   await this.lockAPI.lock({ timeout: 10000 })
     // } catch (error) {
     //   if (error.code === 'LOCK_JAMMED') {
-    //     throw new MatterStatus.Failure('Lock is jammed - check door alignment')
+    //     throw await matterStatusError('Failure', 'Lock is jammed - check door alignment')
     //   }
     //   if (error.code === 'ETIMEDOUT') {
-    //     throw new MatterStatus.Timeout('Lock motor did not respond within 10 seconds')
+    //     throw await matterStatusError('Timeout', 'Lock motor did not respond within 10 seconds')
     //   }
     //   throw error
     // }
@@ -75,18 +75,18 @@ export class DoorLockAccessory extends BaseMatterAccessory {
 
     // Example: Check if user has permission to unlock
     // if (!this.userHasUnlockPermission) {
-    //   throw new MatterStatus.PermissionDenied('User does not have permission to unlock')
+    //   throw await matterStatusError('PermissionDenied', 'User does not have permission to unlock')
     // }
 
     // Example: Check if security system prevents unlocking
     // if (this.isSecuritySystemArmed) {
-    //   throw new MatterStatus.InvalidInState('Cannot unlock while security system is armed')
+    //   throw await matterStatusError('InvalidInState', 'Cannot unlock while security system is armed')
     // }
 
     // Example: Check time-based access restrictions
     // const currentHour = new Date().getHours()
     // if (currentHour < 6 || currentHour > 22) {
-    //   throw new MatterStatus.PermissionDenied('Remote unlocking disabled during night hours')
+    //   throw await matterStatusError('PermissionDenied', 'Remote unlocking disabled during night hours')
     // }
 
     this.logInfo('unlocked.')

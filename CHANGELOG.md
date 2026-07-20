@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v1.5.2 (2026-07-20)
+
+### Changed
+
+- fix: load the plugin on installs where the homebridge package sits outside the plugin folder (#5)
+
 ## v1.5.1 (2026-07-19)
 
 ### Changed

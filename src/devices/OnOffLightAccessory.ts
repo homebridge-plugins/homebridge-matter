@@ -78,10 +78,10 @@ export class OnOffLightAccessory extends BaseMatterAccessory {
 
       // Example: Handle specific error types from your device API
       // if (error.code === 'ETIMEDOUT' || error.code === 'ECONNREFUSED') {
-      //   throw new MatterStatus.Timeout('Device did not respond - check network connection')
+      //   throw await matterStatusError('Timeout', 'Device did not respond - check network connection')
       // }
       // if (error.code === 'DEVICE_OFFLINE') {
-      //   throw new MatterStatus.Failure('Device is offline or unreachable')
+      //   throw await matterStatusError('Failure', 'Device is offline or unreachable')
       // }
 
       // Re-throw the error - Homebridge will wrap it as a generic Failure
@@ -107,10 +107,10 @@ export class OnOffLightAccessory extends BaseMatterAccessory {
 
       // Example: Map HTTP status codes to appropriate Matter errors
       // if (error.response?.status === 503) {
-      //   throw new MatterStatus.Busy('Device is busy processing another command')
+      //   throw await matterStatusError('Busy', 'Device is busy processing another command')
       // }
       // if (error.response?.status === 504) {
-      //   throw new MatterStatus.Timeout('Request timed out after 30 seconds')
+      //   throw await matterStatusError('Timeout', 'Request timed out after 30 seconds')
       // }
 
       // Re-throw the error - Homebridge will wrap it as a generic Failure
