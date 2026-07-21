@@ -27,7 +27,7 @@ export type MatterStatusKind
 /**
  * Build a Matter protocol status error to throw from a cluster handler.
  *
- * The error classes come from `api.matter.status` (Homebridge 2.2.2-beta.0 and
+ * The error classes come from `api.matter.status` (Homebridge 2.3.0 and
  * later). They must never be reached with `import { MatterStatus } from
  * 'homebridge'`: that is a value import, so Node resolves the `homebridge`
  * package the moment the file is loaded. On setups that keep Homebridge in a

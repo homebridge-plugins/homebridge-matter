@@ -134,7 +134,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
    * the controller receives a specific status code instead of the endpoint
    * failing.
    *
-   * Requires Homebridge 2.2.2-beta.0 or later, which exposes the error classes
+   * Requires Homebridge 2.3.0 or later, which exposes the error classes
    * on `api.matter.status`. See {@link matterStatusError} for why they must not
    * be imported from the `homebridge` package directly.
    *
