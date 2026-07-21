@@ -10,6 +10,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - chore(github): allow the codeql scan to be started manually
 - feat: use `api.matter.status` for matter protocol errors
 - chore: declare the `supports-matter` keyword
+- feat: demonstrate a battery on the contact sensor example
 
 ## v1.5.2 (2026-07-20)
 
