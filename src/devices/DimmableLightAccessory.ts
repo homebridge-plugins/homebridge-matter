@@ -116,17 +116,17 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
 
     // Example: Validate the brightness level meets device constraints
     // if (level < 10) {
-    //   throw await matterStatusError('ConstraintError', 'Minimum brightness is 10 (4%) for this bulb')
+    //   throw this.statusError('ConstraintError', 'Minimum brightness is 10 (4%) for this bulb')
     // }
 
     // Example: Check if device supports the transition time requested
     // if (transitionTime !== null && transitionTime > 300) {
-    //   throw await matterStatusError('ConstraintError', 'Maximum transition time is 300 (30 seconds)')
+    //   throw this.statusError('ConstraintError', 'Maximum transition time is 300 (30 seconds)')
     // }
 
     // Example: Check if dimming is supported
     // if (!this.supportsDimming) {
-    //   throw await matterStatusError('InvalidAction', 'This bulb does not support dimming')
+    //   throw this.statusError('InvalidAction', 'This bulb does not support dimming')
     // }
 
     try {
@@ -139,7 +139,7 @@ export class DimmableLightAccessory extends BaseMatterAccessory {
 
       // Example: Handle dimming hardware failures
       // if (error.code === 'DIMMER_FAULT') {
-      //   throw await matterStatusError('Failure', 'Dimmer circuit malfunction - bulb may need replacement')
+      //   throw this.statusError('Failure', 'Dimmer circuit malfunction - bulb may need replacement')
       // }
 
       throw error

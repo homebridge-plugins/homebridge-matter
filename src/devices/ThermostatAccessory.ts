@@ -70,14 +70,14 @@ export class ThermostatAccessory extends BaseMatterAccessory {
     // Example: Check if requested mode is supported by device
     // const supportedModes = [0, 3, 4] // Off, Cool, Heat
     // if (!supportedModes.includes(request.systemMode)) {
-    //   throw await matterStatusError('InvalidAction',
+    //   throw this.statusError('InvalidAction',
     //     `System mode ${modeName} is not supported by this device`
     //   )
     // }
 
     // Example: Check if mode change is allowed based on external conditions
     // if (request.systemMode === 4 && this.outdoorTemp > 30) {
-    //   throw await matterStatusError('InvalidInState',
+    //   throw this.statusError('InvalidInState',
     //     'Heating mode disabled when outdoor temperature exceeds 30°C'
     //   )
     // }
@@ -94,21 +94,21 @@ export class ThermostatAccessory extends BaseMatterAccessory {
     // const minTemp = 7 // 7°C
     // const maxTemp = 30 // 30°C
     // if (celsius < minTemp || celsius > maxTemp) {
-    //   throw await matterStatusError('ConstraintError',
+    //   throw this.statusError('ConstraintError',
     //     `Heating setpoint ${celsius}°C is out of range (${minTemp}-${maxTemp}°C)`
     //   )
     // }
 
     // Example: Ensure heating setpoint is below cooling setpoint
     // if (celsius >= this.coolingSetpoint) {
-    //   throw await matterStatusError('ConstraintError',
+    //   throw this.statusError('ConstraintError',
     //     `Heating setpoint must be below cooling setpoint (${this.coolingSetpoint}°C)`
     //   )
     // }
 
     // Example: Check if heating is supported
     // if (!this.supportsHeating) {
-    //   throw await matterStatusError('InvalidInState', 'Device does not support heating mode')
+    //   throw this.statusError('InvalidInState', 'Device does not support heating mode')
     // }
 
     // TODO: await myThermostatAPI.setHeatingSetpoint(celsius)

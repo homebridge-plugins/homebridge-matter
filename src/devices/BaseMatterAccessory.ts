@@ -10,7 +10,9 @@
 
 import type { API, ClusterStateMap, EndpointType, Logger, MatterAccessory, MatterAPI } from 'homebridge'
 
-import { getMatter } from '../utils.js'
+import type { MatterStatusKind } from '../utils.js'
+
+import { getMatter, matterStatusError } from '../utils.js'
 
 export interface BaseMatterAccessoryConfig {
   UUID: string
@@ -125,6 +127,24 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
   protected async readState(cluster: string, partId?: string): Promise<Record<string, unknown> | undefined>
   protected async readState(cluster: string, partId?: string): Promise<Record<string, unknown> | undefined> {
     return await this.matter.getAccessoryState(this.UUID, cluster, partId)
+  }
+
+  /**
+   * Build a Matter protocol status error to throw from a cluster handler, so
+   * the controller receives a specific status code instead of the endpoint
+   * failing.
+   *
+   * Requires Homebridge 2.2.2-beta.0 or later, which exposes the error classes
+   * on `api.matter.status`. See {@link matterStatusError} for why they must not
+   * be imported from the `homebridge` package directly.
+   *
+   * @example
+   * ```typescript
+   * throw this.statusError('InvalidInState', 'Cannot lock door while it is open')
+   * ```
+   */
+  protected statusError(kind: MatterStatusKind, message: string): Error {
+    return matterStatusError(this.matter, kind, message)
   }
 
   /**

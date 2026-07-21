@@ -43,12 +43,12 @@ export class OnOffSwitchAccessory extends BaseMatterAccessory {
 
     // Example: Check if switch is in manual mode
     // if (this.isManualModeEnabled) {
-    //   throw await matterStatusError('InvalidInState', 'Switch is in manual mode - disable to allow remote control')
+    //   throw this.statusError('InvalidInState', 'Switch is in manual mode - disable to allow remote control')
     // }
 
     // Example: Check load type compatibility
     // if (this.loadType === 'inductive' && !this.supportsInductiveLoads) {
-    //   throw await matterStatusError('InvalidAction', 'Switch not rated for inductive loads')
+    //   throw this.statusError('InvalidAction', 'Switch not rated for inductive loads')
     // }
 
     // TODO: await mySwitchAPI.turnOn()
@@ -59,7 +59,7 @@ export class OnOffSwitchAccessory extends BaseMatterAccessory {
 
     // Example: Check if always-on mode is enabled
     // if (this.alwaysOnMode) {
-    //   throw await matterStatusError('InvalidInState', 'Switch is configured for always-on operation')
+    //   throw this.statusError('InvalidInState', 'Switch is configured for always-on operation')
     // }
 
     // TODO: await mySwitchAPI.turnOff()

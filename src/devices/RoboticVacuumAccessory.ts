@@ -23,7 +23,7 @@
 
 import type { API, Logger, MatterRequests } from 'homebridge'
 
-import { getMatter, matterStatusError } from '../utils.js'
+import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 export class RoboticVacuumAccessory extends BaseMatterAccessory {
@@ -257,13 +257,13 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     // Example: Check if device supports the requested cleaning mode
     // const supportedModes = [0, 1, 2, 6] // Only Vacuum, Mop, Vacuum&Mop, Quick Clean
     // if (!supportedModes.includes(newMode)) {
-    //   throw await matterStatusError('InvalidAction', `Clean mode "${modeStr}" is not supported by this device`)
+    //   throw this.statusError('InvalidAction', `Clean mode "${modeStr}" is not supported by this device`)
     // }
 
     // Example: Check if mopping is available (water tank attached)
     // const isMopMode = [1, 2, 5, 10, 13].includes(newMode) // modes that use mop
     // if (isMopMode && !this.isWaterTankAttached) {
-    //   throw await matterStatusError('InvalidInState', 'Cannot use mop modes - water tank not attached')
+    //   throw this.statusError('InvalidInState', 'Cannot use mop modes - water tank not attached')
     // }
 
     // TODO: await myVacuumAPI.setCleanMode(newMode)
@@ -283,7 +283,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
         69: 'Filling Water Tank',
         70: 'Updating Maps',
       }
-      throw await matterStatusError(
+      throw this.statusError(
         'InvalidInState',
         `Cannot pause while in ${stateNames[this.currentOperationalState]} state`,
       )
@@ -309,7 +309,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
         69: 'Filling Water Tank',
         70: 'Updating Maps',
       }
-      throw await matterStatusError(
+      throw this.statusError(
         'InvalidInState',
         `Cannot resume while in ${stateNames[this.currentOperationalState]} state`,
       )
@@ -354,17 +354,17 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     // const validAreaIds = [0, 1, 2, 3]
     // const invalidAreas = newAreas.filter((id: number) => !validAreaIds.includes(id))
     // if (invalidAreas.length > 0) {
-    //   throw await matterStatusError('NotFound', `Area ID(s) not found: ${invalidAreas.join(', ')}`)
+    //   throw this.statusError('NotFound', `Area ID(s) not found: ${invalidAreas.join(', ')}`)
     // }
 
     // Example: Check if vacuum supports area selection
     // if (!this.supportsAreaSelection) {
-    //   throw await matterStatusError('InvalidAction', 'This vacuum does not support area selection')
+    //   throw this.statusError('InvalidAction', 'This vacuum does not support area selection')
     // }
 
     // Example: Prevent selecting areas while vacuum is running
     // if (this.operationalState === 1) { // 1 = Running
-    //   throw await matterStatusError('InvalidInState', 'Cannot change area selection while vacuum is running')
+    //   throw this.statusError('InvalidInState', 'Cannot change area selection while vacuum is running')
     // }
 
     // TODO: await myVacuumAPI.selectAreas(newAreas)

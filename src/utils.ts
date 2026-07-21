@@ -13,7 +13,7 @@ export function getMatter(api: API): MatterAPI {
   return api.matter
 }
 
-type MatterStatusKind
+export type MatterStatusKind
   = | 'Busy'
     | 'ConstraintError'
     | 'Failure'
@@ -24,29 +24,23 @@ type MatterStatusKind
     | 'ResourceExhausted'
     | 'Timeout'
 
-let matterStatus: Record<string, new (message: string) => Error> | undefined
-
 /**
- * Build a Matter protocol status error.
+ * Build a Matter protocol status error to throw from a cluster handler.
  *
- * `MatterStatus` is a runtime value rather than a type, so importing it at the
- * top of a module makes Node resolve the `homebridge` package the moment the
- * file is loaded. On setups that keep Homebridge in a different directory tree
- * from the plugins (Jeedom and other custom installs) that resolution fails,
- * and because the platform imports every accessory file the whole plugin then
- * fails to load — not just the accessory that needed it (#5).
+ * The error classes come from `api.matter.status` (Homebridge 2.2.2-beta.0 and
+ * later). They must never be reached with `import { MatterStatus } from
+ * 'homebridge'`: that is a value import, so Node resolves the `homebridge`
+ * package the moment the file is loaded. On setups that keep Homebridge in a
+ * different directory tree from the plugins (Jeedom and other custom installs)
+ * the resolution fails, and because the platform imports every accessory file
+ * at startup the whole plugin fails to load — not just the accessory that
+ * needed it (#5). Reading them off the `api` object the plugin already holds
+ * has no such problem.
  *
- * Resolving it on demand keeps the plugin loading everywhere, and falls back to
- * a plain `Error` so a command still reports a failure if `homebridge` really
- * cannot be reached. Always use this helper instead of importing `MatterStatus`.
+ * Accessories should prefer `this.statusError(...)` on `BaseMatterAccessory`.
  */
-export async function matterStatusError(kind: MatterStatusKind, message: string): Promise<Error> {
-  try {
-    matterStatus ??= (await import('homebridge')).MatterStatus as unknown as Record<string, new (message: string) => Error>
-    return new matterStatus[kind](message)
-  } catch {
-    return new Error(message)
-  }
+export function matterStatusError(matter: MatterAPI, kind: MatterStatusKind, message: string): Error {
+  return new matter.status[kind](message)
 }
 
 export function parseError(error: unknown): string {

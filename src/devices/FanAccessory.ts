@@ -51,14 +51,14 @@ export class FanAccessory extends BaseMatterAccessory {
     // Example: Check if requested mode is supported by the fan
     // const supportedModes = [0, 1, 2, 3, 4] // Off, Low, Medium, High, On
     // if (!supportedModes.includes(request.fanMode)) {
-    //   throw await matterStatusError('InvalidAction',
+    //   throw this.statusError('InvalidAction',
     //     `Fan mode ${modeName} is not supported by this device`
     //   )
     // }
 
     // Example: Check if fan can change modes while running
     // if (this.isOscillating && request.fanMode === 5) {
-    //   throw await matterStatusError('InvalidInState',
+    //   throw this.statusError('InvalidInState',
     //     'Cannot switch to Auto mode while oscillating'
     //   )
     // }
@@ -74,14 +74,14 @@ export class FanAccessory extends BaseMatterAccessory {
 
     // Example: Validate speed percentage is within supported range
     // if (percent < 0 || percent > 100) {
-    //   throw await matterStatusError('ConstraintError',
+    //   throw this.statusError('ConstraintError',
     //     `Fan speed ${percent}% is out of range (0-100)`
     //   )
     // }
 
     // Example: Check if fan supports variable speed control
     // if (percent > 0 && percent < 100 && !this.supportsVariableSpeed) {
-    //   throw await matterStatusError('InvalidAction',
+    //   throw this.statusError('InvalidAction',
     //     'This fan only supports fixed speeds (Low/Medium/High), not variable percentage'
     //   )
     // }
@@ -89,7 +89,7 @@ export class FanAccessory extends BaseMatterAccessory {
     // Example: Enforce minimum speed when fan is on
     // const minSpeed = 20
     // if (percent > 0 && percent < minSpeed) {
-    //   throw await matterStatusError('ConstraintError',
+    //   throw this.statusError('ConstraintError',
     //     `Fan minimum speed is ${minSpeed}% when on`
     //   )
     // }

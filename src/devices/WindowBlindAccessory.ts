@@ -67,17 +67,17 @@ export class WindowBlindAccessory extends BaseMatterAccessory {
 
     // Example: Check if blind motor is already moving
     // if (this.isMotorActive) {
-    //   throw await matterStatusError('Busy', 'Blind is currently moving - stop it first')
+    //   throw this.statusError('Busy', 'Blind is currently moving - stop it first')
     // }
 
     // Example: Check if blind is obstructed
     // if (this.isObstructionDetected) {
-    //   throw await matterStatusError('InvalidInState', 'Cannot move blind - obstruction detected')
+    //   throw this.statusError('InvalidInState', 'Cannot move blind - obstruction detected')
     // }
 
     // Example: Validate position is within calibrated range
     // if (!this.isCalibrated) {
-    //   throw await matterStatusError('InvalidInState', 'Blind must be calibrated before position control')
+    //   throw this.statusError('InvalidInState', 'Blind must be calibrated before position control')
     // }
 
     // TODO: await myBlindAPI.setPosition(openPercent)
@@ -98,12 +98,12 @@ export class WindowBlindAccessory extends BaseMatterAccessory {
 
     // Example: Check if blind is actually moving before stopping
     // if (!this.isMotorActive) {
-    //   throw await matterStatusError('InvalidInState', 'Blind is not currently moving')
+    //   throw this.statusError('InvalidInState', 'Blind is not currently moving')
     // }
 
     // Example: Check if device supports stop command
     // if (!this.supportsStopCommand) {
-    //   throw await matterStatusError('InvalidAction', 'This blind model does not support stop command')
+    //   throw this.statusError('InvalidAction', 'This blind model does not support stop command')
     // }
 
     // TODO: await myBlindAPI.stop()
