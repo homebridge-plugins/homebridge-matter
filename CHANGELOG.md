@@ -9,6 +9,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - chore(deps): dependency updates
 - chore(github): allow the codeql scan to be started manually
 - feat: use `api.matter.status` for matter protocol errors
+- chore: declare the `supports-matter` keyword
 
 ## v1.5.2 (2026-07-20)
 
