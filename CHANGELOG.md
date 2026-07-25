@@ -11,6 +11,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - feat: use `api.matter.status` for matter protocol errors
 - chore: declare the `supports-matter` keyword
 - feat: demonstrate a battery on the contact sensor example
+- style(ui): standardise the custom ui layout and sync the support tab with the readme
 
 ## v1.5.2 (2026-07-20)
 
