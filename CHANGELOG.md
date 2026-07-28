@@ -22,6 +22,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - chore: use the same lint setup across every plugin
 - chore: add a changelog:sync script to populate the pending section from the commits
 - chore(deps): refresh the lock file for the eslint config bump
+- chore: count a repeated commit subject once when syncing the changelog
 
 ## v1.5.2 (2026-07-20)
 
