@@ -13,6 +13,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - feat: demonstrate a battery on the contact sensor example
 - style(ui): standardise the custom ui layout and sync the support tab with the readme
 - chore: keep test files out of the published package
+- chore: add a test setup with tests for the shared helper functions
 
 ## v1.5.2 (2026-07-20)
 
