@@ -55,7 +55,7 @@
   "scripts": {
     "build": "rimraf ./dist && tsc && npm run plugin-ui",
     "plugin-ui": "cp -r ./src/homebridge-ui ./dist/",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "prepublishOnly": "npm run lint && npm run build",
     "test": "vitest run",
@@ -66,7 +66,7 @@
     "@homebridge/plugin-ui-utils": "^2.2.5"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^9.1.0",
+    "@antfu/eslint-config": "^9.2.0",
     "@types/node": "^26.1.1",
     "@vitest/coverage-v8": "^4.1.10",
     "homebridge": "^2.2.2-beta.0",

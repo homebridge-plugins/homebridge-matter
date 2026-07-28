@@ -35,7 +35,7 @@ export default antfu(
       'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
       'style/quote-props': ['error', 'consistent-as-needed'],
       'test/no-only-tests': 'error',
-      'unused-imports/no-unused-vars': 0,
+      'unused-imports/no-unused-vars': ['error', { caughtErrors: 'none' }],
     },
     typescript: true,
   },
@@ -46,6 +46,16 @@ export default antfu(
       'perfectionist/sort-imports': 'off',
       'perfectionist/sort-named-exports': 'off',
       'perfectionist/sort-named-imports': 'off',
+    },
+  },
+  {
+    // The example accessories destructure request values that are only
+    // referenced from commented-out TODOs, deliberately, so a developer reading
+    // them can see what each command carries. Scoped to these files rather than
+    // switching the rule off across the whole plugin.
+    files: ['src/devices/**'],
+    rules: {
+      'unused-imports/no-unused-vars': 'off',
     },
   },
 )

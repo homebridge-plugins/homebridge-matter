@@ -17,6 +17,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - chore: declare support for node 26
 - chore(github): run the build and tests in ci, on node 22, 24 and 26
 - fix(examples): correct the thermostat's setpoint deadband, which was impossible for its declared limits to satisfy
+- chore: use the same lint setup across every plugin
 
 ## v1.5.2 (2026-07-20)
 
