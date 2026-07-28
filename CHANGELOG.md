@@ -12,6 +12,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - chore: declare the `supports-matter` keyword
 - feat: demonstrate a battery on the contact sensor example
 - style(ui): standardise the custom ui layout and sync the support tab with the readme
+- chore: keep test files out of the published package
 
 ## v1.5.2 (2026-07-20)
 
