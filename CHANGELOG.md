@@ -10,11 +10,13 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - chore(github): allow the codeql scan to be started manually
 - feat: use `api.matter.status` for matter protocol errors
 - chore: declare the `supports-matter` keyword
+- docs: state the correct homebridge version for api.matter.status
+- chore(github): stop concurrent release runs racing for the same version
 - feat: demonstrate a battery on the contact sensor example
+- chore(github): use the shared homebridge action to deprecate past pre-releases
 - style(ui): standardise the custom ui layout and sync the support tab with the readme
 - chore: keep test files out of the published package
 - chore: add a test setup with tests for the shared helper functions
-- chore: declare support for node 26
 - chore(github): run the build and tests in ci, on node 22, 24 and 26
 - fix(examples): correct the thermostat's setpoint deadband, which was impossible for its declared limits to satisfy
 - chore: use the same lint setup across every plugin
