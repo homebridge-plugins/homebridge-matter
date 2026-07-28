@@ -14,6 +14,8 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - style(ui): standardise the custom ui layout and sync the support tab with the readme
 - chore: keep test files out of the published package
 - chore: add a test setup with tests for the shared helper functions
+- chore: declare support for node 26
+- chore(github): run the build and tests in ci, on node 22, 24 and 26
 
 ## v1.5.2 (2026-07-20)
 
