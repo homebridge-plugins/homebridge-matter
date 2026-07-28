@@ -32,7 +32,19 @@ export class ThermostatAccessory extends BaseMatterAccessory {
           maxHeatSetpointLimit: 3000, // 30.00°C
           minCoolSetpointLimit: 1600, // 16.00°C
           maxCoolSetpointLimit: 3200, // 32.00°C
-          minSetpointDeadBand: 25, // 2.5°C minimum difference between heat/cool setpoints (required for Auto mode)
+
+          // ⚠️ In Auto mode the deadband applies to the LIMITS as well as the
+          // setpoints. Both of these must hold, in 0.01°C units:
+          //   maxCoolSetpointLimit - maxHeatSetpointLimit >= deadband
+          //   minCoolSetpointLimit - minHeatSetpointLimit >= deadband
+          // This value is in 0.1°C units, so it is multiplied by 10 first: 20
+          // means 2.0°C, i.e. 200.
+          //
+          // The limits above sit at the spec's absolute maxima (heat 30.00°C,
+          // cool 32.00°C), so the widest gap available is 2.0°C. A deadband of
+          // 2.5°C cannot be satisfied here at all - it would need
+          // maxHeatSetpointLimit lowered to 29.50°C instead.
+          minSetpointDeadBand: 20, // 2.0°C minimum difference between heat/cool setpoints (required for Auto mode)
           controlSequenceOfOperation: 4, // cooling and heating
           systemMode: 1, // auto mode (0=off, 1=auto, 3=cool, 4=heat)
           externallyMeasuredOccupancy: true, // default to occupied state (via external sensor)
