@@ -25,6 +25,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - chore: count a repeated commit subject once when syncing the changelog
 - chore(github): check the changelog against the commits in ci
 - docs: add node 26 to the supported node versions
+- chore: exclude test files and the test config from the published package
 
 ## v1.5.2 (2026-07-20)
 
