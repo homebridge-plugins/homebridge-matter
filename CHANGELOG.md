@@ -24,6 +24,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - chore(deps): refresh the lock file for the eslint config bump
 - chore: count a repeated commit subject once when syncing the changelog
 - chore(github): check the changelog against the commits in ci
+- docs: add node 26 to the supported node versions
 
 ## v1.5.2 (2026-07-20)
 
