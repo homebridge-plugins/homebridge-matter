@@ -40,8 +40,14 @@ export class ContactSensorAccessory extends BaseMatterAccessory {
           batReplaceability: 2, // 0 = Unspecified, 1 = Not replaceable, 2 = User replaceable
           batReplacementNeeded: false,
         },
-        // Omitting `batChargeState` keeps this a plain (non-rechargeable)
-        // battery. Declaring it would add the Rechargeable feature as well.
+        // `batChargeState` is deliberately not declared here, but from
+        // homebridge v2.3.0 every battery power source carries the Rechargeable
+        // feature anyway, seeded with a charge state of Unknown. Omitting the
+        // attribute no longer keeps a battery non-rechargeable - so a plugin
+        // that does know its device is rechargeable should declare a real
+        // charge state and keep it updated, and one that does not can leave it
+        // alone. Homebridge accepts a late first report either way, which is
+        // the point of the seed (homebridge#3982).
       },
     })
 
