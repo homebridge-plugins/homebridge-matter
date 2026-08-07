@@ -79,7 +79,13 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     // Register Matter accessories when Homebridge has finished launching
     this.api.on('didFinishLaunching', () => {
       this.log.debug('Executed didFinishLaunching callback')
-      void this.registerMatterAccessories()
+
+      // Without this catch, anything that rejects inside the registration chain
+      // becomes an unhandled rejection. Homebridge installs no handler for those,
+      // so the bridge is terminated rather than told what went wrong.
+      this.registerMatterAccessories().catch((error) => {
+        this.log.error('Failed to register Matter accessories:', error instanceof Error ? error.message : error)
+      })
     })
   }
 
@@ -115,15 +121,26 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     // Remove accessories that are disabled in config
     await this.removeDisabledAccessories()
 
-    // Register devices by Matter specification sections
-    await this.registerSection4Lighting()
-    await this.registerSection5SmartPlugs()
-    await this.registerSection6Switches()
-    await this.registerSection7Sensors()
-    await this.registerSection8Closure()
-    await this.registerSection9HVAC()
-    await this.registerSection12Robotic()
-    await this.registerCustomDevices()
+    // Register devices by Matter specification sections. Each section is kept
+    // separate so that one failing does not silently skip every section after it
+    const sections: [string, () => Promise<void>][] = [
+      ['lighting', () => this.registerSection4Lighting()],
+      ['smart plug', () => this.registerSection5SmartPlugs()],
+      ['switch', () => this.registerSection6Switches()],
+      ['sensor', () => this.registerSection7Sensors()],
+      ['closure', () => this.registerSection8Closure()],
+      ['HVAC', () => this.registerSection9HVAC()],
+      ['robotic', () => this.registerSection12Robotic()],
+      ['custom', () => this.registerCustomDevices()],
+    ]
+
+    for (const [name, register] of sections) {
+      try {
+        await register()
+      } catch (error) {
+        this.log.error(`Failed to register the ${name} accessories:`, error instanceof Error ? error.message : error)
+      }
+    }
 
     this.log.info('═'.repeat(80))
     this.log.info('Finished registering Matter accessories')

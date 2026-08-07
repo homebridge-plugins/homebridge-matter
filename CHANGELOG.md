@@ -27,6 +27,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - docs: add node 26 to the supported node versions
 - chore: exclude test files and the test config from the published package
 - docs: correct the battery note, since every battery now carries the rechargeable feature
+- fix: report a failed accessory registration instead of letting it take the bridge down
 
 ## v1.5.2 (2026-07-20)
 
