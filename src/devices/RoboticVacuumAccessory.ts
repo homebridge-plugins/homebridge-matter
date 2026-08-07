@@ -385,6 +385,17 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   /**
    * Helper method to clear all active timers
    */
+  /**
+   * Run a deferred state change, swallowing any failure. A rejection inside a
+   * timer callback is unhandled, and node ends the process for it - so every
+   * timer in this file goes through here.
+   */
+  private deferred(work: () => Promise<void>): void {
+    work().catch((error) => {
+      this.logDebug('Deferred state update failed:', error instanceof Error ? error.message : error)
+    })
+  }
+
   private clearTimers(): void {
     this.activeTimers.forEach(timer => clearTimeout(timer))
     this.activeTimers = []
@@ -404,12 +415,12 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     // Defer ALL state updates to ensure handler completes first. Tracked, so that
     // clearTimers() can cancel the whole dock sequence and not just the parts of
     // it that happen to have been armed already.
-    const dockSequenceTimer = setTimeout(async () => {
+    const dockSequenceTimer = setTimeout(() => this.deferred(async () => {
       // Start seeking charger directly (skip intermediate Stopped state)
       await this.updateOperationalState(64) // Seeking Charger
 
       // After 5 seconds, start charging
-      const chargingTimer = setTimeout(async () => {
+      const chargingTimer = setTimeout(() => this.deferred(async () => {
         this.logInfo('reached dock, now charging.')
         await this.updateOperationalState(65) // Charging
 
@@ -420,10 +431,10 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
         }, 3000)
 
         this.activeTimers.push(dockedTimer)
-      }, 5000)
+      }), 5000)
 
       this.activeTimers.push(chargingTimer)
-    }, 0)
+    }), 0)
 
     this.activeTimers.push(dockSequenceTimer)
   }
@@ -569,12 +580,12 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
    * @param durationSeconds - How long the cleaning should run before completing
    */
   private scheduleCleaningCompletion(durationSeconds: number): void {
-    const completionTimer = setTimeout(async () => {
+    const completionTimer = setTimeout(() => this.deferred(async () => {
       this.logInfo('cleaning completed, returning to dock.')
       await this.updateRunMode(0) // Set to Idle - cleaning session ending
 
       this.returnToDock()
-    }, durationSeconds * 1000)
+    }), durationSeconds * 1000)
 
     this.activeTimers.push(completionTimer)
   }
