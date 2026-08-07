@@ -332,14 +332,18 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     // Clear any existing timers
     this.clearTimers()
 
-    // Defer state updates to ensure handler completes first
-    setTimeout(() => {
+    // Defer state updates to ensure handler completes first. This one is tracked
+    // like every other timer, so a second goHome (Apple Home retries commands)
+    // cancels the first sequence rather than running two of them side by side.
+    const goHomeTimer = setTimeout(() => {
       // Set to Idle mode since we're ending the cleaning session
       this.updateRunMode(0)
 
       // Initiate return to dock sequence
       this.returnToDock()
     }, 0)
+
+    this.activeTimers.push(goHomeTimer)
   }
 
   private async handleSelectAreas(request: MatterRequests.SelectAreas): Promise<void> {
@@ -397,8 +401,10 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   private returnToDock(): void {
     this.logInfo('initiating return to dock sequence.')
 
-    // Defer ALL state updates to ensure handler completes first
-    setTimeout(async () => {
+    // Defer ALL state updates to ensure handler completes first. Tracked, so that
+    // clearTimers() can cancel the whole dock sequence and not just the parts of
+    // it that happen to have been armed already.
+    const dockSequenceTimer = setTimeout(async () => {
       // Start seeking charger directly (skip intermediate Stopped state)
       await this.updateOperationalState(64) // Seeking Charger
 
@@ -418,6 +424,8 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
 
       this.activeTimers.push(chargingTimer)
     }, 0)
+
+    this.activeTimers.push(dockSequenceTimer)
   }
 
   /**

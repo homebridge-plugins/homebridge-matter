@@ -29,6 +29,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - docs: correct the battery note, since every battery now carries the rechargeable feature
 - fix: report a failed accessory registration instead of letting it take the bridge down
 - fix: stop the outlet and vacuum timers when homebridge shuts down
+- fix: keep track of the return-to-dock timers, so a repeated go home cannot run two sequences
 
 ## v1.5.2 (2026-07-20)
 
