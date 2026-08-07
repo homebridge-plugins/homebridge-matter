@@ -386,6 +386,10 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     this.activeTimers = []
   }
 
+  public override shutdown(): void {
+    this.clearTimers()
+  }
+
   /**
    * Helper method to initiate return to dock sequence
    * Can be called synchronously from other handlers

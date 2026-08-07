@@ -167,6 +167,15 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
   }
 
   /**
+   * Called when Homebridge is shutting down. A device that arms a timer must
+   * clear it here, otherwise the timer keeps the process alive and can fire
+   * against a Matter server that has already been torn down.
+   */
+  public shutdown(): void {
+    // Nothing to stop by default
+  }
+
+  /**
    * Convert this class instance to a plain MatterAccessory object
    * This is what gets registered with Homebridge
    */

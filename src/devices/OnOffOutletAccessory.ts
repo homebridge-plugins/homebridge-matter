@@ -158,6 +158,13 @@ export class OnOffOutletAccessory extends BaseMatterAccessory {
     }, ENERGY_UPDATE_INTERVAL_MS)
   }
 
+  public override shutdown(): void {
+    if (this.energyTimer) {
+      clearInterval(this.energyTimer)
+      this.energyTimer = undefined
+    }
+  }
+
   private async stopPowerSimulation(): Promise<void> {
     if (this.energyTimer) {
       clearInterval(this.energyTimer)

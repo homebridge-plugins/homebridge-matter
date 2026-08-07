@@ -28,6 +28,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - chore: exclude test files and the test config from the published package
 - docs: correct the battery note, since every battery now carries the rechargeable feature
 - fix: report a failed accessory registration instead of letting it take the bridge down
+- fix: stop the outlet and vacuum timers when homebridge shuts down
 
 ## v1.5.2 (2026-07-20)
 
