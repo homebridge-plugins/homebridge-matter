@@ -179,6 +179,44 @@ export class MatterPlatform implements DynamicPlatformPlugin {
   }
 
   /**
+   * Register one specification section from a table of config key -> device.
+   *
+   * The heading only prints when the section has something in it. It used to
+   * print unconditionally, so a section with nothing enabled left three lines of
+   * heading with nothing underneath - six wasted lines on a typical config, for
+   * the sections the user had switched off.
+   *
+   * ⚠️ The enabled check has to happen BEFORE the devices are constructed: each
+   * accessory constructor logs its own "initialized." line, and those belong
+   * under the heading rather than above it. Building the list first and then
+   * deciding whether to print would put them in the wrong order.
+   */
+  private async registerSection(
+    title: string,
+    label: string,
+    devices: [configKey: string, build: () => BaseMatterAccessory][],
+    suffix = '',
+  ): Promise<void> {
+    const enabled = devices.filter(([configKey]) => this.config[configKey] === true)
+    if (enabled.length === 0) {
+      return
+    }
+
+    this.log.info('═'.repeat(80))
+    this.log.info(title)
+    this.log.info('═'.repeat(80))
+
+    const accessories = enabled.map(([, build]) => this.track(build()))
+
+    this.log.info(`✓ Registered ${accessories.length} ${label}`)
+    for (const accessory of accessories) {
+      this.log.info(`  - ${accessory.displayName}${suffix}`)
+    }
+
+    await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
+  }
+
+  /**
    * Remove accessories that are disabled in config
    */
   private async removeDisabledAccessories() {
@@ -234,234 +272,70 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    * Section 4: Lighting Devices (Matter Spec § 4)
    */
   private async registerSection4Lighting() {
-    this.log.info('═'.repeat(80))
-    this.log.info('Section 4: Lighting Devices (Matter Spec § 4)')
-    this.log.info('═'.repeat(80))
-
-    const accessories = []
-
-    // On/Off Light
-    if (this.config.enableOnOffLight === true) {
-      const device = new OnOffLightAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Dimmable Light
-    if (this.config.enableDimmableLight === true) {
-      const device = new DimmableLightAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Color Temperature Light
-    if (this.config.enableColourTemperatureLight === true) {
-      const device = new ColorTemperatureLightAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Extended Color Light (HS+CCT)
-    if (this.config.enableExtendedColourLight === true) {
-      const device = new ExtendedColorLightAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    if (accessories.length > 0) {
-      this.log.info(`✓ Registered ${accessories.length} lighting device(s)`)
-      for (const acc of accessories) {
-        this.log.info(`  - ${acc.displayName}`)
-      }
-      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
-    }
+    await this.registerSection('Section 4: Lighting Devices (Matter Spec § 4)', 'lighting device(s)', [
+      ['enableOnOffLight', () => new OnOffLightAccessory(this.api, this.log)],
+      ['enableDimmableLight', () => new DimmableLightAccessory(this.api, this.log)],
+      ['enableColourTemperatureLight', () => new ColorTemperatureLightAccessory(this.api, this.log)],
+      ['enableExtendedColourLight', () => new ExtendedColorLightAccessory(this.api, this.log)],
+    ])
   }
 
   /**
    * Section 5: Smart Plugs/Actuators (Matter Spec § 5)
    */
   private async registerSection5SmartPlugs() {
-    this.log.info('═'.repeat(80))
-    this.log.info('Section 5: Smart Plugs/Actuators (Matter Spec § 5)')
-    this.log.info('═'.repeat(80))
-
-    const accessories = []
-
-    // On/Off Outlet
-    if (this.config.enableOnOffOutlet === true) {
-      const device = new OnOffOutletAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    if (accessories.length > 0) {
-      this.log.info(`✓ Registered ${accessories.length} smart plug/actuator device(s)`)
-      for (const acc of accessories) {
-        this.log.info(`  - ${acc.displayName}`)
-      }
-      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
-    }
+    await this.registerSection('Section 5: Smart Plugs/Actuators (Matter Spec § 5)', 'smart plug/actuator device(s)', [
+      ['enableOnOffOutlet', () => new OnOffOutletAccessory(this.api, this.log)],
+    ])
   }
 
   /**
    * Section 6: Switches & Controllers (Matter Spec § 6)
    */
   private async registerSection6Switches() {
-    this.log.info('═'.repeat(80))
-    this.log.info('Section 6: Switches & Controllers (Matter Spec § 6)')
-    this.log.info('═'.repeat(80))
-
-    const accessories = []
-
-    // On/Off Switch
-    if (this.config.enableOnOffSwitch === true) {
-      const device = new OnOffSwitchAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Generic Switch (stateless remote / button)
-    if (this.config.enableGenericSwitch === true) {
-      const device = new GenericSwitchAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    if (accessories.length > 0) {
-      this.log.info(`✓ Registered ${accessories.length} switch/controller device(s)`)
-      for (const acc of accessories) {
-        this.log.info(`  - ${acc.displayName}`)
-      }
-      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
-    }
+    await this.registerSection('Section 6: Switches & Controllers (Matter Spec § 6)', 'switch/controller device(s)', [
+      ['enableOnOffSwitch', () => new OnOffSwitchAccessory(this.api, this.log)],
+      // Generic Switch is the stateless remote / button
+      ['enableGenericSwitch', () => new GenericSwitchAccessory(this.api, this.log)],
+    ])
   }
 
   /**
    * Section 7: Sensors (Matter Spec § 7)
    */
   private async registerSection7Sensors() {
-    this.log.info('═'.repeat(80))
-    this.log.info('Section 7: Sensors (Matter Spec § 7)')
-    this.log.info('═'.repeat(80))
-
-    const accessories = []
-
-    // Air Quality Sensor
-    if (this.config.enableAirQualitySensor === true) {
-      const device = new AirQualitySensorAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Contact Sensor
-    if (this.config.enableContactSensor === true) {
-      const device = new ContactSensorAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Light Sensor
-    if (this.config.enableLightSensor === true) {
-      const device = new LightSensorAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Occupancy Sensor
-    if (this.config.enableOccupancySensor === true) {
-      const device = new OccupancySensorAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Temperature Sensor
-    if (this.config.enableTemperatureSensor === true) {
-      const device = new TemperatureSensorAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Humidity Sensor
-    if (this.config.enableHumiditySensor === true) {
-      const device = new HumiditySensorAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Smoke/CO Alarm
-    if (this.config.enableSmokeSensor === true) {
-      const device = new SmokeCOAlarmAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Leak Sensor
-    if (this.config.enableLeakSensor === true) {
-      const device = new LeakSensorAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    if (accessories.length > 0) {
-      this.log.info(`✓ Registered ${accessories.length} sensor device(s)`)
-      for (const acc of accessories) {
-        this.log.info(`  - ${acc.displayName}`)
-      }
-      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
-    }
+    await this.registerSection('Section 7: Sensors (Matter Spec § 7)', 'sensor device(s)', [
+      ['enableAirQualitySensor', () => new AirQualitySensorAccessory(this.api, this.log)],
+      ['enableContactSensor', () => new ContactSensorAccessory(this.api, this.log)],
+      ['enableLightSensor', () => new LightSensorAccessory(this.api, this.log)],
+      ['enableOccupancySensor', () => new OccupancySensorAccessory(this.api, this.log)],
+      ['enableTemperatureSensor', () => new TemperatureSensorAccessory(this.api, this.log)],
+      ['enableHumiditySensor', () => new HumiditySensorAccessory(this.api, this.log)],
+      // The smoke sensor demonstrates the combined Smoke/CO alarm cluster
+      ['enableSmokeSensor', () => new SmokeCOAlarmAccessory(this.api, this.log)],
+      ['enableLeakSensor', () => new LeakSensorAccessory(this.api, this.log)],
+    ])
   }
 
   /**
    * Section 8: Closure Devices (Matter Spec § 8)
    */
   private async registerSection8Closure() {
-    this.log.info('═'.repeat(80))
-    this.log.info('Section 8: Closure Devices (Matter Spec § 8)')
-    this.log.info('═'.repeat(80))
-
-    const accessories = []
-
-    // Door Lock
-    if (this.config.enableDoorLock === true) {
-      const device = new DoorLockAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Window Blind
-    if (this.config.enableWindowBlind === true) {
-      const device = new WindowBlindAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Venetian Blind
-    if (this.config.enableVenetianBlind === true) {
-      const device = new VenetianBlindAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    if (accessories.length > 0) {
-      this.log.info(`✓ Registered ${accessories.length} closure device(s)`)
-      for (const acc of accessories) {
-        this.log.info(`  - ${acc.displayName}`)
-      }
-      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
-    }
+    await this.registerSection('Section 8: Closure Devices (Matter Spec § 8)', 'closure device(s)', [
+      ['enableDoorLock', () => new DoorLockAccessory(this.api, this.log)],
+      ['enableWindowBlind', () => new WindowBlindAccessory(this.api, this.log)],
+      ['enableVenetianBlind', () => new VenetianBlindAccessory(this.api, this.log)],
+    ])
   }
 
   /**
    * Section 9: HVAC (Matter Spec § 9)
    */
   private async registerSection9HVAC() {
-    this.log.info('═'.repeat(80))
-    this.log.info('Section 9: HVAC (Matter Spec § 9)')
-    this.log.info('═'.repeat(80))
-
-    const accessories = []
-
-    // Thermostat
-    if (this.config.enableThermostat === true) {
-      const device = new ThermostatAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    // Fan
-    if (this.config.enableFan === true) {
-      const device = new FanAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    if (accessories.length > 0) {
-      this.log.info(`✓ Registered ${accessories.length} HVAC device(s)`)
-      for (const acc of accessories) {
-        this.log.info(`  - ${acc.displayName}`)
-      }
-      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
-    }
+    await this.registerSection('Section 9: HVAC (Matter Spec § 9)', 'HVAC device(s)', [
+      ['enableThermostat', () => new ThermostatAccessory(this.api, this.log)],
+      ['enableFan', () => new FanAccessory(this.api, this.log)],
+    ])
   }
 
   /**
@@ -471,25 +345,9 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    * Use those codes to pair the vacuum as a separate bridge in your Home app.
    */
   private async registerSection12Robotic() {
-    this.log.info('═'.repeat(80))
-    this.log.info('Section 12: Robotic Devices (Matter Spec § 12)')
-    this.log.info('═'.repeat(80))
-
-    const accessories = []
-
-    // Robot Vacuum
-    if (this.config.enableRobotVacuum === true) {
-      const device = new RoboticVacuumAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    if (accessories.length > 0) {
-      this.log.info(`✓ Registered ${accessories.length} robot vacuum device(s)`)
-      for (const acc of accessories) {
-        this.log.info(`  - ${acc.displayName} (standalone for Apple Home compatibility)`)
-      }
-      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
-    }
+    await this.registerSection('Section 12: Robotic Devices (Matter Spec § 12)', 'robot vacuum device(s)', [
+      ['enableRobotVacuum', () => new RoboticVacuumAccessory(this.api, this.log)],
+    ], ' (standalone for Apple Home compatibility)')
   }
 
   /**
@@ -500,24 +358,9 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    * like managing multiple logical components within a single device.
    */
   private async registerCustomDevices() {
-    this.log.info('═'.repeat(80))
-    this.log.info('Custom Devices')
-    this.log.info('═'.repeat(80))
-
-    const accessories = []
-
-    // Power Strip (4 Outlets)
-    if (this.config.enablePowerStrip === true) {
-      const device = new PowerStripAccessory(this.api, this.log)
-      accessories.push(this.track(device))
-    }
-
-    if (accessories.length > 0) {
-      this.log.info(`✓ Registered ${accessories.length} custom device(s)`)
-      for (const acc of accessories) {
-        this.log.info(`  - ${acc.displayName}`)
-      }
-      await this.matter.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, accessories)
-    }
+    await this.registerSection('Custom Devices', 'custom device(s)', [
+      // The power strip is one device with four independent outlet endpoints
+      ['enablePowerStrip', () => new PowerStripAccessory(this.api, this.log)],
+    ])
   }
 }
