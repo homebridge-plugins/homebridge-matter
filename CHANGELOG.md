@@ -8,6 +8,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 
 - feat: allow the thermostat's auto, heat and cool modes to be removed in the config
 - feat: allow the smoke and co alarms to be removed in the config
+- chore: require homebridge 2.4.0, which carries the device type requirements api
 
 ## v1.6.0 (2026-08-09)
 
