@@ -100,6 +100,24 @@
         "default": false,
         "description": "Enable the smoke and carbon monoxide alarm example accessory (Matter Spec § 7.9)."
       },
+      "smokeSensorRemoveSmokeAlarm": {
+        "title": "Smoke/CO Alarm: Remove Smoke Alarm",
+        "type": "boolean",
+        "default": false,
+        "description": "Expose a carbon-monoxide-only alarm.",
+        "condition": {
+          "functionBody": "return model.enableSmokeSensor === true;"
+        }
+      },
+      "smokeSensorRemoveCoAlarm": {
+        "title": "Smoke/CO Alarm: Remove CO Alarm",
+        "type": "boolean",
+        "default": false,
+        "description": "Expose a smoke-only alarm.",
+        "condition": {
+          "functionBody": "return model.enableSmokeSensor === true;"
+        }
+      },
       "enableLeakSensor": {
         "title": "Enable Water Leak Detector",
         "type": "boolean",
@@ -231,6 +249,8 @@
         "enableTemperatureSensor",
         "enableHumiditySensor",
         "enableSmokeSensor",
+        "smokeSensorRemoveSmokeAlarm",
+        "smokeSensorRemoveCoAlarm",
         "enableLeakSensor"
       ]
     },

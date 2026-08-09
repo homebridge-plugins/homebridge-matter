@@ -312,7 +312,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       ['enableTemperatureSensor', () => new TemperatureSensorAccessory(this.api, this.log)],
       ['enableHumiditySensor', () => new HumiditySensorAccessory(this.api, this.log)],
       // The smoke sensor demonstrates the combined Smoke/CO alarm cluster
-      ['enableSmokeSensor', () => new SmokeCOAlarmAccessory(this.api, this.log)],
+      ['enableSmokeSensor', () => new SmokeCOAlarmAccessory(this.api, this.log, this.config)],
       ['enableLeakSensor', () => new LeakSensorAccessory(this.api, this.log)],
     ])
   }
