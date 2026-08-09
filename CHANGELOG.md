@@ -32,6 +32,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - fix: keep track of the return-to-dock timers, so a repeated go home cannot run two sequences
 - fix: stop a failed deferred state change in the vacuum from ending the process
 - fix: only print a device section heading when the section has devices in it
+- fix: require homebridge v2.3.0, which the plugin already needs for api.matter.status
 
 ## v1.5.2 (2026-07-20)
 

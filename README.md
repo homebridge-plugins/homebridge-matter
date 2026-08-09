@@ -27,7 +27,7 @@ This plugin provides example implementations of Matter device types in Homebridg
 
 - To use this plugin, you will need to already have:
   - [Node](https://nodejs.org): latest version of `v22`, `v24` or `v26` - any other major version is not supported.
-  - [Homebridge](https://homebridge.io): `^2.2.0` - refer to link for more information and installation instructions.
+  - [Homebridge](https://homebridge.io): `^2.3.0` - refer to link for more information and installation instructions.
 
 ### Getting Started
 
