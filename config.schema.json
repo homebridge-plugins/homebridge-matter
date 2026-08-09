@@ -130,6 +130,33 @@
         "default": false,
         "description": "Enable the thermostat example accessory (Matter Spec § 9.1)."
       },
+      "thermostatRemoveAutoMode": {
+        "title": "Thermostat: Remove Auto Mode",
+        "type": "boolean",
+        "default": false,
+        "description": "Expose the thermostat with Heat and Cool but no Auto mode. Requires Homebridge v2.4.0 or later.",
+        "condition": {
+          "functionBody": "return model.enableThermostat === true;"
+        }
+      },
+      "thermostatRemoveHeatMode": {
+        "title": "Thermostat: Remove Heat Mode",
+        "type": "boolean",
+        "default": false,
+        "description": "Expose a cooling-only thermostat. Requires Homebridge v2.4.0 or later.",
+        "condition": {
+          "functionBody": "return model.enableThermostat === true;"
+        }
+      },
+      "thermostatRemoveCoolMode": {
+        "title": "Thermostat: Remove Cool Mode",
+        "type": "boolean",
+        "default": false,
+        "description": "Expose a heating-only thermostat. Requires Homebridge v2.4.0 or later.",
+        "condition": {
+          "functionBody": "return model.enableThermostat === true;"
+        }
+      },
       "enableFan": {
         "title": "Enable Fan",
         "type": "boolean",
@@ -227,6 +254,9 @@
       "expanded": false,
       "items": [
         "enableThermostat",
+        "thermostatRemoveAutoMode",
+        "thermostatRemoveHeatMode",
+        "thermostatRemoveCoolMode",
         "enableFan"
       ]
     },

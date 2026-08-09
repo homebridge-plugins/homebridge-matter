@@ -333,7 +333,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    */
   private async registerSection9HVAC() {
     await this.registerSection('Section 9: HVAC (Matter Spec § 9)', 'HVAC device(s)', [
-      ['enableThermostat', () => new ThermostatAccessory(this.api, this.log)],
+      ['enableThermostat', () => new ThermostatAccessory(this.api, this.log, this.config)],
       ['enableFan', () => new FanAccessory(this.api, this.log)],
     ])
   }
