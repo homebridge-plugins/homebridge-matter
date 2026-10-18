@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v1.7.2 (Pending Release)
+
+### Changed
+
+- fix(air-quality): only accept the levels a plain matter cluster allows (#7)
+
 ## v1.7.1 (2026-10-18)
 
 ### Changed

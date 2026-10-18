@@ -14,6 +14,13 @@ import type { API, Logger } from 'homebridge'
 import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
+/**
+ * The air quality levels a plain Matter air quality cluster accepts. The others
+ * (2, 3, 5 and 6) each need an optional cluster feature that is not enabled.
+ */
+export type AirQualityLevel = 0 | 1 | 4
+const ALLOWED_AIR_QUALITY: readonly number[] = [0, 1, 4]
+
 export class AirQualitySensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
     const serialNumber = 'matter-air-quality-sensor'
@@ -29,8 +36,11 @@ export class AirQualitySensorAccessory extends BaseMatterAccessory {
       hardwareRevision: '1.0.0',
 
       clusters: {
-        // Overall air quality rating
-        // 0 = Unknown, 1 = Good, 2 = Fair, 3 = Moderate, 4 = Poor, 5 = VeryPoor, 6 = ExtremelyPoor
+        // Overall air quality rating: 0 = Unknown, 1 = Good, 4 = Poor.
+        // Matter also defines 2 = Fair, 3 = Moderate, 5 = VeryPoor and
+        // 6 = ExtremelyPoor, but each of those needs an optional feature on the
+        // air quality cluster, and this device type does not enable them - so
+        // setting one is refused. See updateAirQuality below.
         airQuality: {
           airQuality: 1, // Default: Good
         },
@@ -79,9 +89,19 @@ export class AirQualitySensorAccessory extends BaseMatterAccessory {
 
   /**
    * Update the overall air quality rating
-   * @param quality 0 = Unknown, 1 = Good, 2 = Fair, 3 = Moderate, 4 = Poor, 5 = VeryPoor, 6 = ExtremelyPoor
+   *
+   * Only Unknown, Good and Poor are always allowed. Fair, Moderate, Very Poor
+   * and Extremely Poor each need an optional feature on the air quality
+   * cluster, which this device type does not enable, so they are refused here
+   * with a warning rather than passed on to fail (#7).
+   *
+   * @param quality 0 = Unknown, 1 = Good, 4 = Poor
    */
-  public async updateAirQuality(quality: 0 | 1 | 2 | 3 | 4 | 5 | 6): Promise<void> {
+  public async updateAirQuality(quality: AirQualityLevel): Promise<void> {
+    if (!ALLOWED_AIR_QUALITY.includes(quality)) {
+      this.logWarn(`air quality ${quality} needs an optional Matter feature this device does not have - use 0 (Unknown), 1 (Good) or 4 (Poor).`)
+      return
+    }
     await this.updateState('airQuality', { airQuality: quality })
     const qualityStr = ['Unknown', 'Good', 'Fair', 'Moderate', 'Poor', 'Very Poor', 'Extremely Poor'][quality]
     this.logInfo(`air quality: ${qualityStr}.`)
@@ -129,7 +149,7 @@ export class AirQualitySensorAccessory extends BaseMatterAccessory {
    * Update all sensor values at once
    */
   public async updateAllValues(values: {
-    airQuality?: 0 | 1 | 2 | 3 | 4 | 5 | 6
+    airQuality?: AirQualityLevel
     pm25?: number
     pm10?: number
     temperature?: number
