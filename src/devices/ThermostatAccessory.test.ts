@@ -22,15 +22,30 @@ function makeHarness({ withRequirements = true } = {}) {
 
   const api = {
     matter: {
-      uuid: { generate: (value: string) => `uuid-${value}` },
-      deviceTypes: { Thermostat: { ...BASE_DEVICE_TYPE, with: deviceTypeWith } },
+      uuid: {
+        generate: (value: string) => `uuid-${value}`,
+      },
+      deviceTypes: {
+        Thermostat: { ...BASE_DEVICE_TYPE, with: deviceTypeWith },
+      },
       ...(withRequirements
-        ? { deviceRequirements: { Thermostat: { ThermostatServer: { with: serverWith } } } }
+        ? {
+            deviceRequirements: {
+              Thermostat: {
+                ThermostatServer: { with: serverWith },
+              },
+            },
+          }
         : {}),
     },
   } as unknown as API
 
-  const log = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as unknown as Logger
+  const log = {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  } as unknown as Logger
 
   return { api, log, serverWith, deviceTypeWith }
 }
@@ -43,7 +58,12 @@ function build(config?: Record<string, unknown>, harnessOptions?: { withRequirem
   const accessory = device.toAccessory()
   const thermostat = accessory.clusters?.thermostat as Record<string, unknown>
   const handlers = accessory.handlers?.thermostat as Record<string, unknown>
-  return { ...harness, accessory, thermostat, handlers }
+  return {
+    ...harness,
+    accessory,
+    thermostat,
+    handlers,
+  }
 }
 
 describe('default configuration', () => {

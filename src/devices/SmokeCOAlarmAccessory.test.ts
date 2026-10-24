@@ -15,11 +15,20 @@ import { SmokeCOAlarmAccessory } from './SmokeCOAlarmAccessory.js'
 function build(config?: Record<string, unknown>) {
   const api = {
     matter: {
-      uuid: { generate: (value: string) => `uuid-${value}` },
-      deviceTypes: { SmokeSensor: { name: 'SmokeCoAlarmDevice' } },
+      uuid: {
+        generate: (value: string) => `uuid-${value}`,
+      },
+      deviceTypes: {
+        SmokeSensor: { name: 'SmokeCoAlarmDevice' },
+      },
     },
   } as unknown as API
-  const log = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as unknown as Logger
+  const log = {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  } as unknown as Logger
 
   const device = config === undefined
     ? new SmokeCOAlarmAccessory(api, log)

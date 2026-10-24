@@ -103,7 +103,15 @@ export class AirQualitySensorAccessory extends BaseMatterAccessory {
       return
     }
     await this.updateState('airQuality', { airQuality: quality })
-    const qualityStr = ['Unknown', 'Good', 'Fair', 'Moderate', 'Poor', 'Very Poor', 'Extremely Poor'][quality]
+    const qualityStr = [
+      'Unknown',
+      'Good',
+      'Fair',
+      'Moderate',
+      'Poor',
+      'Very Poor',
+      'Extremely Poor',
+    ][quality]
     this.logInfo(`air quality: ${qualityStr}.`)
   }
 

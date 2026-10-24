@@ -57,7 +57,9 @@ vi.mock('./devices/index.js', () => ({
 function createApi() {
   return {
     matter: {
-      uuid: { generate: (value: string) => `uuid-${value}` },
+      uuid: {
+        generate: (value: string) => `uuid-${value}`,
+      },
       registerPlatformAccessories: vi.fn(),
       unregisterPlatformAccessories: vi.fn(),
     },

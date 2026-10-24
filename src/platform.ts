@@ -105,7 +105,9 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       // becomes an unhandled rejection. Homebridge installs no handler for those,
       // so the bridge is terminated rather than told what went wrong.
       this.registerMatterAccessories().catch((error) => {
-        this.log.error('Failed to register Matter accessories:', error instanceof Error ? error.message : error)
+        this.log.error('Failed to register Matter accessories:', error instanceof Error
+          ? error.message
+          : error)
       })
     })
   }
@@ -145,21 +147,47 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     // Register devices by Matter specification sections. Each section is kept
     // separate so that one failing does not silently skip every section after it
     const sections: [string, () => Promise<void>][] = [
-      ['lighting', () => this.registerSection4Lighting()],
-      ['smart plug', () => this.registerSection5SmartPlugs()],
-      ['switch', () => this.registerSection6Switches()],
-      ['sensor', () => this.registerSection7Sensors()],
-      ['closure', () => this.registerSection8Closure()],
-      ['HVAC', () => this.registerSection9HVAC()],
-      ['robotic', () => this.registerSection12Robotic()],
-      ['custom', () => this.registerCustomDevices()],
+      [
+        'lighting',
+        () => this.registerSection4Lighting(),
+      ],
+      [
+        'smart plug',
+        () => this.registerSection5SmartPlugs(),
+      ],
+      [
+        'switch',
+        () => this.registerSection6Switches(),
+      ],
+      [
+        'sensor',
+        () => this.registerSection7Sensors(),
+      ],
+      [
+        'closure',
+        () => this.registerSection8Closure(),
+      ],
+      [
+        'HVAC',
+        () => this.registerSection9HVAC(),
+      ],
+      [
+        'robotic',
+        () => this.registerSection12Robotic(),
+      ],
+      [
+        'custom',
+        () => this.registerCustomDevices(),
+      ],
     ]
 
     for (const [name, register] of sections) {
       try {
         await register()
       } catch (error) {
-        this.log.error(`Failed to register the ${name} accessories:`, error instanceof Error ? error.message : error)
+        this.log.error(`Failed to register the ${name} accessories:`, error instanceof Error
+          ? error.message
+          : error)
       }
     }
 
@@ -221,32 +249,124 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    */
   private async removeDisabledAccessories() {
     const configMap = [
-      { enabled: this.config.enableOnOffLight, uuid: this.matter.uuid.generate('matter-onoff-light'), name: 'On/Off Light' },
-      { enabled: this.config.enableDimmableLight, uuid: this.matter.uuid.generate('matter-dimmable-light'), name: 'Dimmable Light' },
-      { enabled: this.config.enableColourTemperatureLight, uuid: this.matter.uuid.generate('matter-colour-temp-light'), name: 'Colour Temperature Light' },
-      { enabled: this.config.enableExtendedColourLight, uuid: this.matter.uuid.generate('matter-extended-colour-light'), name: 'Extended Colour Light' },
-      { enabled: this.config.enableOnOffOutlet, uuid: this.matter.uuid.generate('matter-onoff-outlet'), name: 'On/Off Outlet' },
-      { enabled: this.config.enableOnOffSwitch, uuid: this.matter.uuid.generate('matter-onoff-switch'), name: 'On/Off Switch' },
-      { enabled: this.config.enableGenericSwitch, uuid: this.matter.uuid.generate('matter-generic-switch'), name: 'Generic Switch' },
-      { enabled: this.config.enableAirQualitySensor, uuid: this.matter.uuid.generate('matter-air-quality-sensor'), name: 'Air Quality Sensor' },
-      { enabled: this.config.enableTemperatureSensor, uuid: this.matter.uuid.generate('matter-temperature-sensor'), name: 'Temperature Sensor' },
-      { enabled: this.config.enableHumiditySensor, uuid: this.matter.uuid.generate('matter-humidity-sensor'), name: 'Humidity Sensor' },
-      { enabled: this.config.enableLightSensor, uuid: this.matter.uuid.generate('matter-light-sensor'), name: 'Light Sensor' },
-      { enabled: this.config.enableOccupancySensor, uuid: this.matter.uuid.generate('matter-occupancy-sensor'), name: 'Occupancy Sensor' },
-      { enabled: this.config.enableContactSensor, uuid: this.matter.uuid.generate('matter-contact-sensor'), name: 'Contact Sensor' },
-      { enabled: this.config.enableLeakSensor, uuid: this.matter.uuid.generate('matter-leak-sensor'), name: 'Leak Sensor' },
-      { enabled: this.config.enableSmokeSensor, uuid: this.matter.uuid.generate('matter-smoke-sensor'), name: 'Smoke Sensor' },
-      { enabled: this.config.enableDoorLock, uuid: this.matter.uuid.generate('matter-door-lock'), name: 'Door Lock' },
-      { enabled: this.config.enableWindowBlind, uuid: this.matter.uuid.generate('matter-window-blind'), name: 'Window Blind' },
-      { enabled: this.config.enableVenetianBlind, uuid: this.matter.uuid.generate('matter-venetian-blind'), name: 'Venetian Blind' },
-      { enabled: this.config.enableThermostat, uuid: this.matter.uuid.generate('matter-thermostat'), name: 'Thermostat' },
-      { enabled: this.config.enableFan, uuid: this.matter.uuid.generate('matter-fan'), name: 'Fan' },
-      { enabled: this.config.enableRobotVacuum, uuid: this.matter.uuid.generate('matter-robot-vacuum'), name: 'Robot Vacuum' },
-      { enabled: this.config.enablePowerStrip, uuid: this.matter.uuid.generate('matter-power-strip'), name: 'Power Strip' },
+      {
+        enabled: this.config.enableOnOffLight,
+        uuid: this.matter.uuid.generate('matter-onoff-light'),
+        name: 'On/Off Light',
+      },
+      {
+        enabled: this.config.enableDimmableLight,
+        uuid: this.matter.uuid.generate('matter-dimmable-light'),
+        name: 'Dimmable Light',
+      },
+      {
+        enabled: this.config.enableColourTemperatureLight,
+        uuid: this.matter.uuid.generate('matter-colour-temp-light'),
+        name: 'Colour Temperature Light',
+      },
+      {
+        enabled: this.config.enableExtendedColourLight,
+        uuid: this.matter.uuid.generate('matter-extended-colour-light'),
+        name: 'Extended Colour Light',
+      },
+      {
+        enabled: this.config.enableOnOffOutlet,
+        uuid: this.matter.uuid.generate('matter-onoff-outlet'),
+        name: 'On/Off Outlet',
+      },
+      {
+        enabled: this.config.enableOnOffSwitch,
+        uuid: this.matter.uuid.generate('matter-onoff-switch'),
+        name: 'On/Off Switch',
+      },
+      {
+        enabled: this.config.enableGenericSwitch,
+        uuid: this.matter.uuid.generate('matter-generic-switch'),
+        name: 'Generic Switch',
+      },
+      {
+        enabled: this.config.enableAirQualitySensor,
+        uuid: this.matter.uuid.generate('matter-air-quality-sensor'),
+        name: 'Air Quality Sensor',
+      },
+      {
+        enabled: this.config.enableTemperatureSensor,
+        uuid: this.matter.uuid.generate('matter-temperature-sensor'),
+        name: 'Temperature Sensor',
+      },
+      {
+        enabled: this.config.enableHumiditySensor,
+        uuid: this.matter.uuid.generate('matter-humidity-sensor'),
+        name: 'Humidity Sensor',
+      },
+      {
+        enabled: this.config.enableLightSensor,
+        uuid: this.matter.uuid.generate('matter-light-sensor'),
+        name: 'Light Sensor',
+      },
+      {
+        enabled: this.config.enableOccupancySensor,
+        uuid: this.matter.uuid.generate('matter-occupancy-sensor'),
+        name: 'Occupancy Sensor',
+      },
+      {
+        enabled: this.config.enableContactSensor,
+        uuid: this.matter.uuid.generate('matter-contact-sensor'),
+        name: 'Contact Sensor',
+      },
+      {
+        enabled: this.config.enableLeakSensor,
+        uuid: this.matter.uuid.generate('matter-leak-sensor'),
+        name: 'Leak Sensor',
+      },
+      {
+        enabled: this.config.enableSmokeSensor,
+        uuid: this.matter.uuid.generate('matter-smoke-sensor'),
+        name: 'Smoke Sensor',
+      },
+      {
+        enabled: this.config.enableDoorLock,
+        uuid: this.matter.uuid.generate('matter-door-lock'),
+        name: 'Door Lock',
+      },
+      {
+        enabled: this.config.enableWindowBlind,
+        uuid: this.matter.uuid.generate('matter-window-blind'),
+        name: 'Window Blind',
+      },
+      {
+        enabled: this.config.enableVenetianBlind,
+        uuid: this.matter.uuid.generate('matter-venetian-blind'),
+        name: 'Venetian Blind',
+      },
+      {
+        enabled: this.config.enableThermostat,
+        uuid: this.matter.uuid.generate('matter-thermostat'),
+        name: 'Thermostat',
+      },
+      {
+        enabled: this.config.enableFan,
+        uuid: this.matter.uuid.generate('matter-fan'),
+        name: 'Fan',
+      },
+      {
+        enabled: this.config.enableRobotVacuum,
+        uuid: this.matter.uuid.generate('matter-robot-vacuum'),
+        name: 'Robot Vacuum',
+      },
+      {
+        enabled: this.config.enablePowerStrip,
+        uuid: this.matter.uuid.generate('matter-power-strip'),
+        name: 'Power Strip',
+      },
       // Retired device type (custom Colour Light, removed in 87e74c8) — always
       // remove so users who registered it before the removal don't keep an
       // orphaned cached accessory.
-      { enabled: false, uuid: this.matter.uuid.generate('matter-colour-light'), name: 'Colour Light' },
+      {
+        enabled: false,
+        uuid: this.matter.uuid.generate('matter-colour-light'),
+        name: 'Colour Light',
+      },
     ]
 
     for (const { enabled, uuid, name } of configMap) {
@@ -273,10 +393,22 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    */
   private async registerSection4Lighting() {
     await this.registerSection('Section 4: Lighting Devices (Matter Spec § 4)', 'lighting device(s)', [
-      ['enableOnOffLight', () => new OnOffLightAccessory(this.api, this.log)],
-      ['enableDimmableLight', () => new DimmableLightAccessory(this.api, this.log)],
-      ['enableColourTemperatureLight', () => new ColorTemperatureLightAccessory(this.api, this.log)],
-      ['enableExtendedColourLight', () => new ExtendedColorLightAccessory(this.api, this.log)],
+      [
+        'enableOnOffLight',
+        () => new OnOffLightAccessory(this.api, this.log),
+      ],
+      [
+        'enableDimmableLight',
+        () => new DimmableLightAccessory(this.api, this.log),
+      ],
+      [
+        'enableColourTemperatureLight',
+        () => new ColorTemperatureLightAccessory(this.api, this.log),
+      ],
+      [
+        'enableExtendedColourLight',
+        () => new ExtendedColorLightAccessory(this.api, this.log),
+      ],
     ])
   }
 
@@ -285,7 +417,10 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    */
   private async registerSection5SmartPlugs() {
     await this.registerSection('Section 5: Smart Plugs/Actuators (Matter Spec § 5)', 'smart plug/actuator device(s)', [
-      ['enableOnOffOutlet', () => new OnOffOutletAccessory(this.api, this.log)],
+      [
+        'enableOnOffOutlet',
+        () => new OnOffOutletAccessory(this.api, this.log),
+      ],
     ])
   }
 
@@ -294,9 +429,15 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    */
   private async registerSection6Switches() {
     await this.registerSection('Section 6: Switches & Controllers (Matter Spec § 6)', 'switch/controller device(s)', [
-      ['enableOnOffSwitch', () => new OnOffSwitchAccessory(this.api, this.log)],
+      [
+        'enableOnOffSwitch',
+        () => new OnOffSwitchAccessory(this.api, this.log),
+      ],
       // Generic Switch is the stateless remote / button
-      ['enableGenericSwitch', () => new GenericSwitchAccessory(this.api, this.log)],
+      [
+        'enableGenericSwitch',
+        () => new GenericSwitchAccessory(this.api, this.log),
+      ],
     ])
   }
 
@@ -305,15 +446,39 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    */
   private async registerSection7Sensors() {
     await this.registerSection('Section 7: Sensors (Matter Spec § 7)', 'sensor device(s)', [
-      ['enableAirQualitySensor', () => new AirQualitySensorAccessory(this.api, this.log)],
-      ['enableContactSensor', () => new ContactSensorAccessory(this.api, this.log)],
-      ['enableLightSensor', () => new LightSensorAccessory(this.api, this.log)],
-      ['enableOccupancySensor', () => new OccupancySensorAccessory(this.api, this.log)],
-      ['enableTemperatureSensor', () => new TemperatureSensorAccessory(this.api, this.log)],
-      ['enableHumiditySensor', () => new HumiditySensorAccessory(this.api, this.log)],
+      [
+        'enableAirQualitySensor',
+        () => new AirQualitySensorAccessory(this.api, this.log),
+      ],
+      [
+        'enableContactSensor',
+        () => new ContactSensorAccessory(this.api, this.log),
+      ],
+      [
+        'enableLightSensor',
+        () => new LightSensorAccessory(this.api, this.log),
+      ],
+      [
+        'enableOccupancySensor',
+        () => new OccupancySensorAccessory(this.api, this.log),
+      ],
+      [
+        'enableTemperatureSensor',
+        () => new TemperatureSensorAccessory(this.api, this.log),
+      ],
+      [
+        'enableHumiditySensor',
+        () => new HumiditySensorAccessory(this.api, this.log),
+      ],
       // The smoke sensor demonstrates the combined Smoke/CO alarm cluster
-      ['enableSmokeSensor', () => new SmokeCOAlarmAccessory(this.api, this.log, this.config)],
-      ['enableLeakSensor', () => new LeakSensorAccessory(this.api, this.log)],
+      [
+        'enableSmokeSensor',
+        () => new SmokeCOAlarmAccessory(this.api, this.log, this.config),
+      ],
+      [
+        'enableLeakSensor',
+        () => new LeakSensorAccessory(this.api, this.log),
+      ],
     ])
   }
 
@@ -322,9 +487,18 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    */
   private async registerSection8Closure() {
     await this.registerSection('Section 8: Closure Devices (Matter Spec § 8)', 'closure device(s)', [
-      ['enableDoorLock', () => new DoorLockAccessory(this.api, this.log)],
-      ['enableWindowBlind', () => new WindowBlindAccessory(this.api, this.log)],
-      ['enableVenetianBlind', () => new VenetianBlindAccessory(this.api, this.log)],
+      [
+        'enableDoorLock',
+        () => new DoorLockAccessory(this.api, this.log),
+      ],
+      [
+        'enableWindowBlind',
+        () => new WindowBlindAccessory(this.api, this.log),
+      ],
+      [
+        'enableVenetianBlind',
+        () => new VenetianBlindAccessory(this.api, this.log),
+      ],
     ])
   }
 
@@ -333,8 +507,14 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    */
   private async registerSection9HVAC() {
     await this.registerSection('Section 9: HVAC (Matter Spec § 9)', 'HVAC device(s)', [
-      ['enableThermostat', () => new ThermostatAccessory(this.api, this.log, this.config)],
-      ['enableFan', () => new FanAccessory(this.api, this.log)],
+      [
+        'enableThermostat',
+        () => new ThermostatAccessory(this.api, this.log, this.config),
+      ],
+      [
+        'enableFan',
+        () => new FanAccessory(this.api, this.log),
+      ],
     ])
   }
 
@@ -346,7 +526,10 @@ export class MatterPlatform implements DynamicPlatformPlugin {
    */
   private async registerSection12Robotic() {
     await this.registerSection('Section 12: Robotic Devices (Matter Spec § 12)', 'robot vacuum device(s)', [
-      ['enableRobotVacuum', () => new RoboticVacuumAccessory(this.api, this.log)],
+      [
+        'enableRobotVacuum',
+        () => new RoboticVacuumAccessory(this.api, this.log),
+      ],
     ], ' (standalone for Apple Home compatibility)')
   }
 
@@ -360,7 +543,10 @@ export class MatterPlatform implements DynamicPlatformPlugin {
   private async registerCustomDevices() {
     await this.registerSection('Custom Devices', 'custom device(s)', [
       // The power strip is one device with four independent outlet endpoints
-      ['enablePowerStrip', () => new PowerStripAccessory(this.api, this.log)],
+      [
+        'enablePowerStrip',
+        () => new PowerStripAccessory(this.api, this.log),
+      ],
     ])
   }
 }

@@ -36,9 +36,15 @@ export class ThermostatAccessory extends BaseMatterAccessory {
       const requirements = matter.deviceRequirements
       if (requirements) {
         const features = [
-          ...(heat ? ['Heating' as const] : []),
-          ...(cool ? ['Cooling' as const] : []),
-          ...(auto ? ['AutoMode' as const] : []),
+          ...(heat
+            ? ['Heating' as const]
+            : []),
+          ...(cool
+            ? ['Cooling' as const]
+            : []),
+          ...(auto
+            ? ['AutoMode' as const]
+            : []),
           // Once the cluster is composed by hand, Homebridge adds NO features of
           // its own - and this accessory declares unoccupied setpoints, so
           // Occupancy has to be chosen here rather than detected.
@@ -58,9 +64,13 @@ export class ThermostatAccessory extends BaseMatterAccessory {
     const thermostat: Record<string, unknown> = {
       externalMeasuredIndoorTemperature: 2100, // 21.00°C
       // 4 = cooling and heating, 2 = heating only, 0 = cooling only
-      controlSequenceOfOperation: heat && cool ? 4 : heat ? 2 : 0,
+      controlSequenceOfOperation: heat && cool
+        ? 4
+        : heat ? 2 : 0,
       // Auto (1) is only a valid mode when the AutoMode feature is present
-      systemMode: auto ? 1 : heat ? 4 : 3, // (0=off, 1=auto, 3=cool, 4=heat)
+      systemMode: auto
+        ? 1
+        : heat ? 4 : 3, // (0=off, 1=auto, 3=cool, 4=heat)
       externallyMeasuredOccupancy: true, // default to occupied state (via external sensor)
     }
 
@@ -116,8 +126,16 @@ export class ThermostatAccessory extends BaseMatterAccessory {
           systemModeChange: async request => this.handleSystemModeChange(request),
           // Only register handlers for the setpoints this thermostat has - a
           // mode that was removed has no attribute for the handler to watch.
-          ...(heat ? { occupiedHeatingSetpointChange: async (request: { occupiedHeatingSetpoint: number, oldOccupiedHeatingSetpoint: number }) => this.handleOccupiedHeatingSetpointChange(request) } : {}),
-          ...(cool ? { occupiedCoolingSetpointChange: async (request: { occupiedCoolingSetpoint: number, oldOccupiedCoolingSetpoint: number }) => this.handleOccupiedCoolingSetpointChange(request) } : {}),
+          ...(heat
+            ? {
+                occupiedHeatingSetpointChange: async (request: { occupiedHeatingSetpoint: number, oldOccupiedHeatingSetpoint: number }) => this.handleOccupiedHeatingSetpointChange(request),
+              }
+            : {}),
+          ...(cool
+            ? {
+                occupiedCoolingSetpointChange: async (request: { occupiedCoolingSetpoint: number, oldOccupiedCoolingSetpoint: number }) => this.handleOccupiedCoolingSetpointChange(request),
+              }
+            : {}),
         },
       },
     })
@@ -137,7 +155,16 @@ export class ThermostatAccessory extends BaseMatterAccessory {
   private async handleSystemModeChange(request: { systemMode: number, oldSystemMode: number }): Promise<void> {
     this.logInfo(`SystemMode change: ${JSON.stringify(request)}`)
     // Matter Thermostat SystemMode enum: 0=Off, 1=Auto, 3=Cool, 4=Heat, 5=EmergencyHeat, 6=Precooling, 7=FanOnly
-    const modeNames = ['Off', 'Auto', 'Reserved', 'Cool', 'Heat', 'Emergency Heating', 'Precooling', 'Fan Only']
+    const modeNames = [
+      'Off',
+      'Auto',
+      'Reserved',
+      'Cool',
+      'Heat',
+      'Emergency Heating',
+      'Precooling',
+      'Fan Only',
+    ]
     const modeName = modeNames[request.systemMode] || `Unknown (${request.systemMode})`
     this.logInfo(`system mode changed to: ${modeName}.`)
 
