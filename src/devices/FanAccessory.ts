@@ -44,7 +44,15 @@ export class FanAccessory extends BaseMatterAccessory {
 
   private async handleFanModeChange(request: { fanMode: number, oldFanMode: number }): Promise<void> {
     this.logInfo(`FanMode change: ${JSON.stringify(request)}`)
-    const modeNames = ['Off', 'Low', 'Medium', 'High', 'On', 'Auto', 'Smart']
+    const modeNames = [
+      'Off',
+      'Low',
+      'Medium',
+      'High',
+      'On',
+      'Auto',
+      'Smart',
+    ]
     const modeName = modeNames[request.fanMode] || `Unknown (${request.fanMode})`
     this.logInfo(`fan mode changed to: ${modeName}.`)
 

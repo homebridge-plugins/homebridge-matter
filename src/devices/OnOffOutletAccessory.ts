@@ -189,7 +189,9 @@ export class OnOffOutletAccessory extends BaseMatterAccessory {
     this.cumulativeEnergyMwh += SIMULATED_POWER_MW * elapsedHours
 
     await this.updateState('electricalEnergyMeasurement', {
-      cumulativeEnergyImported: { energy: Math.round(this.cumulativeEnergyMwh) },
+      cumulativeEnergyImported: {
+        energy: Math.round(this.cumulativeEnergyMwh),
+      },
     })
   }
 }

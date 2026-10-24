@@ -57,9 +57,27 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
         // Run Mode: Controls what the vacuum is doing (Idle, Cleaning, Mapping)
         rvcRunMode: {
           supportedModes: [
-            { label: 'Idle', mode: 0, modeTags: [{ value: 16384 }] }, // RvcRunMode.ModeTag.Idle
-            { label: 'Cleaning', mode: 1, modeTags: [{ value: 16385 }] }, // RvcRunMode.ModeTag.Cleaning
-            { label: 'Mapping', mode: 2, modeTags: [{ value: 16386 }] }, // RvcRunMode.ModeTag.Mapping
+            {
+              label: 'Idle',
+              mode: 0,
+              modeTags: [
+                { value: 16384 },
+              ],
+            }, // RvcRunMode.ModeTag.Idle
+            {
+              label: 'Cleaning',
+              mode: 1,
+              modeTags: [
+                { value: 16385 },
+              ],
+            }, // RvcRunMode.ModeTag.Cleaning
+            {
+              label: 'Mapping',
+              mode: 2,
+              modeTags: [
+                { value: 16386 },
+              ],
+            }, // RvcRunMode.ModeTag.Mapping
           ],
           currentMode: 0,
         },
@@ -71,31 +89,133 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
         rvcCleanMode: {
           supportedModes: [
             // Basic functional modes
-            { label: 'Vacuum', mode: 0, modeTags: [{ value: 16385 }] }, // Vacuum
-            { label: 'Mop', mode: 1, modeTags: [{ value: 16386 }] }, // Mop
-            { label: 'Vacuum & Mop', mode: 2, modeTags: [{ value: 16385 }, { value: 16386 }] }, // Both
+            {
+              label: 'Vacuum',
+              mode: 0,
+              modeTags: [
+                { value: 16385 },
+              ],
+            }, // Vacuum
+            {
+              label: 'Mop',
+              mode: 1,
+              modeTags: [
+                { value: 16386 },
+              ],
+            }, // Mop
+            {
+              label: 'Vacuum & Mop',
+              mode: 2,
+              modeTags: [
+                { value: 16385 },
+                { value: 16386 },
+              ],
+            }, // Both
 
             // Deep clean modes
-            { label: 'Deep Clean', mode: 3, modeTags: [{ value: 16384 }] }, // DeepClean
-            { label: 'Deep Vacuum', mode: 4, modeTags: [{ value: 16384 }, { value: 16385 }] }, // DeepClean + Vacuum
-            { label: 'Deep Mop', mode: 5, modeTags: [{ value: 16384 }, { value: 16386 }] }, // DeepClean + Mop
+            {
+              label: 'Deep Clean',
+              mode: 3,
+              modeTags: [
+                { value: 16384 },
+              ],
+            }, // DeepClean
+            {
+              label: 'Deep Vacuum',
+              mode: 4,
+              modeTags: [
+                { value: 16384 },
+                { value: 16385 },
+              ],
+            }, // DeepClean + Vacuum
+            {
+              label: 'Deep Mop',
+              mode: 5,
+              modeTags: [
+                { value: 16384 },
+                { value: 16386 },
+              ],
+            }, // DeepClean + Mop
 
             // Intensity modes
-            { label: 'Quick Clean', mode: 6, modeTags: [{ value: 1 }, { value: 16385 }] }, // Quick + Vacuum
-            { label: 'Max Clean', mode: 7, modeTags: [{ value: 7 }, { value: 16385 }] }, // Max + Vacuum
-            { label: 'Min Clean', mode: 8, modeTags: [{ value: 6 }, { value: 16385 }] }, // Min + Vacuum
+            {
+              label: 'Quick Clean',
+              mode: 6,
+              modeTags: [
+                { value: 1 },
+                { value: 16385 },
+              ],
+            }, // Quick + Vacuum
+            {
+              label: 'Max Clean',
+              mode: 7,
+              modeTags: [
+                { value: 7 },
+                { value: 16385 },
+              ],
+            }, // Max + Vacuum
+            {
+              label: 'Min Clean',
+              mode: 8,
+              modeTags: [
+                { value: 6 },
+                { value: 16385 },
+              ],
+            }, // Min + Vacuum
 
             // Quiet modes
-            { label: 'Quiet Vacuum', mode: 9, modeTags: [{ value: 2 }, { value: 16385 }] }, // Quiet + Vacuum
-            { label: 'Quiet Mop', mode: 10, modeTags: [{ value: 2 }, { value: 16386 }] }, // Quiet + Mop
-            { label: 'Night Mode', mode: 11, modeTags: [{ value: 8 }, { value: 16385 }] }, // Night + Vacuum
+            {
+              label: 'Quiet Vacuum',
+              mode: 9,
+              modeTags: [
+                { value: 2 },
+                { value: 16385 },
+              ],
+            }, // Quiet + Vacuum
+            {
+              label: 'Quiet Mop',
+              mode: 10,
+              modeTags: [
+                { value: 2 },
+                { value: 16386 },
+              ],
+            }, // Quiet + Mop
+            {
+              label: 'Night Mode',
+              mode: 11,
+              modeTags: [
+                { value: 8 },
+                { value: 16385 },
+              ],
+            }, // Night + Vacuum
 
             // Energy efficient
-            { label: 'Eco Vacuum', mode: 12, modeTags: [{ value: 4 }, { value: 16385 }] }, // LowEnergy + Vacuum
-            { label: 'Eco Mop', mode: 13, modeTags: [{ value: 4 }, { value: 16386 }] }, // LowEnergy + Mop
+            {
+              label: 'Eco Vacuum',
+              mode: 12,
+              modeTags: [
+                { value: 4 },
+                { value: 16385 },
+              ],
+            }, // LowEnergy + Vacuum
+            {
+              label: 'Eco Mop',
+              mode: 13,
+              modeTags: [
+                { value: 4 },
+                { value: 16386 },
+              ],
+            }, // LowEnergy + Mop
 
             // Auto mode
-            { label: 'Auto', mode: 14, modeTags: [{ value: 0 }, { value: 16385 }] }, // Auto + Vacuum
+            {
+              label: 'Auto',
+              mode: 14,
+              modeTags: [
+                { value: 0 },
+                { value: 16385 },
+              ],
+            }, // Auto + Vacuum
           ],
           currentMode: 0, // start with basic Vacuum
         },
@@ -350,7 +470,12 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     this.logInfo(`SelectAreas request received: ${JSON.stringify(request)}`)
     const { newAreas } = request
     const areaNames = newAreas.map((id: number) =>
-      ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom'][id] || `Area ${id}`,
+      [
+        'Living Room',
+        'Kitchen',
+        'Bedroom',
+        'Bathroom',
+      ][id] || `Area ${id}`,
     )
     this.logInfo(`selecting areas: ${areaNames.join(', ')}`)
 
@@ -377,7 +502,12 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   private async handleSkipArea(request: MatterRequests.SkipArea): Promise<void> {
     this.logInfo(`SkipArea request received: ${JSON.stringify(request)}`)
     const { skippedArea } = request
-    const areaName = ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom'][skippedArea] || `Area ${skippedArea}`
+    const areaName = [
+      'Living Room',
+      'Kitchen',
+      'Bedroom',
+      'Bathroom',
+    ][skippedArea] || `Area ${skippedArea}`
     this.logInfo(`skipping area: ${areaName}`)
     // TODO: await myVacuumAPI.skipArea(skippedArea)
   }
@@ -392,7 +522,9 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
    */
   private deferred(work: () => Promise<void>): void {
     work().catch((error) => {
-      this.logDebug('Deferred state update failed:', error instanceof Error ? error.message : error)
+      this.logDebug('Deferred state update failed:', error instanceof Error
+        ? error.message
+        : error)
     })
   }
 
@@ -500,7 +632,12 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   public async updateSelectedAreas(areaIds: number[]): Promise<void> {
     await this.updateState('serviceArea', { selectedAreas: areaIds })
     const areaNames = areaIds.map(id =>
-      ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom'][id] || `Area ${id}`,
+      [
+        'Living Room',
+        'Kitchen',
+        'Bedroom',
+        'Bathroom',
+      ][id] || `Area ${id}`,
     )
     this.logInfo(`selected areas updated to: ${areaNames.join(', ') || 'All Areas'}`)
   }
@@ -508,7 +645,12 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   public async updateCurrentArea(areaId: number | null): Promise<void> {
     await this.updateState('serviceArea', { currentArea: areaId })
     if (areaId !== null) {
-      const areaName = ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom'][areaId] || `Area ${areaId}`
+      const areaName = [
+        'Living Room',
+        'Kitchen',
+        'Bedroom',
+        'Bathroom',
+      ][areaId] || `Area ${areaId}`
       this.logInfo(`current area updated to: ${areaName}`)
     } else {
       this.logInfo('current area cleared')
@@ -537,7 +679,11 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     }
 
     await this.updateState('powerSource', { batPercentRemaining, batChargeLevel })
-    this.logInfo(`battery updated to: ${percentage}% (${batChargeLevel === 0 ? 'Ok' : batChargeLevel === 1 ? 'Warning' : 'Critical'})`)
+    this.logInfo(`battery updated to: ${percentage}% (${batChargeLevel === 0
+      ? 'Ok'
+      : batChargeLevel === 1
+        ? 'Warning'
+        : 'Critical'})`)
   }
 
   /**

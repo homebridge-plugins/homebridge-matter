@@ -134,7 +134,9 @@ export class PowerStripAccessory extends BaseMatterAccessory {
    */
   private getOutletNumber(partId: string): number {
     const match = partId.match(OUTLET_REGEX)
-    return match ? Number.parseInt(match[1], 10) : 0
+    return match
+      ? Number.parseInt(match[1], 10)
+      : 0
   }
 
   /**

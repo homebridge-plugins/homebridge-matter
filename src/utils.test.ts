@@ -25,7 +25,9 @@ describe('matterStatusError', () => {
     // that keep Homebridge in a separate directory tree and takes the whole
     // plugin down at load time, not just one accessory (#5).
     class NotFound extends Error {}
-    const matter = { status: { NotFound } } as unknown as MatterAPI
+    const matter = {
+      status: { NotFound },
+    } as unknown as MatterAPI
 
     const error = matterStatusError(matter, 'NotFound', 'no such thing')
 

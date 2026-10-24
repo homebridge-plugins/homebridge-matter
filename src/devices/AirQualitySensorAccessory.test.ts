@@ -14,13 +14,26 @@ function build() {
   const updateAccessoryState = vi.fn()
   const api = {
     matter: {
-      uuid: { generate: (value: string) => `uuid-${value}` },
-      deviceTypes: { AirQualitySensor: { name: 'AirQualitySensorDevice' } },
+      uuid: {
+        generate: (value: string) => `uuid-${value}`,
+      },
+      deviceTypes: {
+        AirQualitySensor: { name: 'AirQualitySensorDevice' },
+      },
       updateAccessoryState,
     },
   } as unknown as API
-  const log = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as unknown as Logger
-  return { device: new AirQualitySensorAccessory(api, log), updateAccessoryState, log }
+  const log = {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  } as unknown as Logger
+  return {
+    device: new AirQualitySensorAccessory(api, log),
+    updateAccessoryState,
+    log,
+  }
 }
 
 describe('setting the air quality', () => {
