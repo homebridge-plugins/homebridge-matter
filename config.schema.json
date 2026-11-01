@@ -187,6 +187,15 @@
         "default": false,
         "description": "Enable the robotic vacuum cleaner example accessory (Matter Spec § 12.1). This device is automatically published on its own dedicated Matter bridge for Apple Home compatibility. You'll receive separate commissioning codes (QR code + manual code) for the robot vacuum in the Homebridge logs when Homebridge starts."
       },
+      "robotVacuumDirectModeChange": {
+        "title": "Robotic Vacuum: Change Clean Mode While Cleaning",
+        "type": "boolean",
+        "default": false,
+        "description": "Let controllers change the clean mode while the vacuum is running, not only when it is idle (the DirectModeChange feature). Requires Homebridge v2.5.0 or later.",
+        "condition": {
+          "functionBody": "return model.enableRobotVacuum === true;"
+        }
+      },
       "enablePowerStrip": {
         "title": "Enable Power Strip",
         "type": "boolean",
@@ -287,7 +296,8 @@
       "expandable": true,
       "expanded": false,
       "items": [
-        "enableRobotVacuum"
+        "enableRobotVacuum",
+        "robotVacuumDirectModeChange"
       ]
     },
     {

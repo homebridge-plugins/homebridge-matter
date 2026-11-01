@@ -27,6 +27,7 @@ export interface BaseMatterAccessoryConfig {
   clusters?: MatterAccessory['clusters']
   handlers?: MatterAccessory['handlers']
   parts?: MatterAccessory['parts']
+  features?: MatterAccessory['features']
 }
 
 /**
@@ -47,6 +48,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
   public readonly clusters?: MatterAccessory['clusters']
   public readonly handlers?: MatterAccessory['handlers']
   public readonly parts?: MatterAccessory['parts']
+  public readonly features?: MatterAccessory['features']
 
   // Protected properties available to child classes
   protected readonly api: API
@@ -74,6 +76,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
     this.clusters = config.clusters
     this.handlers = config.handlers
     this.parts = config.parts
+    this.features = config.features
 
     // Set context with all metadata
     this.context = {
@@ -193,6 +196,7 @@ export abstract class BaseMatterAccessory implements MatterAccessory {
       clusters: this.clusters,
       handlers: this.handlers,
       parts: this.parts,
+      features: this.features,
     }
   }
 }

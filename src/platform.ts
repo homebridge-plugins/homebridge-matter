@@ -528,7 +528,7 @@ export class MatterPlatform implements DynamicPlatformPlugin {
     await this.registerSection('Section 12: Robotic Devices (Matter Spec § 12)', 'robot vacuum device(s)', [
       [
         'enableRobotVacuum',
-        () => new RoboticVacuumAccessory(this.api, this.log),
+        () => new RoboticVacuumAccessory(this.api, this.log, this.config),
       ],
     ], ' (standalone for Apple Home compatibility)')
   }

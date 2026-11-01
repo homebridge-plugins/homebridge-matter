@@ -7,12 +7,14 @@
  * - Multiple clean modes (Vacuum, Mop, Vacuum & Mop, Deep Clean)
  * - Operational state management with realistic transitions
  * - Service area (room) support
+ * - Changing the clean mode while cleaning (DirectModeChange, Homebridge v2.5.0+)
  *
  * IMPORTANT: Platform Matter accessories
  * =======================================
  * This vacuum is registered as a platform accessory using
- * api.matter.registerPlatformAccessories(), which works the same as HAP.
- * Platform accessories are registered synchronously and are immediately ready for use.
+ * api.matter.registerPlatformAccessories(). From Homebridge v2.5.0 the returned
+ * promise resolves once the bridge has finished, so state updates sent after
+ * awaiting it reach the vacuum.
  *
  * Demo behavior:
  * - Start/Resume: Sets run mode to "Cleaning", runs for 15/10 seconds, then returns to dock
@@ -21,7 +23,7 @@
  * - Pause: Cancels automatic completion timer, keeps "Cleaning" mode
  */
 
-import type { API, Logger, MatterRequests } from 'homebridge'
+import type { API, Logger, MatterRequests, PlatformConfig } from 'homebridge'
 
 import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
@@ -30,7 +32,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
   private activeTimers: ReturnType<typeof setTimeout>[] = []
   private currentOperationalState = 66 // Track current state (start docked)
 
-  constructor(api: API, log: Logger) {
+  constructor(api: API, log: Logger, config: PlatformConfig = { platform: 'Matter' }) {
     const serialNumber = 'matter-robot-vacuum'
     const matter = getMatter(api)
     super(api, log, {
@@ -295,6 +297,18 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
         },
       },
 
+      // Optional cluster features. directModeChange lets controllers change the
+      // clean mode while the vacuum is running, not only while it is idle.
+      // Only turn it on when the vacuum really can switch mid-run - the
+      // changeToMode handler below receives those requests. Here it follows
+      // the robotVacuumDirectModeChange config option.
+      // Requires Homebridge v2.5.0 or later.
+      features: {
+        rvcCleanMode: {
+          directModeChange: config.robotVacuumDirectModeChange === true,
+        },
+      },
+
       handlers: {
         rvcRunMode: {
           // Handler types are automatically inferred from ClusterHandlerMap
@@ -384,6 +398,12 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
     // const isMopMode = [1, 2, 5, 10, 13].includes(newMode) // modes that use mop
     // if (isMopMode && !this.isWaterTankAttached) {
     //   throw this.statusError('InvalidInState', 'Cannot use mop modes - water tank not attached')
+    // }
+
+    // Example: With directModeChange on, this can arrive mid-run. Refuse a
+    // change the vacuum cannot make without stopping first
+    // if (this.isCleaning && !this.canSwitchWhileCleaning(newMode)) {
+    //   throw this.statusError('InvalidInState', `Cannot switch to "${modeStr}" while cleaning`)
     // }
 
     // TODO: await myVacuumAPI.setCleanMode(newMode)
