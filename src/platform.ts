@@ -13,10 +13,13 @@ import type {
 
 import {
   AirQualitySensorAccessory,
+  BatteryStorageAccessory,
   ColorTemperatureLightAccessory,
   ContactSensorAccessory,
   DimmableLightAccessory,
   DoorLockAccessory,
+  ElectricalMeterAccessory,
+  EvChargerAccessory,
   ExtendedColorLightAccessory,
   FanAccessory,
   GenericSwitchAccessory,
@@ -29,10 +32,13 @@ import {
   OnOffSwitchAccessory,
   PowerStripAccessory,
   RoboticVacuumAccessory,
+  RoomAirConditionerAccessory,
   SmokeCOAlarmAccessory,
+  SolarPowerAccessory,
   TemperatureSensorAccessory,
   ThermostatAccessory,
   VenetianBlindAccessory,
+  WaterHeaterAccessory,
   WindowBlindAccessory,
 } from './devices/index.js'
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js'
@@ -174,6 +180,14 @@ export class MatterPlatform implements DynamicPlatformPlugin {
       [
         'robotic',
         () => this.registerSection12Robotic(),
+      ],
+      [
+        'appliance',
+        () => this.registerSection13Appliances(),
+      ],
+      [
+        'energy',
+        () => this.registerSection14Energy(),
       ],
       [
         'custom',
@@ -355,6 +369,36 @@ export class MatterPlatform implements DynamicPlatformPlugin {
         name: 'Robot Vacuum',
       },
       {
+        enabled: this.config.enableRoomAirConditioner,
+        uuid: this.matter.uuid.generate('matter-room-air-conditioner'),
+        name: 'Room Air Conditioner',
+      },
+      {
+        enabled: this.config.enableWaterHeater,
+        uuid: this.matter.uuid.generate('matter-water-heater'),
+        name: 'Water Heater',
+      },
+      {
+        enabled: this.config.enableEvCharger,
+        uuid: this.matter.uuid.generate('matter-ev-charger'),
+        name: 'EV Charger',
+      },
+      {
+        enabled: this.config.enableSolarPower,
+        uuid: this.matter.uuid.generate('matter-solar-power'),
+        name: 'Solar Power',
+      },
+      {
+        enabled: this.config.enableBatteryStorage,
+        uuid: this.matter.uuid.generate('matter-battery-storage'),
+        name: 'Battery Storage',
+      },
+      {
+        enabled: this.config.enableElectricalMeter,
+        uuid: this.matter.uuid.generate('matter-electrical-meter'),
+        name: 'Electrical Meter',
+      },
+      {
         enabled: this.config.enablePowerStrip,
         uuid: this.matter.uuid.generate('matter-power-strip'),
         name: 'Power Strip',
@@ -531,6 +575,49 @@ export class MatterPlatform implements DynamicPlatformPlugin {
         () => new RoboticVacuumAccessory(this.api, this.log, this.config),
       ],
     ], ' (standalone for Apple Home compatibility)')
+  }
+
+  /**
+   * Section 13: Appliances (Matter Spec § 13)
+   */
+  private async registerSection13Appliances() {
+    await this.registerSection('Section 13: Appliances (Matter Spec § 13)', 'appliance(s)', [
+      [
+        'enableRoomAirConditioner',
+        () => new RoomAirConditionerAccessory(this.api, this.log),
+      ],
+    ])
+  }
+
+  /**
+   * Section 14: Energy Devices (Matter Spec § 14)
+   *
+   * Requires Homebridge v2.5.0 or later. It is not yet known how Apple Home
+   * presents these device types - other Matter controllers may show them first.
+   */
+  private async registerSection14Energy() {
+    await this.registerSection('Section 14: Energy Devices (Matter Spec § 14)', 'energy device(s)', [
+      [
+        'enableWaterHeater',
+        () => new WaterHeaterAccessory(this.api, this.log),
+      ],
+      [
+        'enableEvCharger',
+        () => new EvChargerAccessory(this.api, this.log),
+      ],
+      [
+        'enableSolarPower',
+        () => new SolarPowerAccessory(this.api, this.log),
+      ],
+      [
+        'enableBatteryStorage',
+        () => new BatteryStorageAccessory(this.api, this.log),
+      ],
+      [
+        'enableElectricalMeter',
+        () => new ElectricalMeterAccessory(this.api, this.log),
+      ],
+    ])
   }
 
   /**

@@ -8,7 +8,9 @@
   "headerDisplay": "<p align=\"center\"><img width=\"250px\" src=\"https://raw.githubusercontent.com/homebridge-plugins/homebridge-matter/latest/branding/Homebridge_x_Matter.png\"></p><p align=\"center\">For help and support please visit our <a href=\"https://github.com/homebridge-plugins/homebridge-matter/wiki\">GitHub Wiki</a>. We hope you find this plugin useful!</p>",
   "schema": {
     "type": "object",
-    "required": ["name"],
+    "required": [
+      "name"
+    ],
     "additionalProperties": false,
     "properties": {
       "name": {
@@ -196,6 +198,42 @@
           "functionBody": "return model.enableRobotVacuum === true;"
         }
       },
+      "enableRoomAirConditioner": {
+        "title": "Enable Room Air Conditioner",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the room air conditioner example accessory (Matter Spec § 13.3), with Heat, Cool and Auto modes. Requires Homebridge v2.5.0 or later."
+      },
+      "enableWaterHeater": {
+        "title": "Enable Water Heater",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the water heater example accessory (Matter Spec § 14.2), with Off, Manual and Timed modes and a boost. Requires Homebridge v2.5.0 or later. It is not yet known how Apple Home shows this device type."
+      },
+      "enableEvCharger": {
+        "title": "Enable EV Charger",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the EV charger example accessory (Matter Spec § 14.1). Requires Homebridge v2.5.0 or later. It is not yet known how Apple Home shows this device type."
+      },
+      "enableSolarPower": {
+        "title": "Enable Solar Power",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the solar power example accessory (Matter Spec § 14.3), reporting generation. Requires Homebridge v2.5.0 or later. It is not yet known how Apple Home shows this device type."
+      },
+      "enableBatteryStorage": {
+        "title": "Enable Battery Storage",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the home battery example accessory (Matter Spec § 14.4). Requires Homebridge v2.5.0 or later. It is not yet known how Apple Home shows this device type."
+      },
+      "enableElectricalMeter": {
+        "title": "Enable Electrical Meter",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable the electricity meter example accessory (Matter Spec § 14.8), reporting power and energy both ways. Requires Homebridge v2.5.0 or later. It is not yet known how Apple Home shows this device type."
+      },
       "enablePowerStrip": {
         "title": "Enable Power Strip",
         "type": "boolean",
@@ -208,12 +246,14 @@
     {
       "type": "fieldset",
       "title": "Plugin Settings",
-      "items": ["name"]
+      "items": [
+        "name"
+      ]
     },
     {
       "type": "fieldset",
       "title": "Section 4: Lighting Devices",
-      "description": "Matter Specification § 4 - Fundamental lighting device types (5 devices implemented).",
+      "description": "Matter Specification § 4 - Fundamental lighting device types (4 devices implemented).",
       "expandable": true,
       "expanded": false,
       "items": [
@@ -298,6 +338,30 @@
       "items": [
         "enableRobotVacuum",
         "robotVacuumDirectModeChange"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Section 13: Appliances",
+      "description": "Matter Specification § 13 - Household appliances (1 device implemented). Requires Homebridge v2.5.0 or later.",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableRoomAirConditioner"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Section 14: Energy Devices",
+      "description": "Matter Specification § 14 - Energy generation, storage and metering (5 devices implemented). Requires Homebridge v2.5.0 or later.",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableWaterHeater",
+        "enableEvCharger",
+        "enableSolarPower",
+        "enableBatteryStorage",
+        "enableElectricalMeter"
       ]
     },
     {
