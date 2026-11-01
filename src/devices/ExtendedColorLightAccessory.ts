@@ -88,8 +88,9 @@ export class ExtendedColorLightAccessory extends BaseMatterAccessory {
   private async handleSetColor(request: { targetX: number, targetY: number, transitionTime: number }): Promise<void> {
     this.logInfo(`MoveToColor request: ${JSON.stringify(request)}`)
     const { targetX, targetY, transitionTime } = request
-    const xFloat = (targetX / 65535).toFixed(4)
-    const yFloat = (targetY / 65535).toFixed(4)
+    // Matter stores x and y as value / 65536
+    const xFloat = (targetX / 65536).toFixed(4)
+    const yFloat = (targetY / 65536).toFixed(4)
     this.logInfo(`setting xy color to (${xFloat}, ${yFloat}).`)
     // TODO: await myLightAPI.setXY(xFloat, yFloat, transitionTime)
   }
