@@ -15,11 +15,15 @@ import { getMatter } from '../utils.js'
 import { BaseMatterAccessory } from './BaseMatterAccessory.js'
 
 /**
- * The air quality levels a plain Matter air quality cluster accepts. The others
- * (2, 3, 5 and 6) each need an optional cluster feature that is not enabled.
+ * The Matter air quality levels: 0 = Unknown, 1 = Good, 2 = Fair, 3 = Moderate,
+ * 4 = Poor, 5 = VeryPoor, 6 = ExtremelyPoor.
+ *
+ * Fair, Moderate, Very Poor and Extremely Poor each need an optional feature on
+ * the air quality cluster. Homebridge v2.5.0 and later turn all of them on for
+ * this device type, so every level works (#7). Before that, only Unknown, Good
+ * and Poor were accepted.
  */
-export type AirQualityLevel = 0 | 1 | 4
-const ALLOWED_AIR_QUALITY: readonly number[] = [0, 1, 4]
+export type AirQualityLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6
 
 export class AirQualitySensorAccessory extends BaseMatterAccessory {
   constructor(api: API, log: Logger) {
@@ -36,11 +40,8 @@ export class AirQualitySensorAccessory extends BaseMatterAccessory {
       hardwareRevision: '1.0.0',
 
       clusters: {
-        // Overall air quality rating: 0 = Unknown, 1 = Good, 4 = Poor.
-        // Matter also defines 2 = Fair, 3 = Moderate, 5 = VeryPoor and
-        // 6 = ExtremelyPoor, but each of those needs an optional feature on the
-        // air quality cluster, and this device type does not enable them - so
-        // setting one is refused. See updateAirQuality below.
+        // Overall air quality rating - any of the seven levels, see
+        // AirQualityLevel above
         airQuality: {
           airQuality: 1, // Default: Good
         },
@@ -90,18 +91,9 @@ export class AirQualitySensorAccessory extends BaseMatterAccessory {
   /**
    * Update the overall air quality rating
    *
-   * Only Unknown, Good and Poor are always allowed. Fair, Moderate, Very Poor
-   * and Extremely Poor each need an optional feature on the air quality
-   * cluster, which this device type does not enable, so they are refused here
-   * with a warning rather than passed on to fail (#7).
-   *
-   * @param quality 0 = Unknown, 1 = Good, 4 = Poor
+   * @param quality 0 = Unknown, 1 = Good, 2 = Fair, 3 = Moderate, 4 = Poor, 5 = VeryPoor, 6 = ExtremelyPoor
    */
   public async updateAirQuality(quality: AirQualityLevel): Promise<void> {
-    if (!ALLOWED_AIR_QUALITY.includes(quality)) {
-      this.logWarn(`air quality ${quality} needs an optional Matter feature this device does not have - use 0 (Unknown), 1 (Good) or 4 (Poor).`)
-      return
-    }
     await this.updateState('airQuality', { airQuality: quality })
     const qualityStr = [
       'Unknown',

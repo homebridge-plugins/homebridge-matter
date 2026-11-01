@@ -9,6 +9,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - fix(air-quality): only accept the levels a plain matter cluster allows (#7)
 - ci: update github actions to their latest versions (#11)
 - chore(deps): dependency updates
+- fix(air-quality): accept every air quality level, which needs homebridge 2.5.0 (#7)
 
 ## v1.7.1 (2026-10-18)
 
