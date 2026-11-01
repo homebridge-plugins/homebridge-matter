@@ -12,6 +12,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - fix(light-sensor): use matter's lux scale, which adds 1, and send 0 below 1 lux
 - fix(colour-light): convert xy colour with matter's 65536 scale
 - fix(venetian-blind): declare an interior venetian blind, not a sheer shade
+- docs(air-quality): note the pm, temperature and humidity readings need homebridge 2.5.1
 
 ## v1.8.0 (2026-11-01)
 

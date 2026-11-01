@@ -48,6 +48,11 @@ export class AirQualitySensorAccessory extends BaseMatterAccessory {
 
         // Note: the only cluster that appears in the Home app is the Air Quality cluster.
         // The other measurements can be accessed by other Matter-compatible apps.
+        //
+        // These readings are optional clusters, and Homebridge v2.5.1 and later
+        // add them from the state declared here. Before that they were left
+        // off the device without an error, and every later update failed.
+        // A reading needs measurementUnit and measurementMedium.
 
         // PM2.5 - Fine particulate matter (≤2.5 micrometers)
         // Values in µg/m³ (micrograms per cubic meter)
