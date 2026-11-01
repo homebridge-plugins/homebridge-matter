@@ -24,7 +24,13 @@ export class FanAccessory extends BaseMatterAccessory {
       clusters: {
         fanControl: {
           fanMode: matter.types.FanControl.FanMode.Off,
-          fanModeSequence: matter.types.FanControl.FanModeSequence.OffHigh,
+          // Off, Low, Medium, High and Auto. Auto (and every sequence that
+          // offers it) needs the fan cluster's Auto feature - Homebridge
+          // v2.5.0 and later turn it on when the sequence includes Auto
+          // (OffLowMedHighAuto, OffLowHighAuto or OffHighAuto). Pick a
+          // sequence without Auto, such as OffLowMedHigh, for a fan that has
+          // no automatic mode.
+          fanModeSequence: matter.types.FanControl.FanModeSequence.OffLowMedHighAuto,
           percentSetting: 0,
           percentCurrent: 0,
         },
@@ -69,6 +75,12 @@ export class FanAccessory extends BaseMatterAccessory {
     //   throw this.statusError('InvalidInState',
     //     'Cannot switch to Auto mode while oscillating'
     //   )
+    // }
+
+    // Example: Let the fan pick its own speed in Auto mode
+    // if (request.fanMode === 5) {
+    //   await myFanAPI.setAutoMode(true)
+    //   return
     // }
 
     // TODO: await myFanAPI.setMode(request.fanMode)

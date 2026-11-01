@@ -10,6 +10,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - ci: update github actions to their latest versions (#11)
 - chore(deps): dependency updates
 - fix(air-quality): accept every air quality level, which needs homebridge 2.5.0 (#7)
+- feat(fan): offer auto mode, which homebridge 2.5.0 turns on for a sequence with auto
 
 ## v1.7.1 (2026-10-18)
 
