@@ -55,7 +55,7 @@ export class AirQualitySensorAccessory extends BaseMatterAccessory {
           measuredValue: 12, // 12 µg/m³ (Good air quality)
           minMeasuredValue: 0,
           maxMeasuredValue: 1000,
-          measurementUnit: 0, // 0 = µg/m³
+          measurementUnit: 4, // 4 = µg/m³ (0 = ppm)
           measurementMedium: 0, // 0 = Air
         },
 
@@ -65,7 +65,7 @@ export class AirQualitySensorAccessory extends BaseMatterAccessory {
           measuredValue: 25, // 25 µg/m³ (Good air quality)
           minMeasuredValue: 0,
           maxMeasuredValue: 1000,
-          measurementUnit: 0, // 0 = µg/m³
+          measurementUnit: 4, // 4 = µg/m³ (0 = ppm)
           measurementMedium: 0, // 0 = Air
         },
 

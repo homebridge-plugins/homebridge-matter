@@ -46,3 +46,13 @@ describe('setting the air quality', () => {
     expect(log.warn).not.toHaveBeenCalled()
   })
 })
+
+/**
+ * In Matter's concentration clusters, 4 is µg/m³ and 0 is ppm. The particulate
+ * readings are in µg/m³, but the example used to send 0.
+ */
+describe('the particulate readings', () => {
+  it.each(['pm25ConcentrationMeasurement', 'pm10ConcentrationMeasurement'] as const)('%s is in µg/m³', (cluster) => {
+    expect(build().device.toAccessory().clusters?.[cluster]?.measurementUnit).toBe(4)
+  })
+})
