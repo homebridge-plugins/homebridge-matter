@@ -60,6 +60,8 @@ This plugin provides example implementations of Matter device types in Homebridg
 - [Closure Devices (§8)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-8-Closure)
 - [HVAC (§9)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-9-HVAC)
 - [Robotic Devices (§12)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-12-Robotic)
+- [Appliances (§13)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-13-Appliances)
+- [Energy Devices (§14)](https://github.com/homebridge-plugins/homebridge-matter/wiki/Section-14-Energy)
 - [Custom Devices](https://github.com/homebridge-plugins/homebridge-matter/wiki/Custom-Devices)
 
 ### Help/About

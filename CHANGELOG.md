@@ -13,6 +13,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - feat(fan): offer auto mode, which homebridge 2.5.0 turns on for a sequence with auto
 - feat(robot-vacuum): add an option to change the clean mode while cleaning
 - feat: add room air conditioner, water heater and energy device examples
+- docs: bring CLAUDE.md and the readme up to date with the new examples
 
 ## v1.7.1 (2026-10-18)
 
