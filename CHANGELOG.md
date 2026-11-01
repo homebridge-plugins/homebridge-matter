@@ -9,6 +9,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - fix(robot-vacuum): use the right room types, and report the battery as active
 - fix(contact-sensor): report the battery as active
 - fix(air-quality): send the particulate readings in µg/m³
+- fix(light-sensor): use matter's lux scale, which adds 1, and send 0 below 1 lux
 
 ## v1.8.0 (2026-11-01)
 

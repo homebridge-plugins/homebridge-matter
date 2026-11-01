@@ -34,7 +34,10 @@ export class LightSensorAccessory extends BaseMatterAccessory {
   }
 
   public async updateIlluminance(lux: number): Promise<void> {
-    const value = Math.round(10000 * Math.log10(lux))
+    // Matter's scale is 10000 × log10(lux) + 1, with 0 for a level too low to measure
+    const value = lux < 1
+      ? 0
+      : Math.min(0xFFFE, Math.round(10000 * Math.log10(lux) + 1))
     await this.updateState('illuminanceMeasurement', { measuredValue: value })
     this.logInfo(`illuminance: ${lux} lux.`)
   }
