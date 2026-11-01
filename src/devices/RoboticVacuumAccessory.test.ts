@@ -47,3 +47,27 @@ describe('changing the clean mode while cleaning', () => {
     expect(build({ robotVacuumDirectModeChange: true }).handlers?.rvcCleanMode?.changeToMode).toBeTypeOf('function')
   })
 })
+
+/**
+ * The room types come from Matter's Common Area Namespace. The example used to
+ * send Bedroom for the living room, Breakfast Room for the kitchen and Back Door
+ * for the bedroom.
+ */
+describe('the rooms', () => {
+  it('use the matching area types', () => {
+    const areas = build().clusters?.serviceArea?.supportedAreas as Array<{ areaInfo: { locationInfo: { locationName: string, areaType: number } } }>
+    const types = Object.fromEntries(areas.map(area => [area.areaInfo.locationInfo.locationName, area.areaInfo.locationInfo.areaType]))
+    expect(types).toEqual({
+      'Living Room': 52,
+      'Kitchen': 47,
+      'Bedroom': 7,
+      'Bathroom': 6,
+    })
+  })
+})
+
+describe('the battery', () => {
+  it('reports the power source as active', () => {
+    expect(build().clusters?.powerSource?.status).toBe(1)
+  })
+})
