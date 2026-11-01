@@ -48,7 +48,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
       clusters: {
         // Power Source: Battery status and percentage
         powerSource: {
-          status: 0, // 0 = Active
+          status: 1, // 0 = Unspecified, 1 = Active, 2 = Standby, 3 = Unavailable
           order: 0, // Primary power source
           description: 'Battery',
           batPercentRemaining: 200, // 0-200, where 200 = 100% (0.5% increments)
@@ -251,7 +251,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
                 locationInfo: {
                   locationName: 'Living Room',
                   floorNumber: 0,
-                  areaType: 7, // AreaNamespaceTag.LivingRoom
+                  areaType: 52, // AreaNamespaceTag.LivingRoom
                 },
                 landmarkInfo: null,
               },
@@ -263,7 +263,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
                 locationInfo: {
                   locationName: 'Kitchen',
                   floorNumber: 0,
-                  areaType: 10, // AreaNamespaceTag.Kitchen
+                  areaType: 47, // AreaNamespaceTag.Kitchen
                 },
                 landmarkInfo: null,
               },
@@ -275,7 +275,7 @@ export class RoboticVacuumAccessory extends BaseMatterAccessory {
                 locationInfo: {
                   locationName: 'Bedroom',
                   floorNumber: 0,
-                  areaType: 2, // AreaNamespaceTag.Bedroom
+                  areaType: 7, // AreaNamespaceTag.Bedroom
                 },
                 landmarkInfo: null,
               },

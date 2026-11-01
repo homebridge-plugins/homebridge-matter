@@ -2,6 +2,12 @@
 
 All notable changes to `@homebridge-plugins/homebridge-matter` will be documented in this file.
 
+## v1.8.1 (Pending Release)
+
+### Changed
+
+- fix(robot-vacuum): use the right room types, and report the battery as active
+
 ## v1.8.0 (2026-11-01)
 
 ### Changed
