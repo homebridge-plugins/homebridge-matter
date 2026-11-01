@@ -7,6 +7,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 ### Changed
 
 - fix(robot-vacuum): use the right room types, and report the battery as active
+- fix(contact-sensor): report the battery as active
 
 ## v1.8.0 (2026-11-01)
 

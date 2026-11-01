@@ -32,7 +32,7 @@ export class ContactSensorAccessory extends BaseMatterAccessory {
         // all - a contact sensor is read-only - and the battery is still
         // exposed. Requires homebridge v2.3.0 or later on non-vacuum devices.
         powerSource: {
-          status: 0, // 0 = Active
+          status: 1, // 0 = Unspecified, 1 = Active, 2 = Standby, 3 = Unavailable
           order: 0, // Primary power source
           description: 'Battery',
           batPercentRemaining: 150, // 0-200, where 200 = 100% (0.5% increments), so 75%
