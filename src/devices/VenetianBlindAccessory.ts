@@ -34,7 +34,7 @@ export class VenetianBlindAccessory extends BaseMatterAccessory {
             lift: 0,
             tilt: 0,
           },
-          endProductType: 8,
+          endProductType: 12, // 12 = interior Venetian blind (8 is a sheer shade)
           configStatus: {
             operational: true,
             onlineReserved: true,
