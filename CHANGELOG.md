@@ -14,6 +14,7 @@ All notable changes to `@homebridge-plugins/homebridge-matter` will be documente
 - fix(venetian-blind): declare an interior venetian blind, not a sheer shade
 - docs(air-quality): note the pm, temperature and humidity readings need homebridge 2.5.1
 - ci: publish releases with node.js v26, the current lts
+- chore(deps): dependency updates
 
 ## v1.8.0 (2026-11-01)
 
